@@ -1,0 +1,116 @@
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+from .serializers import UsuarioSerializer, SerializadorPerfilUsuario, CustomTokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+Usuario = get_user_model()
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    """
+    Vista personalizada para obtener tokens JWT que actualiza last_login
+    """
+    serializer_class = CustomTokenObtainPairSerializer
+
+class IsAdminUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        is_admin = request.user.is_staff
+        return is_admin
+
+class UsuarioListCreateView(generics.ListCreateAPIView):
+    """
+    Vista para listar todos los usuarios y crear nuevos usuarios.
+    GET: Lista todos los usuarios (requiere autenticación y ser admin)
+    POST: Crea un nuevo usuario (requiere autenticación y ser admin)
+    """
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+
+    def get_permissions(self):
+        return [permissions.IsAuthenticated(), IsAdminUser()]
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return Response({
+            'exito': True,
+            'mensaje': 'Usuarios obtenidos satisfactoriamente',
+            'data': response.data
+        }, status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        return Response({
+            'exito': True,
+            'mensaje': 'Usuario creado satisfactoriamente',
+            'data': response.data
+        }, status=status.HTTP_201_CREATED)
+
+class UsuarioDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Vista para operaciones sobre un usuario específico.
+    GET: Ver detalles de un usuario (requiere autenticación y ser admin)
+    PUT/PATCH: Actualizar usuario (requiere autenticación y ser admin)
+    DELETE: Eliminar usuario (requiere autenticación y ser admin)
+    """
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+
+    def get_permissions(self):
+        return [permissions.IsAuthenticated(), IsAdminUser()]
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        return Response({
+            'exito': True,
+            'mensaje': 'Datos del usuario recuperados satisfactoriamente',
+            'data': response.data
+        }, status=status.HTTP_200_OK)
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        return Response({
+            'exito': True,
+            'mensaje': 'Usuario actualizado satisfactoriamente',
+            'data': response.data
+        }, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        username = instance.username
+        self.perform_destroy(instance)
+        return Response({
+            'exito': True,
+            'mensaje': f'Usuario {username} eliminado satisfactoriamente'
+        }, status=status.HTTP_200_OK)
+
+class ObtenerPerfilUsuarioView(generics.RetrieveAPIView):
+    """
+    Vista para obtener los datos completos del usuario autenticado.
+    (GET)
+    """
+    serializer_class = SerializadorPerfilUsuario
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_object(self):
+        """
+        Retorna el usuario autenticado actual.
+        """
+        return self.request.user
+    
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Extrae los datos del usuario autenticado.
+        """
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+            return Response({
+                'exito': True,
+                'usuario': serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                'exito': False,
+                'error': 'Error al obtener datos del usuario',
+                'detalle': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

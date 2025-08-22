@@ -1,0 +1,29 @@
+./Proyecto Triage - Instalar dependencias - SOLO PARA LA PRIMERA VEZ
+pip install pipenv
+
+pipenv install - SOLO PRIMERA VEZ
+
+COMANDOS PARA SIEMPRE ANTES DE INICIAR EL SERVIDOR DE LA API
+pipenv shell - Activar entorno virtual
+cd Backend
+python manage.py runserver
+
+
+Usuarios en la db:
+
+
+nombre: Paula
+password: Admin123*
+
+
+
+nombre: Silvia
+password: 123Silvia
+
+
+nombre: jaime_ayala
+password: 123jaime_ayala
+
+
+nombre: Conny21
+password: Conny123
