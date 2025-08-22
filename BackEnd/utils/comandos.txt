@@ -27,3 +27,53 @@ password: 123jaime_ayala
 
 nombre: Conny21
 password: Conny123
+
+
+**** PAULA Y SILVIA: NO USAR ESTOS COMANDOS ****
+-------------------------------------------------------------------
+git pull origin main                    # Obtener últimos cambios
+# ... trabajas en tu código ...
+git add .
+git commit -m "Añadida función de autenticación"
+git push origin main                    # Subir cambios
+-------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------------
+Cuando se dañen las migraciones
+
+1. cd "C:\Users\Administrador\Documents\Proyecto Triage\BackEnd" ; Remove-Item db.sqlite3
+
+2. cd "C:\Users\Administrador\Documents\Proyecto Triage\BackEnd" ; Remove-Item -Path "autenticacion\migrations\*.py" -Exclude "__init__.py" ; Remove-Item -Path "pacientes\migrations\*.py" -Exclude "__init__.py"
+
+3. cd "C:\Users\Administrador\Documents\Proyecto Triage\BackEnd" ; pipenv run python manage.py makemigrations autenticacion pacientes
+
+4. cd "C:\Users\Administrador\Documents\Proyecto Triage\BackEnd" ; pipenv run python manage.py migrate
+---------------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------------
+JSON para crear un paciente:
+
+{
+    "primer_nombre": "Juan",
+		"segundo_nombre": "Armando",
+	  "primer_apellido": "Gonzalez",
+	  "segundo_apellido": "Martinez",
+		"fecha_nacimiento": "1975-12-21",
+    "tipo_documento": "CC",
+    "numero_documento": "123456789",
+    "sexo": "M",
+    "prefijo_telefonico": "+57",
+    "telefono": "3001234567",
+		"eps": "NUEVA_EPS",	
+    "contacto_emergencia": {
+				"primer_nombre": "Ana",
+				"segundo_nombre": "Esperanza",
+				"primer_apellido": "Gomez",
+				"segundo_apellido": "Carmelo",
+        "prefijo_telefonico": "+57",
+        "telefono": "306543515",
+        "relacion_parentesco": "Madre"
+    },
+		"sintomas_iniciales": "Fiebre intensa"
+}
+---------------------------------------------------------------------------------------------------------------------------------------

@@ -2,6 +2,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from .models import Paciente, ContactoEmergencia
 from .serializers import PacienteSerializer, ContactoEmergenciaSerializer
+from utils.IsAdmin import IsAdminUser
 
 class CrearPacienteView(generics.CreateAPIView):
     queryset = Paciente.objects.all()
@@ -23,7 +24,7 @@ class CrearPacienteView(generics.CreateAPIView):
 class DetallePacienteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Paciente.objects.all()
     serializer_class = PacienteSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
 
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
@@ -42,17 +43,18 @@ class DetallePacienteView(generics.RetrieveUpdateDestroyAPIView):
         }, status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
-        response = super().destroy(request, *args, **kwargs)
+        instance = self.get_object()
+        nombre_completo = f"{instance.primer_nombre} {instance.segundo_nombre} {instance.primer_apellido} {instance.segundo_apellido}"
+        self.perform_destroy(instance)
         return Response({
             'exito': True,
-            'mensaje': 'Paciente eliminado satisfactoriamente',
-            'data': response.data
-        }, status=status.HTTP_204_NO_CONTENT)
+            'mensaje': f'Paciente {nombre_completo} eliminado satisfactoriamente',
+        }, status=status.HTTP_200_OK)
 
 # Vista para obtener y actualizar un contacto de emergencia
 class DetalleContactoEmergenciaView(generics.RetrieveUpdateAPIView):
     serializer_class = ContactoEmergenciaSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
     
     def get_object(self):
         paciente_id = self.kwargs.get('pk')

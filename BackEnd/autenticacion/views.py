@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from .serializers import UsuarioSerializer, SerializadorPerfilUsuario, CustomTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from utils.IsAdmin import IsAdminUser
 
 Usuario = get_user_model()
 
@@ -11,11 +12,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     Vista personalizada para obtener tokens JWT que actualiza last_login
     """
     serializer_class = CustomTokenObtainPairSerializer
-
-class IsAdminUser(permissions.BasePermission):
-    def has_permission(self, request, view):
-        is_admin = request.user.is_staff
-        return is_admin
 
 class UsuarioListCreateView(generics.ListCreateAPIView):
     """

@@ -36,10 +36,62 @@ class UsuarioSerializer(serializers.ModelSerializer):
         if 'document_number' in data and Usuario.objects.filter(document_number=data['document_number']).exists():
             raise serializers.ValidationError({"document_number": "El documento ya está registrado."})
         
-        # Validar que los 4 nombres tengan al menos 3 caracteres
+        # Obtener todas las palabras del nombre completo
+        nombre_completo = []
         for field in ['first_name', 'middle_name', 'last_name', 'second_surname']:
-            if field in data and len(data[field]) < 3:
-                raise serializers.ValidationError({field: "Este campo debe tener al menos 3 caracteres."})
+            if field in data:
+                # Eliminar espacios extras y dividir en palabras
+                nombres = [nombre.strip() for nombre in data[field].split() if nombre.strip()]
+                
+                # Verificar que haya al menos una palabra
+                if not nombres:
+                    raise serializers.ValidationError({field: "Este campo no puede estar vacío."})
+                
+                # Verificar que cada palabra tenga al menos 2 caracteres
+                for nombre in nombres:
+                    if len(nombre) < 2:
+                        raise serializers.ValidationError({
+                            field: f"La palabra '{nombre}' del campo {field} es demasiado corta. Debe tener al menos 2 caracteres."
+                        })
+                    elif len(nombre) > 30:
+                        raise serializers.ValidationError({
+                            field: f"La palabra '{nombre}' del campo {field} es demasiado larga. Debe tener como máximo 30 caracteres."
+                        })
+                    
+                # Verificar que cada nombre tenga solo una palabra
+                if len(nombres) != 1:
+                    raise serializers.ValidationError(
+                        f"El campo '{field}' debe contener exactamente una palabra, no {len(nombres)}."
+                    )
+
+                # Verificar que solo contenga letras y espacios
+                for nombre in nombres:
+                    if not nombre.replace('-', '').replace("'", '').isalpha():
+                        raise serializers.ValidationError({
+                            field: f"La palabra '{nombre}' contiene caracteres no permitidos. Solo se permiten letras, guiones y apóstrofes."
+                        })
+                        
+                # Actualizar el campo con las palabras normalizadas
+                data[field] = ' '.join(nombres)
+                nombre_completo.extend(nombres)
+        
+        # Validar que el nombre completo tenga al menos 3 palabras
+        if len(nombre_completo) < 3:
+            raise serializers.ValidationError(
+                "El nombre completo debe tener al menos 3 palabras entre nombres y apellidos."
+            )
+    
+        # Validar que los 4 nombres no sean iguales y mostrar detalles
+        from collections import Counter
+
+        contador_nombres = Counter(nombre_completo)
+        nombres_repetidos = [nombre for nombre, count in contador_nombres.items() if count > 1]
+
+        if len(nombres_repetidos) > 0:
+            total_repeticiones = sum(count - 1 for count in contador_nombres.values() if count > 1)
+            raise serializers.ValidationError(
+                f"No puede tener {total_repeticiones} nombre(s) repetido(s). Nombres duplicados: {', '.join(nombres_repetidos)}"
+            )
             
         # validar numero phone_prefix. Debe tener: + y al menos un numero
         if 'phone_prefix' in data:
@@ -48,8 +100,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
         # Validar phone. Debe tener al menos 7 números
         if 'phone' in data:
-            if not re.match(r'^\+\d{7,}$', data['phone']):
-                raise serializers.ValidationError({"phone": "El número de teléfono debe comenzar con '+' y tener al menos 7 dígitos."})
+            if not re.match(r'^\d{7,}$', data['phone']):
+                raise serializers.ValidationError({"phone": "El número de teléfono debe tener al menos 7 dígitos."})
 
         # Validar contraseñas solo si se proporcionan en la petición
         if 'password' in data and 'password_confirm' in data:

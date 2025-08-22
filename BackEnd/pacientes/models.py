@@ -1,5 +1,5 @@
 from django.db import models
-from utils.choices import DOC_CHOICES, SEX_CHOICES
+from utils.choices import DOC_CHOICES, SEX_CHOICES, EPS_CHOICES
 
 # Entidad principal
 class Paciente(models.Model):
@@ -7,13 +7,16 @@ class Paciente(models.Model):
     segundo_nombre = models.CharField(max_length=255, blank=True, null=True)
     primer_apellido = models.CharField(max_length=255)
     segundo_apellido = models.CharField(max_length=255, blank=True, null=True)
+    fecha_nacimiento = models.DateField()
     tipo_documento = models.CharField(max_length=2, choices=DOC_CHOICES)
-    numero_documento = models.CharField(max_length=20, unique=True)
+    numero_documento = models.CharField(max_length=20, unique=False)
     sexo = models.CharField(max_length=10, choices=SEX_CHOICES)
     prefijo_telefonico = models.CharField(max_length=10)
     telefono = models.CharField(max_length=20)
+    eps = models.CharField(max_length=100, choices=EPS_CHOICES)
+    seguro_medico = models.CharField(max_length=100, blank=True, null=True)
+    sintomas_iniciales = models.TextField()  # Este campo es obligatorio
     creado = models.DateTimeField(auto_now_add=True)
-    esta_activo = models.BooleanField(default=True)
     
     # Indexar para realizar consulta más eficientes a la base de datos
     class Meta:
@@ -34,16 +37,19 @@ class Paciente(models.Model):
 # Modelo de contacto de emergencia para pacientes
 class ContactoEmergencia(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete = models.CASCADE, related_name = 'contacto_emergencia')
-    nombre = models.CharField(max_length=255)
+    primer_nombre = models.CharField(max_length=255)
+    segundo_nombre = models.CharField(max_length=255, blank=True, null=True)
+    primer_apellido = models.CharField(max_length=255)
+    segundo_apellido = models.CharField(max_length=255, blank=True, null=True)
     prefijo_telefonico = models.CharField(max_length=10)
     telefono = models.CharField(max_length=20)
     relacion_parentesco = models.CharField(max_length=100)
     
     class Meta:
         indexes = [
-            models.Index(fields=['nombre']),
+            models.Index(fields=['primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido']),
             models.Index(fields=['telefono']),
         ]
         
     def __str__(self):
-        return f"{self.nombre} ({self.telefono})"
+        return f"{self.primer_nombre} {self.primer_apellido} ({self.telefono})"
