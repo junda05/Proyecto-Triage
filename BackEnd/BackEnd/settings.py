@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'autenticacion',
     'pacientes',
+    'triage',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
@@ -131,6 +132,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'autenticacion.Usuario'
 
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
@@ -157,4 +170,7 @@ from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7), 
+    'ROTATE_REFRESH_TOKENS': True,                   # Rotar refresh tokens por seguridad
+    'BLACKLIST_AFTER_ROTATION': True,               # Invalidar tokens antiguos
+    'UPDATE_LAST_LOGIN': True, 
 }

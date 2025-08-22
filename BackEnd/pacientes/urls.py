@@ -3,7 +3,7 @@ from .views import CrearPacienteView, DetallePacienteView, DetalleContactoEmerge
 
 urlpatterns = [
     # POST /api/v1/pacientes/crear - Crear un nuevo paciente
-    path('crear', CrearPacienteView.as_view(), name='paciente-list'),
+    path('', CrearPacienteView.as_view(), name='paciente-list'),
     
     # GET /api/v1/pacientes/{id} - Obtener un paciente por ID
     # PUT - PATCH /api/v1/pacientes/{id} - Actualizar un paciente por ID

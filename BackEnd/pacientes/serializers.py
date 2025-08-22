@@ -35,10 +35,10 @@ class ContactoEmergenciaSerializer(serializers.ModelSerializer):
                             field: f"La palabra '{nombre}' del campo {field} es demasiado larga. Debe tener como máximo 30 caracteres."
                         })
                     
-                # Verificar que cada nombre tenga solo una palabra
-                if len(nombres) != 1:
+                # Verificar que cada nombre tenga 1 o 2 palabras
+                if len(nombres) not in [1, 2]:
                     raise serializers.ValidationError(
-                        f"El campo '{field}' debe contener exactamente una palabra, no {len(nombres)}."
+                        f"El campo '{field}' debe contener exactamente una o dos palabras, no {len(nombres)}."
                     )
 
                 # Verificar que solo contenga letras y espacios
@@ -202,9 +202,9 @@ class PacienteSerializer(serializers.ModelSerializer):
                         })
                     
                 # Verificar que cada nombre tenga solo una palabra
-                if len(nombres) != 1:
+                if len(nombres) not in [1, 2]:
                     raise serializers.ValidationError(
-                        f"El campo '{field}' debe contener exactamente una palabra, no {len(nombres)}."
+                        f"El campo '{field}' debe contener exactamente una o dos palabras, no {len(nombres)}."
                     )
 
                 # Verificar que solo contenga letras y espacios
@@ -246,5 +246,10 @@ class PacienteSerializer(serializers.ModelSerializer):
         if 'telefono' in data:
             if not re.match(r'^\d{7,}$', data['telefono']):
                 raise serializers.ValidationError({"telefono": "El número de teléfono debe tener al menos 7 dígitos."})
-            
+
+        # Si tiene seguro médico, validar el campo correspondiente
+        if 'tiene_seguro_medico' in data and data['tiene_seguro_medico']:
+            if 'nombre_seguro_medico' not in data or not data['nombre_seguro_medico']:
+                raise serializers.ValidationError({"nombre_seguro_medico": "Este campo es obligatorio si tiene seguro médico."})
+
         return data

@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 import re
 
 Usuario = get_user_model()
@@ -59,9 +58,9 @@ class UsuarioSerializer(serializers.ModelSerializer):
                         })
                     
                 # Verificar que cada nombre tenga solo una palabra
-                if len(nombres) != 1:
+                if len(nombres) not in [1, 2]:
                     raise serializers.ValidationError(
-                        f"El campo '{field}' debe contener exactamente una palabra, no {len(nombres)}."
+                        f"El campo '{field}' debe contener exactamente una o dos palabras, no {len(nombres)}."
                     )
 
                 # Verificar que solo contenga letras y espacios
@@ -178,25 +177,3 @@ class SerializadorPerfilUsuario(serializers.ModelSerializer):
             'is_active'
         )
         read_only_fields = ('id', 'date_joined', 'is_active')
-
-
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    """
-    Serializador personalizado para tokens JWT que actualiza last_login al obtener tokens
-    """
-    
-    def validate(self, attrs):
-        # Primero obtenemos el token y los datos usando el método original
-        data = super().validate(attrs)
-        
-        # Actualizar el campo last_login del usuario
-        import datetime
-        
-        # Obtener la hora actual (ya en zona horaria local debido a USE_TZ = False)
-        local_now = datetime.datetime.now()
-        
-        user = self.user
-        user.last_login = local_now
-        user.save(update_fields=['last_login'])
-        
-        return data

@@ -16,6 +16,13 @@ SEX_CHOICES = [
     ('NA', 'No Aplica')
 ]
 
+REGIMEN_EPS_CHOICES = [
+    ('SISBEN', 'SISBEN'),
+    ('REGIMEN_CONTRIBUTIVO', 'Régimen Contributivo'),
+    ('REGIMEN_SUBSIDIADO', 'Régimen Subsidiado'),
+    ('NO_AFILIADO', 'No Afiliado'),
+]
+
 EPS_CHOICES = [
     ('COOSALUD', 'COOSALUD'),
     ('NUEVA_EPS', 'NUEVA EPS'),
@@ -45,4 +52,6 @@ EPS_CHOICES = [
     ('ANAS_WAYUU', 'ANAS WAYUU EPSI'),
     ('MALLAMAS', 'MALLAMAS EPSI'),
     ('PIJAOS_SALUD', 'PIJAOS SALUD EPSI'),
+    ('NO_AFILIADO', 'NO AFILIADO'),
 ]
+

@@ -1,11 +1,11 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView
-from .views import UsuarioListCreateView, UsuarioDetailView, ObtenerPerfilUsuarioView, CustomTokenObtainPairView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView, TokenObtainPairView
+from .views import UsuarioListCreateView, UsuarioDetailView, ObtenerPerfilUsuarioView
 
 urlpatterns = [
     # Autenticación y endpoints de tokens
     # POST /api/v1/auth/login - Obtener tokens JWT usando nombre de usuario y contraseña
-    path('login', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     
     # POST /api/v1/auth/refresh-access - Refrescar el token de acceso cuando expire
     path('refresh-access', TokenRefreshView.as_view(), name='token_refresh'),

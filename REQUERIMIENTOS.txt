@@ -1,0 +1,581 @@
+FRONTEND PACIENTE 
+Frontend del Paciente: Sistema de Pre-Triaje 
+REQUERIMIENTOS TÉCNICOS 
+Pantalla 1: Introducción 
+●​ Encabezado: ¡Bienvenido! Por favor, proporcione información básica. 
+●​ Instrucciones Breves: Un mensaje corto explicando el propósito del formulario (para 
+ayudarnos a entender su situación y priorizar su atención). 
+●​ Botón: Comenzar 
+Pantalla 2: Datos Básicos del Paciente: Esta pantalla contará con un botón de selección de “paciente 
+“ o “personal medico”, y que la selección de paciente me muestre lo siguiente:  
+Encabezado: Su Información Básica 
+●​ Campos del Formulario: 
+○​ Nombre y Apellido: (Campo de texto) - Etiqueta: "Nombre Completo" 
+○​ Fecha de Nacimiento: (Selector de fecha - formato DD/MM/AAAA) - Etiqueta: 
+"Fecha de Nacimiento" 
+○​ Edad: (Campo de solo lectura, calculado automáticamente desde la Fecha de 
+Nacimiento) - Etiqueta: "Edad"; en este item lo tendremos en cuenta para hacer un 
+pequeño cuestionario si la persona cumple con la edadd de 65 años o mas, para 
+poderlos clasificar en riesgo alto. Y si la respuesta es que la edad es menor a 65 lo 
+enviaremos al cuestinarion de signos y sintomas.  
+○​ Tipo de Documento: (Lista desplegable con opciones como CC, TI, Pasaporte, etc.) - 
+Etiqueta: "Tipo de Documento" 
+○​ Número de Documento: (Campo de texto, validación alfanumérica según el tipo de 
+documento seleccionado) - Etiqueta: "Número de Documento" 
+○​ Sexo Asignado al Nacer: (Botones de radio o lista desplegable con opciones: 
+Femenino, Masculino, No Aplica) - Etiqueta: "Sexo Asignado al Nacer", en este item 
+tendremos en cuenta si la seleccion es mujer, lea enviaremos primero a un 
+cuestionario que tendra en cuenta lo siguiente: ¿ estas embarazada?, si la respuesta es 
+si, le haremos una encuenta con respecto a sintomas de embarazo, en riesgo o no, si la 
+respuesta es no, la enviaremos al cuestionario de signos y sintomas. 
+○​ Contacto de Emergencia (Nombre y Teléfono): (Campo de texto para el nombre, 
+campo de teléfono con formato adecuado) - Etiqueta: "Contacto de Emergencia 
+(Nombre y Teléfono)" 
+●​ Botón: Registrar  
+NOTA: A estos dos items sin ser necesario todo lo que responda será un ESI 1. 
+Pantalla 3: Antecedentes Médicos Básicos (Sección 2) 
+●​ Encabezado: Sus Antecedentes Médicos 
+●​ Campos del Formulario: 
+○​ Alergias Conocidas (Medicamentos, Alimentos, Látex, etc.): (Lista desplegable de 
+selección múltiple basada en una lista predefinida de la OMS o un campo de texto 
+libre con sugerencias) - Etiqueta: "Alergias Conocidas" (Incluir una opción para 
+"Ninguna") 
+○​ Enfermedades Crónicas (Hipertensión, Diabetes, etc.): (Lista desplegable de 
+selección múltiple basada en una lista predefinida de la OMS - Seleccionar hasta 10) - 
+Etiqueta: "Enfermedades Crónicas" (Incluir una opción para "Ninguna") 
+○​ Cirugías Previas: (Campo de texto libre) - Etiqueta: "Cirugías Previas" (Permitir 
+"Ninguna" o "N/A") 
+●​ Botón: Continuar 
+Pantalla 4: Síntomas Principales (Sección 3) 
+●​ Encabezado: Cuéntenos Sobre Sus Síntomas 
+●​ Campo del Formulario: 
+○​ Describa sus síntomas con sus propias palabras: (Área de texto grande) - Etiqueta: 
+"Por favor, describa sus principales síntomas" 
+esta pantalla contará con un Boton que diga siguiente y solo me desglose la pregunta necesaria para 
+clasificar al  paciente en (ESI1), si no el botón siguiente me enviara a otra pantalla  
+Pantalla 5: Cuestionario 
+●​ Lógica Condicional y Preguntas Adicionales (Basado en los Diagramas de Flujo): 
+Almacenar la estructura lógica del diagrama de flujo: 
+○​ Basándose en las palabras clave y descripciones proporcionadas en el campo 
+"Describa sus síntomas", el frontend puede mostrar dinámicamente preguntas más 
+específicas para acotar el posible problema. Esto podría incluir: 
+■​ Casillas de Verificación o Botones de Radio: Para síntomas específicos 
+mencionados en los diagramas de flujo (ej., "¿Ha tenido vómitos?", "¿El 
+dolor es severo?"). 
+■​ Listas Desplegables: Para seleccionar la naturaleza o severidad de un 
+síntoma (ej., "Tipo de dolor: Punzante, Sordo, Quemante"). 
+■​ Siguiendo la lógica de la Imagen 2: 
+■​ Si se menciona "alergia", una pregunta de seguimiento: "¿Está 
+relacionado este síntoma con sus alergias?" (Sí/No). Si Sí, dirigir a 
+"Diríjase al centro médico más cercano" (mostrar una pantalla 
+informativa). 
+■​ Si se indican síntomas como "vómitos persistentes...", "dolor 
+abdominal intenso...", etc., el sistema podría internamente marcar un 
+nivel de urgencia mayor. 
+■​ Presentar preguntas específicas basadas en palabras clave como 
+"diabetes", "dificultad para respirar", etc., como se indica en los 
+diagramas de flujo. 
+○​ Preguntas Dinámicas: Si el paciente menciona "dolor en el pecho", una pregunta de 
+seguimiento podría ser: "Describa su dolor en el pecho: ¿Punzante, Presión, 
+Quemazón, Opresión?" 
+●​ Botón: Enviar 
+●​ Si el paciente menciona síntomas como: 
+○​ Vómitos persistentes, dolor abdominal intenso, deshidratación grave, hemorragia o 
+alteración del estado mental significativa: Presentar preguntas sobre la severidad y 
+características específicas de cada uno. 
+○​ El paciente presenta signos de inestabilidad vital: Pasar directamente a la pantalla de 
+envío de pre-triaje con una alerta de alta prioridad (esto podría ser interno, sin 
+preguntas adicionales al paciente). 
+○​ Respiración rápida, confusión, pérdida del conocimiento, piel fría/húmeda, pulso 
+débil, ninguno: Presentar preguntas sobre la presencia y severidad de cada uno. 
+Ramificación Condicional (siguiendo el flujo): 
+●​ Si el paciente indica "Respiración rápida": Preguntar sobre la frecuencia respiratoria 
+aproximada (si la conoce), si hay dificultad para respirar, si usa accesorios o dispositivo 
+médico para respirar. 
+●​ Si el paciente indica "Confusión": Preguntar sobre el nivel de conciencia, orientación en 
+tiempo y espacio. 
+●​ Si el paciente indica "Pérdida del conocimiento": Preguntar si fue completa o parcial, 
+cuánto duró, si hubo factores desencadenantes. 
+●​ Si el paciente indica "Piel fría/húmeda": Preguntar si está sudoroso, pálido. 
+●​ Si el paciente indica "Pulso débil": Preguntar si siente su pulso, si es rápido o lento (si lo 
+sabe). 
+●​ Si el paciente indica "Ninguno" (en ese grupo de síntomas): Continuar a la siguiente rama 
+del diagrama. 
+Preguntas Específicas por Condición (basados en "DIABETES 1 o 2" y "ASMA"): 
+●​ Si el paciente mencionó "Diabetes" en los antecedentes o en los síntomas: 
+○​ "¿Es diabético tipo 1 o tipo 2?" (Opción múltiple). 
+○​ "¿Ha tenido algún episodio de hipoglucemia o hiperglucemia recientemente?" (Sí/No 
+y detalles). 
+○​ "¿Está controlando sus niveles de glucosa actualmente?" (Sí/No y cómo). 
+○​ "¿Presenta síntomas nuevos relacionados con la diabetes?" (Sí/No y cuáles). 
+●​ Si el paciente mencionó "Asma" en los antecedentes o síntomas de dificultad 
+respiratoria: 
+○​ "¿Tiene asma?" (Sí/No). 
+○​ "¿Está usando su inhalador actualmente?" (Sí/No). 
+○​ "¿Con qué frecuencia ha necesitado usar su inhalador recientemente?" 
+○​ "¿Siente que su asma está empeorando?" (Sí/No). 
+ 
+Pantalla 5: Envío y Confirmación 
+●​ Encabezado: Gracias 
+●​ Mensaje de Confirmación: "Su información ha sido enviada correctamente. Será contactado 
+o guiado de acuerdo con la evaluación de su situación. Por favor, mantenga la calma." 
+●​ Información Importante: Incluir cualquier instrucción relevante, como "Si su condición 
+empeora significativamente, por favor busque atención médica inmediata." 
+Opción 2 Mensaje de confirmación e información importante: 
+Mensaje de Confirmación 2 :"Su pre-triaje ha sido enviado. Un profesional de la salud revisará su 
+información y se le indicará el siguiente paso a seguir. Por favor, espere en el área designada." 
+Mensaje Importante 2: "Si su condición empeora repentinamente, informe inmediatamente al 
+personal de recepción." 
+ 
+●​ Opcional: Un número de referencia para su envío. 
+No se Muestra la Clasificación ESI: El paciente sólo recibe una confirmación de envío. 
+Posibles Adiciones: 
+●​ Ayudas Visuales: Usar iconos e ilustraciones para hacer el formulario más atractivo y fácil de 
+entender. 
+●​ Indicador de Progreso: Mostrar al paciente su avance a través de los diferentes pasos del 
+formulario. 
+●​ Validación en Tiempo Real: Validar los campos de entrada a medida que el paciente los 
+completa para prevenir errores. 
+●​ Entrada por Voz: Para pacientes que tienen dificultad para escribir. 
+●​ Carga de Imágenes: Permitir a los pacientes cargar fotos de síntomas relevantes (ej., 
+erupciones). 
+●​ Integración con Servicios de Ubicación: Para ayudar a dirigir a los pacientes al centro 
+médico más cercano si es necesario. 
+●​ Soporte Multilingüe: Ofrecer el formulario en varios idiomas. 
+●​ Características de Accesibilidad: Asegurar que el formulario sea accesible para usuarios 
+con discapacidades (ej., compatibilidad con lectores de pantalla, navegación por teclado). 
+●​ Guardar Progreso: Permitir a los pacientes guardar su progreso y regresar al formulario más 
+tarde si es necesario. 
+Consideraciones Técnicas: 
+●​ Framework Frontend (OPCIONAL): Considerar usar un framework frontend moderno 
+como React, Angular o Vue.js para construir una interfaz de usuario dinámica e interactiva. 
+●​ Librería de UI (RECOMENDACIÓN): Utilizar una librería de componentes de UI (ej., 
+Material UI, Bootstrap) para acelerar el desarrollo y asegurar una apariencia consistente. 
+●​ Gestión de Estado: Implementar una solución de gestión de estado (ej., Redux, Context API) 
+para manejar los datos del formulario y la lógica condicional de manera efectiva. 
+●​ Integración con API: El frontend necesitará comunicarse con una API del backend para 
+enviar los datos del paciente. 
+Requerimientos Técnicos Adicionales del Frontend del Paciente (Basado en Nuevas Ramas del 
+Diagrama de Flujo): 
+●​ Preguntas Específicas para ACV (Accidente Cerebrovascular):​
+ 
+○​ Si el paciente menciona síntomas como debilidad en la cara, brazo o pierna 
+(especialmente en un lado del cuerpo), dificultad para hablar o entender, problemas de 
+visión súbitos, mareo intenso o pérdida de equilibrio, dolor de cabeza súbito y severo 
+sin causa conocida: 
+■​ Preguntar sobre la aparición súbita de estos síntomas (Sí/No y cuándo). 
+■​ Preguntar sobre la lateralización de la debilidad (izquierda, derecha, ambos 
+lados). 
+■​ Pedir al paciente que intente realizar acciones simples (sonreír, levantar 
+ambos brazos) para evaluar la función motora. 
+■​ Preguntar sobre la claridad del habla (si es arrastrada, incomprensible). 
+■​ Preguntar sobre cualquier cambio en la visión (pérdida de visión en un ojo, 
+visión doble). 
+●​ Preguntas Específicas para Problemas Neurológicos/Cardiacos:​
+ 
+○​ Si el paciente menciona palpitaciones, dolor en el pecho que se irradia, dificultad para 
+respirar asociada al dolor de pecho, pérdida de conciencia o mareo con palpitaciones: 
+■​ Preguntar sobre la característica de las palpitaciones (rápidas, lentas, 
+irregulares). 
+■​ Preguntar sobre la ubicación e irradiación del dolor de pecho. 
+■​ Preguntar sobre la relación entre el dolor de pecho y la dificultad para 
+respirar. 
+■​ Preguntar sobre la frecuencia y duración de los episodios de pérdida de 
+conciencia o mareo. 
+●​ Preguntas Específicas para Fibromialgia:​
+ 
+○​ Si el paciente menciona dolor crónico generalizado, fatiga, trastornos del sueño, 
+rigidez matutina, puntos sensibles específicos: 
+■​ Preguntar sobre la duración del dolor crónico (más de 3 meses). 
+■​ Preguntar sobre la localización del dolor (si es generalizado o en áreas 
+específicas). 
+■​ Evaluar la presencia de fatiga significativa que interfiere con las actividades 
+diarias. 
+■​ Preguntar sobre la calidad del sueño (dificultad para conciliar el sueño, 
+despertares nocturnos). 
+■​ Preguntar sobre la presencia de rigidez al despertar. 
+■​ (Aunque difícil para el autodiagnóstico) Podría haber una pregunta general 
+sobre la presencia de puntos sensibles al tacto. 
+●​ Preguntas Específicas para "Otro problema agudo":​
+ 
+○​ Este es un comodín, por lo que el frontend debería permitir una descripción más 
+detallada por parte del paciente. Podría incluir campos de texto adicionales o 
+preguntas abiertas según las palabras clave que el paciente ingrese inicialmente. 
+●​ Lógica de Priorización Implícita: Aunque el paciente no ve la clasificación ESI, las 
+respuestas a estas preguntas específicas (especialmente las relacionadas con ACV y 
+problemas neurológicos/cardíacos) deberían generar internamente "banderas rojas" o de alta 
+prioridad para el backend, indicando la necesidad de una evaluación médica urgente. El 
+frontend en sí no mostrará esta prioridad al paciente, solo enviará la información.​
+ 
+●​ Adaptación del Flujo: El motor de lógica condicional del frontend deberá ser lo 
+suficientemente flexible para integrar estas nuevas ramas de preguntas y dirigirse a ellas 
+según las respuestas del paciente a las preguntas iniciales (motivo de consulta, síntomas 
+principales).​
+ 
+Nuevos Requerimientos Técnicos Específicos: 
+●​ Reconocimiento de Patrones de Síntomas: El sistema podría beneficiarse de una lógica 
+básica para reconocer patrones de síntomas que sugieran condiciones específicas (como los 
+listados para ACV, problemas cardíacos, etc.) y así dirigir las preguntas de manera más 
+eficiente. 
+●​ Alertas Tempranas Locales (Internas): Si el paciente responde afirmativamente a 
+combinaciones de preguntas que sugieren una emergencia, el frontend podría internamente 
+marcar la consulta con una alta prioridad antes de enviarla al backend (esto es solo metadato 
+para el envío). 
+Requerimientos Técnicos Adicionales del Frontend del Paciente (Basado en Nuevas Ramas del 
+Diagrama de Flujo - Imagen Adicional): 
+●​ Preguntas Específicas para Hipertensión Arterial:​
+ 
+○​ Si el paciente menciona antecedentes de hipertensión arterial: 
+■​ "¿Tiene dolor de cabeza?" (Sí/No). 
+■​ Si Sí: "¿Ve manchas o lucecitas?" (Sí/No). Si Sí, esto podría generar una 
+alerta interna de alta prioridad (Crisis Hipertensiva). 
+■​ Si No: "¿Le duele la cabeza mucho?" (Sí/No). Si Sí, clasificar para control 
+prioritario (Nivel II). 
+■​ "¿Tiene mareo severo?" (Sí/No). Si Sí, clasificar para urgencia inmediata 
+(Nivel I). 
+●​ Preguntas Específicas para Enfermedad Coronaria/Infarto:​
+ 
+○​ Si el paciente menciona antecedentes de enfermedad coronaria o síntomas sugestivos: 
+■​ "¿Tiene dolor en el pecho como peso que lo oprime, aprieta o quema?" 
+(Sí/No). 
+■​ Si Sí: "¿El dolor se irradia al brazo izquierdo, cuello o mandíbula?" (Sí/No). 
+Si Sí, generar alerta interna de posible infarto (Nivel I). 
+■​ Si No: "¿El dolor opresivo es autorreferido?" (Sí/No). Si Sí, clasificar para 
+angina inestable (Nivel II). 
+■​ Si No (a dolor opresivo): Clasificar para evaluar y medicar (Nivel III). 
+●​ Preguntas Específicas para Enfermedad Pulmonar Obstructiva Crónica (EPOC):​
+ 
+○​ Si el paciente menciona antecedentes de EPOC: 
+■​ "¿Tiene labios o uñas azules o moradas?" (Sí/No). Si Sí, generar alerta interna 
+de insuficiencia respiratoria (Nivel I). 
+■​ Si No: "¿Le dificulta respirar o tiene flemas verdes o amarillas?" (Sí/No). Si 
+Sí, clasificar para exacerbación de EPOC (Nivel II). 
+■​ Si No (a dificultad respiratoria con flemas): Clasificar para control 
+rutinario (Nivel IV). 
+Nuevos Requerimientos Técnicos Específicos (Sin Repetición): 
+●​ Lógica de Seguimiento de Antecedentes Específicos: El frontend deberá recordar o tener 
+acceso a la información proporcionada en la sección de antecedentes para activar estas 
+preguntas específicas (ej., si marcó "Hipertensión Arterial" en los antecedentes, mostrar las 
+preguntas relacionadas con el dolor de cabeza y otros síntomas de la hipertensión). 
+●​ Manejo de Múltiples Vías: El flujo de preguntas puede divergir significativamente según los 
+antecedentes y los síntomas iniciales. El motor de lógica condicional debe ser capaz de 
+manejar múltiples vías de evaluación simultáneamente. 
+●​ Integración de Alertas Internas por Severidad: Basado en las respuestas a estas preguntas 
+específicas (manchas visuales con dolor de cabeza en hipertensión, irradiación del dolor de 
+pecho, cianosis en EPOC), el frontend deberá poder marcar internamente la consulta con un 
+nivel de prioridad alto para el backend, incluso antes de la respuesta final del paciente. 
+ 
+ 
+FRONTED MÉDICO 
+ 
+REQUERIMIENTOS TECNICOS 
+ 
+Estructura de la Página Principal (Triaje y Gestión de Pacientes): 
+●​ Diseño: 
+○​ Diseño de una página principal que presente una visión general de los pacientes en 
+espera y permita la gestión de su atención. 
+○​ Organización clara en secciones para el encabezado, la lista de pacientes, los filtros y 
+el historial médico (al seleccionar un paciente). 
+○​ Implementación de un diseño responsive que se adapte a diferentes tamaños de 
+pantalla (desktops, tablets). 
+●​ Encabezado: 
+○​ Mostrar el título "Panel de Gestión de Pacientes" (o similar). 
+○​ Visualización del nombre del doctor que ha iniciado sesión y que tenga un botón para 
+ir su perfil de médico (cuenta). 
+○​ Presentación de la fecha y hora actual. 
+●​ Lista de Pacientes en Espera: 
+○​ Implementación de una tabla o lista dinámica para mostrar los pacientes registrados. 
+○​ Columnas para: 
+■​ Nombre del Paciente (enlace/interacción para ver historial). 
+■​ Número de Identificación del Paciente. 
+■​ edad  
+■​ sexo (femenino / masculino o no aplica) 
+■​ seguro médico (opcional) 
+■​ Hora de llegada (con formato legible). 
+■​ Clasificación ESI (visualización del número 1-5). 
+■​ Código de Color ESI (aplicación de estilos CSS dinámicos para los colores: 
+Rojo, Naranja, Amarillo, Verde, Azul, basados en el nivel ESI). 
+■​ Motivo de Consulta (texto corto). 
+■​ Los síntomas registrados por el usuarios en preguntas, ya en texto para el 
+médico, con el cuadro de descripción de signos y síntomas. 
+■​ Estado de Atención (checkbox interactivo y/o indicador de texto). 
+■​ Acciones (botones/iconos para "Ver Historial" e "Iniciar Evaluación"). 
+○​ Actualización en tiempo real de la lista al registrarse nuevos pacientes (requiere 
+comunicación con el backend mediante WebSockets o mecanismos similares). 
+●​ Filtros y Ordenamiento: 
+○​ Implementación de un menú desplegable o botones para filtrar la lista por nivel de 
+Clasificación ESI. 
+○​ Implementación de un menú desplegable para ordenar la lista por: 
+■​ Hora de llegada (ascendente/descendente). 
+■​ Clasificación ESI (ascendente/descendente). 
+■​ Nombre del Paciente (alfabético). 
+2. Visualización del Historial Médico: 
+●​ Modal o Sección Expandible: 
+○​ Desarrollo de un componente (modal o sección que se expande) para mostrar el 
+historial médico al seleccionar un paciente de la lista. 
+●​ Contenido del Historial: 
+○​ Información básica del paciente (nombre completo, ID, fecha de nacimiento, etc.) 
+Categorización del paciente. 
+○​ Listado de atenciones previas, mostrando para cada una: 
+■​ Fecha y hora de la atención. 
+■​ Clasificación ESI asignada (con su respectivo color). 
+■​ Síntomas principales reportados. 
+■​ Diagnóstico (si disponible). 
+■​ Tratamiento recibido (si disponible). 
+■​ Profesional que atendió (si disponible). 
+○​ Sección destacada para "Alertas Médicas" (alergias, condiciones preexistentes, 
+medicaciones). 
+3. Ingreso de Signos Vitales (Página Separada o Modal): 
+●​ Estructura: 
+○​ Diseño de una página o modal específico para la captura de signos vitales. 
+○​ Campos de entrada para: 
+■​ Temperatura (con unidad de medida). 
+■​ Tensión Arterial (sistólica y diastólica). 
+■​ Frecuencia Cardíaca (latidos por minuto). 
+■​ Frecuencia Respiratoria (respiraciones por minuto). 
+■​ Saturación de Oxígeno (%). 
+○​ Posibilidad de asociar la toma de signos vitales al paciente actual. 
+○​ Botón para guardar los signos vitales (envío de datos al backend). 
+●​ Validación: 
+○​ Implementación de validaciones en los campos de entrada para asegurar formatos 
+correctos y rangos lógicos (ej. la saturación no puede ser mayor a 100). 
+Botón de Confirmación de Clasificación ESI: 
+●​ Implementar un botón (o icono) visible junto a la información de la Clasificación ESI de cada 
+paciente en la lista. 
+●​ Al hacer clic en este botón, se deberá disparar una acción para confirmar que la clasificación 
+asignada al paciente es correcta. 
+●​ Esta acción deberá generar un reporte técnico (ver sección Generación y Descarga de 
+Reporte Técnico de Clasificación y posiblemente actualizar el estado de la clasificación en 
+la interfaz (por ejemplo, con un icono de "confirmado"). 
+Generación y Descarga de Reporte Técnico de Clasificación: 
+●​ Disparador: La generación del reporte se activará al hacer clic en el botón de "Confirmar 
+Clasificación ESI" de un paciente. 
+●​ Contenido del Reporte: El reporte deberá incluir información relevante sobre el paciente y 
+su clasificación, como: 
+○​ Nombre del Paciente (toda la categorización del paciente). 
+○​ edad 
+○​ sexo 
+○​ Número de Identificación. 
+○​ Hora de llegada. 
+○​ Clasificación ESI asignada (nivel y color). 
+○​ Motivo de Consulta Inicial. 
+○​ Fecha y hora de la confirmación. 
+○​ Identificador del doctor que realizó la confirmación. 
+●​ Formato del Reporte: 
+○​ El frontend deberá ser capaz de generar el reporte en un formato estándar como PDF 
+o CSV. 
+○​ Se deberá ofrecer la opción de imprimir directamente el reporte o descargarlo como 
+un archivo. 
+●​ Comunicación con el Backend: 
+○​ Al hacer clic en el botón de confirmación, el frontend deberá enviar una solicitud al 
+backend con la información necesaria para generar el reporte. 
+○​ El backend generará el archivo del reporte y lo enviará de vuelta al frontend para su 
+descarga o impresión. 
+ Funcionalidades de Importación y Exportación de Base de Datos de Pacientes: 
+●​ Botón de Importar Base de Datos: 
+○​ Implementar un botón (ubicado en un lugar accesible de la interfaz, posiblemente en 
+un menú de administración o configuración). 
+○​ Al hacer clic en este botón, se deberá abrir un diálogo para que el usuario pueda 
+seleccionar un archivo local (por ejemplo, en formato CSV, Excel u otro formato 
+definido). 
+○​ Una vez seleccionado el archivo, el frontend deberá enviar el contenido al backend 
+para su procesamiento e importación a la base de datos de pacientes. 
+○​ Se deberá proporcionar retroalimentación visual al usuario sobre el progreso y el 
+resultado de la importación (éxito o errores). 
+●​ Botón de Exportar Base de Datos: 
+○​ Implementar un botón (ubicado junto al botón de importar o en el mismo menú). 
+○​ Al hacer clic en este botón, el frontend deberá enviar una solicitud al backend para 
+iniciar el proceso de exportación de la base de datos de pacientes. 
+○​ El backend deberá generar un archivo con los datos de los pacientes (en un formato 
+definido, como CSV o JSON) y enviarlo al frontend para su descarga por parte del 
+usuario. 
+ 
+-​
+Ajuste de Clasificación ESI: 
+●​ Permitir que el doctor pueda modificar la Clasificación ESI de un paciente directamente desde 
+la lista. Esto podría implementarse mediante un menú desplegable o un campo editable al 
+hacer clic en la clasificación actual del paciente. 
+●​ Al realizar un ajuste, se deberá reflejar visualmente el cambio (actualización del número ESI 
+y el color asociado). 
+●​ Esta modificación deberá ser persistida en el backend. 
+Listados de Clasificación: 
+●​ Implementar opciones de filtrado o navegación para visualizar listados específicos: 
+○​ Listado Completo: Mostrar todos los pacientes en espera, independientemente de su 
+clasificación. 
+○​ Listado de Urgencia/Críticos: Mostrar solo los pacientes con las clasificaciones ESI 
+más altas (ej. ESI 1 y ESI 2). Esto podría ser un filtro preestablecido o una sección 
+separada. 
+Información Adicional del Paciente al Seleccionar: 
+●​ Al hacer clic en un paciente de la lista (o mediante un botón específico), se deberá mostrar 
+una sección o un modal con: 
+○​ Foto del Paciente: Visualización de la imagen del paciente si está disponible en la 
+base de datos. 
+○​ Información de Contacto de Emergencia: Mostrar los datos de contacto de 
+emergencia asociados al paciente (nombre, número de teléfono, relación). 
+ Perfil del Médico: 
+●​ Página de Perfil: 
+○​ Crear una sección o página donde el médico pueda ver y editar su información 
+personal: 
+■​ Nombre completo. 
+■​ Número de identificación profesional. 
+■​ Foto de perfil (opción para cargar una nueva). 
+■​ Otros datos relevantes. 
+●​ Acceso al Perfil: Implementar un mecanismo de navegación (ej. un icono en el encabezado) 
+para acceder a la página de perfil. 
+8. Autenticación de Usuarios (Médicos): 
+●​ Inicio de Sesión: 
+○​ Formulario para ingresar correo electrónico (o nombre de usuario) y contraseña. 
+○​ Validación de las credenciales ingresadas contra la base de datos de médicos. 
+○​ Manejo de errores de autenticación (credenciales incorrectas). 
+○​ Mecanismo para mantener la sesión del usuario activa (ej. mediante tokens). 
+●​ Creación de Cuenta: 
+○​ Formulario para registrar una nueva cuenta de médico, solicitando datos personales 
+(nombre, correo electrónico, número de identificación, contraseña, etc.). 
+○​ Validación de los datos ingresados (formatos, campos obligatorios, contraseñas 
+seguras). 
+○​ Verificación de Cuenta por IP: Al registrar una nueva cuenta, el sistema deberá 
+verificar que la solicitud provenga de una dirección IP dentro del rango de la red de 
+FOSCAL. Si la IP no es válida, no se permitirá la creación de la cuenta o se requerirá 
+un proceso de verificación adicional. 
+●​ Recuperación de Contraseña: 
+○​ Opción "¿Olvidó su contraseña?" en la página de inicio de sesión. 
+○​ Proceso para que el usuario ingrese su correo electrónico. 
+○​ Envío de un enlace de recuperación de contraseña al correo electrónico registrado. 
+○​ Página para que el usuario cree una nueva contraseña (con validación de seguridad). 
+ 
+-​
+Requerimientos Técnicos del Frontend (Con Cierre de Sesión) 
+Botón de Guardar: 
+●​ Implementar un botón visible en la interfaz (ubicado estratégicamente para que el médico 
+pueda guardar su progreso, por ejemplo, en el encabezado o al final de la lista de pacientes). 
+●​ El texto del botón debe ser claro, como "Guardar Cambios" o un icono de guardar. 
+●​ Al hacer clic en este botón, el frontend deberá enviar una solicitud al backend con todos los 
+cambios realizados durante la sesión actual que necesiten ser persistidos en la base de datos 
+(ej. cambios en la clasificación ESI, notas, estados de atención). 
+●​ Se deberá proporcionar retroalimentación visual al usuario sobre el éxito o el fallo de la 
+operación de guardado. 
+Botón de Cerrar Sesión: 
+●​ (Se actualiza la descripción) Implementar un botón visible en la interfaz (generalmente en el 
+encabezado, menú de navegación o dentro del perfil del usuario). 
+●​ El texto del botón debe ser claro, como "Cerrar Sesión" o un icono representativo (ej. una 
+puerta o una flecha saliendo). 
+●​ Al hacer clic en este botón, se deberá ejecutar la siguiente acción: 
+○​ Frontend: Eliminar cualquier información de la sesión almacenada localmente (ej. 
+tokens, datos del usuario en memoria). 
+○​ Comunicación con el Backend: Enviar una solicitud al backend para invalidar la 
+sesión del usuario. 
+○​ Redirección: Redirigir al usuario a la página de inicio de sesión. 
+○​ Importante: El cierre de sesión no debe eliminar los datos guardados previamente 
+por el médico. Los registros del día se deben persistir al hacer clic en "Guardar". 
+Alerta de Cierre de Sesión sin Guardar: 
+●​ Activación: Antes de ejecutar el proceso de cierre de sesión (al hacer clic en el botón "Cerrar 
+Sesión" o al intentar cerrar la ventana/pestaña del navegador), el frontend deberá verificar si 
+hay cambios no guardados en la sesión actual (ej. modificaciones en la clasificación, estados 
+de atención, signos vitales ingresados pero no guardados). 
+●​ Mensaje de Confirmación: Si se detectan cambios no guardados, se deberá mostrar un 
+mensaje modal o similar al usuario, por ejemplo:​
+​
+ "Advertencia: No has guardado los cambios realizados hoy. ¿Deseas salir sin guardar?"​
+​
+ 
+●​ Botones de Acción: El mensaje de confirmación deberá incluir dos botones: 
+○​ "Sí": Si el usuario hace clic en "Sí", se procederá con el cierre de sesión sin guardar 
+los cambios. 
+○​ "Cancelar": Si el usuario hace clic en "Cancelar", se cerrará el mensaje de 
+confirmación y el usuario permanecerá en la página para que pueda hacer clic en el 
+botón "Guardar Cambios". 
+Estructura de la Página Principal (Triaje y Gestión de Pacientes) 
+Botón/Selector de Idioma: 
+●​ Implementar un control visible en la interfaz (generalmente en el encabezado, pie de página o 
+en un menú de configuración). 
+●​ Este control podría ser: 
+○​ Un menú desplegable con la lista de idiomas disponibles (ej. Español, Inglés). 
+○​ Una serie de botones con las banderas o abreviaturas de los idiomas. 
+●​ Al seleccionar un idioma, la interfaz deberá actualizarse dinámicamente para mostrar todo el 
+texto y las etiquetas en el idioma seleccionado. 
+Visualización del Historial Médico: 
+●​ (Se mantienen los requerimientos anteriores) 
+●​ El texto dentro del historial médico también deberá ser traducible según el idioma 
+seleccionado. Esto implica que el backend debe proporcionar la información del historial en 
+un formato que permita la traducción en el frontend, o que el frontend tenga acceso a las 
+traducciones correspondientes para los datos del historial (si son campos con valores 
+predefinidos). 
+Ingreso de Signos Vitales (Página Separada o Modal): 
+●​ (Se mantienen los requerimientos anteriores) 
+●​ Las etiquetas y mensajes de esta sección también deben ser traducibles. 
+4. Aspectos Generales del Frontend: 
+●​ (Se mantienen los requerimientos anteriores) 
+●​ Implementación de la Internacionalización (i18n): 
+○​ Se requerirá el uso de una biblioteca o mecanismo de internacionalización en el 
+frontend (ej. i18next, react-intl si se usa React, o funcionalidades similares 
+en otros frameworks). 
+○​ Se deberán crear archivos de traducción (ej. archivos JSON) que contengan las 
+cadenas de texto de la interfaz en cada idioma soportado. 
+○​ El código del frontend deberá utilizar claves para referirse a estas cadenas de texto, y 
+la biblioteca de i18n se encargará de mostrar la traducción correcta según el idioma 
+seleccionado por el usuario. 
+●​ Persistencia del Idioma (Opcional pero Recomendado): Considerar guardar la preferencia 
+de idioma del usuario (ej. en las cookies del navegador o en el almacenamiento local) para 
+que la interfaz se muestre automáticamente en su idioma preferido en futuras sesiones. 
+5. Generación y Descarga de Reporte Técnico de Clasificación: 
+●​ (Se mantienen los requerimientos anteriores) 
+●​ El texto dentro del reporte técnico también debería ser traducible, idealmente generándose en 
+el idioma actualmente seleccionado por el usuario. Esto podría requerir lógica en el backend 
+para generar el reporte en diferentes idiomas o que el frontend aplique la traducción antes de 
+la descarga/impresión. 
+6. Funcionalidades de Importación y Exportación de Base de Datos de Pacientes: 
+●​ (Se mantienen los requerimientos anteriores) 
+●​ Las etiquetas y mensajes de estas funcionalidades deben ser traducibles. 
+7. Perfil del Médico: 
+●​ (Se mantienen los requerimientos anteriores) 
+●​ Las etiquetas y mensajes de la página de perfil deben ser traducibles. 
+8. Autenticación de Usuarios (Médicos): 
+●​ (Se mantienen los requerimientos anteriores) 
+●​ Los textos del formulario de inicio de sesión, creación de cuenta y recuperación de contraseña 
+deben ser traducibles. 
+NOTA: Requerimientos Técnicos del Frontend del Médico (según Interacción con Frontend del 
+Paciente) 
+1. Recepción y Visualización de Datos del Paciente: 
+●​ Recepción de Clasificación ESI: El frontend del médico deberá recibir la clasificación ESI 
+asignada al paciente desde el backend. Esta clasificación será determinada por el sistema 
+(posiblemente basado en los signos y síntomas ingresados por el paciente en su frontend). 
+●​ Visualización de la Clasificación: Mostrar de forma clara el nivel ESI (1-5) y el código de 
+color correspondiente para cada paciente en la lista de espera. Solo el frontend del médico 
+debe visualizar esta clasificación. 
+2. Ordenamiento por Prioridad ESI: 
+●​ Orden Predeterminado: La lista de pacientes en espera deberá estar ordenada por defecto de 
+acuerdo a la prioridad de la clasificación ESI, mostrando primero los pacientes con la 
+clasificación más urgente (ESI 1), seguido de ESI 2, y así sucesivamente hasta ESI 5. 
+●​ Opción de Reordenar: Mantener la opción de "Ordenar por" , que permita al médico reordenar 
+la lista por otros criterios (hora de llegada, nombre del paciente), pero el orden 
+predeterminado al cargar la página o al recibir nuevas actualizaciones debe ser por prioridad 
+ESI. 
+3. Ajuste de Clasificación ESI: 
+●​ (Se mantiene el requerimiento anterior). El médico podrá ajustar la clasificación ESI si lo 
+considera necesario. Este ajuste se deberá persistir en el backend y podría generar un registro 
+en el historial del paciente. 
+4. Visualización del Historial Médico: 
+●​ (Se mantiene el requerimiento anterior). El historial médico deberá incluir la clasificación ESI 
+inicial (determinada por el sistema) y cualquier ajuste realizado por el médico, junto con la 
+razón del ajuste (si se implementa). 
+ 
+ 
+Puntos Clave sobre la Interacción con el Frontend del Paciente: 
+●​ Flujo de Datos: El frontend del paciente enviará los datos de registro (incluyendo signos y 
+síntomas) al backend. El backend procesará esta información y determinará la clasificación 
+ESI inicial. Esta clasificación será enviada al frontend del médico. 
+●​ Comunicación Backend-Frontend Médico: El frontend del médico necesitará mecanismos 
+eficientes para recibir en tiempo real o mediante actualizaciones periódicas la información de 
+los nuevos pacientes registrados y su clasificación ESI inicial. 
+●​ Retroalimentación al Paciente: El frontend del paciente no recibirá la clasificación ESI 
+específica. En su lugar, recibirá un mensaje genérico de "Clasificado correctamente". 
+Requerimientos Técnicos Adicionales (Específicos para la Interacción): 
+●​ Integración con APIs del Backend: El frontend del médico deberá integrarse correctamente 
+con las APIs del backend para recibir los datos de los pacientes y su clasificación inicial. 
+●​ Manejo de Datos en Tiempo Real (Opcional): Considerar el uso de WebSockets o Server-Sent 
+Events para una actualización en tiempo real de la lista de pacientes en el frontend del médico 
+a medida que se registran nuevos pacientes. 
+ 
+ 
+ 
+ 

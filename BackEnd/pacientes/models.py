@@ -1,5 +1,5 @@
 from django.db import models
-from utils.choices import DOC_CHOICES, SEX_CHOICES, EPS_CHOICES
+from utils.choices import DOC_CHOICES, SEX_CHOICES, EPS_CHOICES, REGIMEN_EPS_CHOICES
 
 # Entidad principal
 class Paciente(models.Model):
@@ -13,8 +13,10 @@ class Paciente(models.Model):
     sexo = models.CharField(max_length=10, choices=SEX_CHOICES)
     prefijo_telefonico = models.CharField(max_length=10)
     telefono = models.CharField(max_length=20)
+    regimen_eps = models.CharField(max_length=100, choices=REGIMEN_EPS_CHOICES)
     eps = models.CharField(max_length=100, choices=EPS_CHOICES)
-    seguro_medico = models.CharField(max_length=100, blank=True, null=True)
+    tiene_seguro_medico = models.BooleanField(default=False)
+    nombre_seguro_medico = models.CharField(max_length=100, blank=True, null=True)
     sintomas_iniciales = models.TextField()  # Este campo es obligatorio
     creado = models.DateTimeField(auto_now_add=True)
     
