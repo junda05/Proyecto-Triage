@@ -1,5 +1,4 @@
 from django.db import models
-
 from utils.choices import DOC_CHOICES, SEX_CHOICES, EPS_CHOICES, REGIMEN_EPS_CHOICES
 
 # Entidad principal
