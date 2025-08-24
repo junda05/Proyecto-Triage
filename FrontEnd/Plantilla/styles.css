@@ -1,0 +1,461 @@
+:root{
+--blue:#0b63c6;
+--muted:#6b7280;
+--card:#ffffff;
+--bg:#f7f8fb;
+--radius:12px;
+--shadow: 0 10px 30px rgba(18,38,63,0.08);
+font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+}
+.screen {
+    display: none;
+}
+.screen.active {
+    display: flex;
+}
+.progress-bar {
+    transition: width 0.5s ease-in-out;
+}
+.card-hover:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+}
+.dark .card-hover:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+}
+[data-tooltip]:hover:after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: nowrap;
+    z-index: 10;
+}
+.header-logo {
+    height: 2.5rem; /* Larger than previous h-8 (2rem) */
+    width: auto; /* Width will adjust automatically to maintain aspect ratio */
+    object-fit: contain;
+    margin-right: 0.5rem;
+}
+.welcome-logo {
+    height: 8rem; /* Increased from h-20 (5rem) to 8rem (128px) */
+    width: auto; /* Auto width to maintain aspect ratio */
+    object-fit: contain;
+    margin: 0 auto;
+}
+
+/* Custom dropdown styles */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    text-align: left;
+}
+
+.dark .dropdown-toggle {
+    background-color: #374151;
+    border-color: #4B5563;
+    color: white;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    margin-top: 0.25rem;
+    padding: 0.5rem 0;
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+
+.dark .dropdown-menu {
+    background-color: #374151;
+    border-color: #4B5563;
+}
+
+.dropdown-open .dropdown-menu {
+    display: block;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #F3F4F6;
+}
+
+.dark .dropdown-item:hover {
+    background-color: #4B5563;
+}
+
+.dropdown-item label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    width: 100%;
+}
+
+.dropdown-item input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+.dropdown-arrow {
+    transition: transform 0.2s;
+}
+
+.dropdown-open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* Medical staff panel specific styles */
+/* ESI level colors */
+.esi-1 { background-color: #DC2626; } /* red-600 */
+.esi-2 { background-color: #F97316; } /* orange-500 */
+.esi-3 { background-color: #FACC15; } /* yellow-400 */
+.esi-4 { background-color: #22C55E; } /* green-500 */
+.esi-5 { background-color: #3B82F6; } /* blue-500 */
+
+/* Modal styles */
+#history-modal, #vital-signs-modal {
+    transition: opacity 0.3s ease;
+}
+
+/* ESI button styles */
+.esi-btn.ring-2 {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5) inset;
+}
+
+/* Table responsive styles */
+@media (max-width: 768px) {
+    #patient-list td:nth-child(3), 
+    #patient-list th:nth-child(3),
+    #patient-list td:nth-child(4), 
+    #patient-list th:nth-child(4) {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    #patient-list td:nth-child(5), 
+    #patient-list th:nth-child(5) {
+        display: none;
+    }
+}
+
+/* User Profile Styles */
+.user-avatar {
+    transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
+}
+
+/* Profile dropdown styles */
+#profile-dropdown-menu {
+    transform-origin: top right;
+    transition: all 0.2s ease-out;
+}
+
+#profile-dropdown-menu.show {
+    transform: scale(1);
+    opacity: 1;
+}
+
+#profile-dropdown-menu.hide {
+    transform: scale(0.95);
+    opacity: 0;
+}
+
+/* Modal animations */
+.modal-container {
+    transition: opacity 0.3s ease;
+}
+
+/* Language selection styling */
+.language-option {
+    position: relative;
+}
+
+.language-option .check-icon {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.language-option.selected .check-icon {
+    opacity: 1;
+}
+
+/* Connection status indicator */
+#connection-status {
+    transition: background-color 0.3s ease;
+}
+
+#connection-status.online {
+    background-color: rgba(16, 185, 129, 0.1);
+}
+
+#connection-status.offline {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+#connection-status .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+#connection-status.online .status-indicator {
+    background-color: #10B981;
+}
+
+#connection-status.offline .status-indicator {
+    background-color: #EF4444;
+}
+
+/* Flag icons for language selector */
+.fi {
+    display: inline-block;
+    width: 24px;
+    height: 18px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 2px;
+}
+
+.fi-es {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 750 500'%3E%3Cpath fill='%23c60b1e' d='M0 0h750v500H0z'/%3E%3Cpath fill='%23ffc400' d='M0 125h750v250H0z'/%3E%3C/svg%3E");
+}
+
+.fi-us {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 760 500'%3E%3Cpath fill='%23bf0a30' d='M0 0h760v38.5H0zm0 76.9h760v38.5H0zm0 76.9h760v38.5H0zm0 76.9h760v38.5H0zm0 76.9h760v38.5H0zm0 76.9h760V500H0z'/%3E%3Cpath fill='%23002868' d='M0 0h304v269.8H0z'/%3E%3Cpath fill='%23fff' d='M760 38.5H0v38.4h760zm0 76.9H0v38.4h760zm0 76.9H0v38.4h760zm0 76.9H0v38.4h760zm0 76.8H0v38.5h760z'/%3E%3Cpath fill='%23fff' d='M25.3 13.8l2.9 8.9H38l-7.9 5.8 3 8.9-7.8-5.7-7.9 5.7 3-8.9-7.9-5.8h9.8zm0 38.5l2.9 8.9H38L30 67l3 8.9-7.7-5.7-7.9 5.7 3-8.9-7.9-5.8h9.8zm0 38.4l2.9 8.9H38l-7.9 5.7 3 9-7.8-5.8-7.9 5.8 3-9-7.9-5.7h9.8zm0 38.5l2.9 8.9H38l-7.9 5.8 3 8.8-7.8-5.6-7.9 5.6 3-8.8-7.9-5.8h9.8zm0 38.4l2.9 9H38l-7.9 5.7 3 8.9-7.8-5.7-7.9 5.7 3-8.9-7.9-5.7h9.8zm0 38.5l2.9 8.9H38l-7.9 5.8 3 8.9-7.8-5.7-7.9 5.7 3-9-7.9-5.7h9.8zm50.6-192.3l2.9 8.9h9.8l-7.9 5.8 3 8.9-7.8-5.7-7.9 5.7 3-8.9-7.9-5.8h9.8zm0 38.5l2.9 8.9h9.8l-7.9 5.8 3 8.9-7.8-5.7-7.9 5.7 3-8.9-7.9-5.8h9.8zm0 38.4l2.9 8.9h9.8L80.7 97l3 9-7.8-5.8-7.9 5.8 3-9-7.9-5.7h9.8zm0 38.5l2.9 8.9h9.8l-7.9 5.8 3 8.8-7.8-5.6-7.9 5.6 3-8.8-7.9-5.8h9.8zm0 38.4l2.9 9h9.8l-7.9 5.7 3 8.9-7.8-5.7-7.9 5.7 3-8.9-7.9-5.7h9.8zm0 38.5l2.9 8.9h9.8l-7.9 5.8 3 8.9-7.8-5.7-7.9 5.7 3-9-7.9-5.7h9.8zm50.7-192.3l2.9 8.9h9.7l-7.8 5.8 3 8.9-7.8-5.7-8 5.7 3-8.9-7.8-5.8h9.8zm0 38.5l2.9 8.9h9.7l-7.8 5.8 3 8.9-7.8-5.7-8 5.7 3-8.9-7.8-5.8h9.8zm0 38.4l2.9 8.9h9.7l-7.8 5.7 3 9-7.8-5.8-8 5.8 3-9-7.8-5.7h9.8zm0 38.5l2.9 8.9h9.7l-7.8 5.8 3 8.8-7.8-5.6-8 5.6 3-8.8-7.8-5.8h9.8zm0 38.4l2.9 9h9.7l-7.8 5.7 3 8.9-7.8-5.7-8 5.7 3-8.9L119 181h9.8zm0 38.5l2.9 8.9h9.7l-7.8 5.8 3 8.9-7.8-5.7-8 5.7 3-9-7.8-5.7h9.8zm50.7-192.3l2.8 8.9h9.8l-7.8 5.8 2.9 8.9-7.7-5.7-8 5.7 3-8.9-7.8-5.8h9.8zm0 38.5l2.8 8.9h9.8l-7.8 5.8 2.9 8.9-7.7-5.7-8 5.7 3-8.9-7.8-5.8h9.8zm0 38.4l2.8 8.9h9.8l-7.8 5.7 3 9-7.8-5.8-8 5.8 3-9-7.8-5.7h9.8zm0 38.5l2.8 8.9h9.8l-7.8 5.8 3 8.8-7.8-5.6-8 5.6 3-8.8-7.8-5.8h9.9zm0 38.4l2.8 9h9.8l-7.8 5.7 2.9 8.9-7.7-5.7-8 5.7 3-8.9-7.8-5.7h9.8zm0 38.5l2.8 8.9h9.8l-7.8 5.8 3 8.9-7.8-5.7-8 5.7 3-9-7.8-5.7h9.9zm50.6-192.3l2.9 8.9h9.8l-7.9 5.8 3 8.9-7.8-5.7-7.9 5.7 3-8.9-7.9-5.8h9.9zm0 38.5l2.9 8.9h9.8l-7.9 5.8 3 8.9-7.8-5.7-7.9 5.7 3-8.9-7.9-5.8h9.9zm0 38.4l2.9 8.9h9.8l-7.9 5.7 3 9-7.8-5.8-7.9 5.8 3-9-7.9-5.7h9.9zm0 38.5l2.9 8.9h9.8l-7.9 5.8 3 8.8-7.8-5.6-7.9 5.6 3-8.8-7.9-5.8h9.9zm0 38.4l2.9 9h9.8l-7.9 5.7 3 8.9-7.8-5.7-7.9 5.7 3-8.9-7.9-5.7h9.9zm0 38.5l2.9 8.9h9.8l-7.9 5.8 3 8.9-7.8-5.7-7.9 5.7 3-9-7.9-5.7h9.9zm50.7-192.3l2.9 8.9h9.8l-7.9 5.8 3 8.9-7.8-5.7-7.9 5.7 3-8.9-7.9-5.8h9.8zm0 38.5l2.9 8.9h9.8l-7.9 5.8 3 8.9-7.8-5.7-7.9 5.7 3-8.9-7.9-5.8h9.8zm0 38.4l2.9 8.9h9.8l-7.9 5.7 3 9-7.8-5.8-7.9 5.8 3-9-7.9-5.7h9.8zm0 38.5l2.9 8.9h9.8l-7.9 5.8 3 8.8-7.8-5.6-7.9 5.6 3-8.8-7.9-5.8h9.8zm0 38.4l2.9 9h9.8l-7.9 5.7 3 8.9-7.8-5.7-7.9 5.7 3-8.9-7.9-5.7h9.8zm0 38.5l2.9 8.9h9.8l-7.9 5.8 3 8.9-7.8-5.7-7.9 5.7 3-9-7.9-5.7h9.8z'/%3E%3C/svg%3E");
+}
+
+.fi-fr {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 750 500'%3E%3Cpath fill='%23fff' d='M0 0h750v500H0z'/%3E%3Cpath fill='%23000091' d='M0 0h250v500H0z'/%3E%3Cpath fill='%23e1000f' d='M500 0h250v500H500z'/%3E%3C/svg%3E");
+}
+
+.fi-br {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 504'%3E%3Cpath fill='%2300a859' d='M0 0h720v504H0z'/%3E%3Cpath fill='%23ffcc29' d='M360 30l300 222-300 222L60 252z'/%3E%3Ccircle cx='360' cy='252' r='111.6' fill='%23022c9d'/%3E%3Cpath fill='%23fff' d='M348.2 315.9c-58.5 0-106-47.4-106-106 0-16.5 3.8-32.1 10.5-46a150 150 0 00-43.2 105.6c0 82.8 67.1 150 149.8 150 57.9 0 108.3-32.8 133.2-80.8a151.1 151.1 0 01-144.3-22.8z'/%3E%3C/svg%3E");
+}
+
+/* Make sure modals display properly */
+.fixed {
+    position: fixed;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.z-50 {
+    z-index: 50;
+}
+
+/* Modal appearance */
+.bg-black.bg-opacity-50 {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Form styles */
+input.focus\:ring-primary:focus {
+    box-shadow: 0 0 0 3px rgba(4, 81, 188, 0.3);
+    outline: none;
+}
+
+input.focus\:border-primary:focus {
+    border-color: #0451BC;
+}
+
+/* Button styles */
+button.bg-primary {
+    background-color: #0451BC;
+}
+
+button.hover\:bg-blue-700:hover {
+    background-color: #0345a0;
+}
+#back-to-role-staff {
+    background-color: #e96666;
+    color: white;
+    font-weight: bold;
+}
+#back-to-role-staff:hover {
+    background-color: #d55c5c;
+}
+.micro{
+    font-size:13px;
+    color:var(--muted);
+    padding-top: 2vh;
+}
+
+#role-selection-instruction {
+    margin-bottom: 2vh;
+    color: var(--muted);
+}
+
+.btn {
+    background: var(--blue);
+    color:white;
+    padding:12px 24px;
+    border-radius:10px;
+    border:0;
+    font-weight:600;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(11,99,198,0.18);
+    height: 5vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 0.8rem;
+}
+
+/* Welcome screen progress bar styles */
+.welcome-progress-container {
+    width: 100%;
+    margin: 0 auto;
+}
+
+.welcome-progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #E5E7EB;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dark .welcome-progress-bar {
+    background-color: #4B5563;
+}
+
+.welcome-progress-fill {
+    height: 100%;
+    width: 16.67%; /* 1 of 6 steps = 16.67% */
+    background: linear-gradient(90deg, #0451BC 0%, #0b63c6 100%);
+    border-radius: 10px;
+    transition: width 0.5s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Role selection container styles */
+.roles-container {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+.roles-container.show {
+    opacity: 1;
+    max-height: 400px;
+    pointer-events: auto;
+}
+
+/* Role card styles */
+.role-card {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.role-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(4, 81, 188, 0.15);
+}
+
+.role-card.selected {
+    border-color: #0451BC !important;
+    box-shadow: 0 10px 30px rgba(4, 81, 188, 0.2);
+    background-color: rgba(4, 81, 188, 0.02);
+}
+
+.dark .role-card.selected {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: #3B82F6 !important;
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+}
+
+.role-card:focus {
+    outline: none;
+    border-color: rgba(4, 81, 188, 0.4);
+    box-shadow: 0 0 0 3px rgba(4, 81, 188, 0.1);
+}
+
+/* Animation for role cards when they appear */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.roles-container.show .role-card {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.roles-container.show .role-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
