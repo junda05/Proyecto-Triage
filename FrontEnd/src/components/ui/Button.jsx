@@ -9,11 +9,8 @@ const Button = ({
   className = '',
   ...props 
 }) => {
-  // Debug: Log de renderizado del botón
-  console.log('🔘 Button renderizado:', { children, variant, size, disabled, hasOnClick: !!onClick });
 
   const handleClick = (e) => {
-    console.log('🔘 Button clickeado:', children);
     if (onClick) {
       onClick(e);
     }
@@ -37,8 +34,8 @@ const Button = ({
 
   const sizes = {
     sm: 'px-6 py-2 text-sm',
-    md: 'px-6 py-3 text-base',
-    lg: 'px-8 py-4 text-lg'
+    md: 'px-8 py-4 text-base',
+    lg: 'px-10 py-6 text-lg'
   };
 
   return (

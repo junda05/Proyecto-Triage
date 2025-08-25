@@ -3,11 +3,9 @@ from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import SesionTriage, Pregunta, Respuesta, ReglaFlujo
-from .serializers import (SesionTriageSerializer, PreguntaSerializer, 
-                         RespuestaSerializer, ReglaFlujoSerializer,
-                         RespuestaCreateSerializer)
+from .serializers import SesionTriageSerializer, PreguntaSerializer, RespuestaSerializer, RespuestaCreateSerializer
 from utils.preguntas import PREGUNTAS, FLUJO_PREGUNTAS, REGLAS_ESI
-from pacientes.models import Paciente  # Importamos el modelo Paciente
+from pacientes.models import Paciente
 
 class PreguntaListView(generics.ListAPIView):
     """
@@ -97,7 +95,7 @@ class RespuestaCreate(generics.CreateAPIView):
         
         # Manejo específico para el flujo de embarazo
         if codigo_pregunta_actual == 'embarazo':
-            if valor_respuesta == 'Sí' or valor_respuesta is True:
+            if valor_respuesta in ['Sí', 'Si', True, 'True']:
                 try:
                     return Pregunta.objects.get(codigo='semanas_embarazo')
                 except Pregunta.DoesNotExist:
@@ -111,18 +109,80 @@ class RespuestaCreate(generics.CreateAPIView):
                 
         elif codigo_pregunta_actual == 'semanas_embarazo':
             try:
-                return Pregunta.objects.get(codigo='sangrado_embarazo')
+                return Pregunta.objects.get(codigo='sintomas_graves_embarazo_ESI1')
             except Pregunta.DoesNotExist:
                 pass
                 
-        elif codigo_pregunta_actual == 'sangrado_embarazo':
-            try:
-                return Pregunta.objects.get(codigo='dolor_abdominal_embarazo')
-            except Pregunta.DoesNotExist:
-                pass
+        elif codigo_pregunta_actual == 'sintomas_graves_embarazo_ESI1':
+            if valor_respuesta == 'Ninguna de las anteriores':
+                try:
+                    return Pregunta.objects.get(codigo='sintomas_moderados_embarazo_ESI23')
+                except Pregunta.DoesNotExist:
+                    pass
+            else:
+                # Si presenta síntomas graves, asignar ESI 1 y finalizar triage
+                # Estos síntomas requieren atención inmediata
+                sintomas_esi1 = [
+                    "Sangrado vaginal abundante o con coágulos",
+                    "Dolor abdominal intenso o persistente", 
+                    "Pérdida súbita de líquido por vagina",
+                    "Fiebre alta con escalofríos",
+                    "Mareo intenso o pérdida de conciencia",
+                    "Movimientos fetales ausentes",
+                    "Convulsiones o visión borrosa"
+                ]
+                if valor_respuesta in sintomas_esi1:
+                    # Finalizar triage - ESI 1 ya asignado por reglas
+                    return None
+                # Para otros síntomas, continuar flujo normal
+                try:
+                    return Pregunta.objects.get(codigo='mayor_riesgo')
+                except Pregunta.DoesNotExist:
+                    pass
                 
-        elif codigo_pregunta_actual == 'dolor_abdominal_embarazo':
-            # Después de completar las preguntas de embarazo, continuar con el flujo normal
+        elif codigo_pregunta_actual == 'sintomas_moderados_embarazo_ESI23':
+            if valor_respuesta == 'Ninguna de las anteriores':
+                try:
+                    return Pregunta.objects.get(codigo='sintomas_leves_embarazo_ESI45')
+                except Pregunta.DoesNotExist:
+                    pass
+            else:
+                # Clasificar según el tipo de síntoma y finalizar si corresponde
+                sintomas_esi2 = [
+                    "Disminución de movimientos fetales",
+                    "Náuseas o vómitos persistentes", 
+                    "Presión alta conocida o sospechada"
+                ]
+                sintomas_esi3 = [
+                    "Sangrado vaginal leve o manchado",
+                    "Dolor abdominal leve o intermitente",
+                    "Dolor de cabeza fuerte sin otros síntomas"
+                ]
+                
+                if valor_respuesta in sintomas_esi2 or valor_respuesta in sintomas_esi3:
+                    # Finalizar triage - ESI 2 o 3 ya asignado por reglas
+                    return None
+                # Para otros síntomas, continuar flujo normal
+                try:
+                    return Pregunta.objects.get(codigo='mayor_riesgo')
+                except Pregunta.DoesNotExist:
+                    pass
+                
+        elif codigo_pregunta_actual == 'sintomas_leves_embarazo_ESI45':
+            # Evaluar síntomas leves y finalizar si hay clasificación ESI
+            sintomas_esi4 = [
+                "Flujo vaginal sin mal olor ni coloración anormal",
+                "Dolor lumbar leve"
+            ]
+            sintomas_esi5 = [
+                "Náuseas leves o vómitos ocasionales",
+                "Fatiga o somnolencia"
+            ]
+            
+            if valor_respuesta in sintomas_esi4 or valor_respuesta in sintomas_esi5:
+                # Finalizar triage - ESI 4 o 5 ya asignado por reglas
+                return None
+            # Para otros síntomas, continuar flujo normal
             try:
                 return Pregunta.objects.get(codigo='mayor_riesgo')
             except Pregunta.DoesNotExist:
@@ -168,9 +228,27 @@ class RespuestaCreate(generics.CreateAPIView):
         # Convertir respuestas a un diccionario para fácil acceso
         respuestas_dict = {resp.pregunta.codigo: resp.valor for resp in respuestas}
         
-        # Evaluar cada regla ESI
+        # Verificar si es una paciente embarazada
+        es_embarazada = respuestas_dict.get('embarazo') in ['Sí', 'Si', True, 'True']
+        
+        # Verificar si es un adulto mayor (>65 años)
+        es_adulto_mayor = sesion.paciente.edad > 65
+        
+        # Evaluar cada regla ESI - las reglas de embarazo y adulto mayor tienen prioridad
         for regla in REGLAS_ESI:
             condiciones_cumplidas = True
+            
+            # Para reglas de embarazo, verificar que la paciente esté embarazada
+            regla_es_embarazo = any('embarazo' in condicion.get('pregunta', '') for condicion in regla["condiciones"])
+            
+            if regla_es_embarazo and not es_embarazada:
+                continue  # Saltar reglas de embarazo si no está embarazada
+            
+            # Para reglas de adultos mayores, verificar que el paciente tenga >65 años
+            regla_es_adulto_mayor = any('adulto_mayor' in condicion.get('pregunta', '') for condicion in regla["condiciones"])
+            
+            if regla_es_adulto_mayor and not es_adulto_mayor:
+                continue  # Saltar reglas de adulto mayor si no tiene >65 años
             
             for condicion in regla["condiciones"]:
                 pregunta_codigo = condicion["pregunta"]
@@ -236,11 +314,15 @@ class IniciarTriage(APIView):
         sesion_serializer.is_valid(raise_exception=True)
         sesion = sesion_serializer.save(fecha_inicio=timezone.now())
         
-        # Determinar la primera pregunta según el sexo del paciente
-        if paciente.sexo == 'F':
+        # Determinar la primera pregunta según la edad y sexo del paciente
+        # Prioridad 1: Adultos mayores (>65 años)
+        if paciente.edad > 65:
+            primera_pregunta_codigo = 'adulto_mayor_ESI1'
+        # Prioridad 2: Mujeres (cualquier edad) - preguntar sobre embarazo
+        elif paciente.sexo == 'F':
             primera_pregunta_codigo = 'embarazo'
+        # Prioridad 3: Flujo normal para otros casos
         else:
-            # Si no es femenino, usar el flujo normal
             primera_pregunta_codigo = FLUJO_PREGUNTAS.get("inicio", None)
         
         if primera_pregunta_codigo:

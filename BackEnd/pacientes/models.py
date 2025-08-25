@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date
 from utils.choices import DOC_CHOICES, SEX_CHOICES, EPS_CHOICES, REGIMEN_EPS_CHOICES
 
 # Entidad principal
@@ -34,6 +35,17 @@ class Paciente(models.Model):
     # Esto es útil para identificar rápidamente a los pacientes en la interfaz de administración
     def __str__(self):
         return f"{self.primer_nombre} {self.primer_apellido} ({self.numero_documento})"
+    
+    @property
+    def edad(self):
+        """
+        Calcula la edad del paciente basada en su fecha de nacimiento
+        """
+        today = date.today()
+        edad = today.year - self.fecha_nacimiento.year
+        if today.month < self.fecha_nacimiento.month or (today.month == self.fecha_nacimiento.month and today.day < self.fecha_nacimiento.day):
+            edad -= 1
+        return edad
 
 
 # Modelo de contacto de emergencia para pacientes

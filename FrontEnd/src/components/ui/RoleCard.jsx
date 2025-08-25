@@ -7,21 +7,9 @@ const RoleCard = ({
   icon, 
   onClick, 
   isSelected, 
-  isVisible 
 }) => {
-  // Debug: Log de props recibidas
-  console.log(`🎭 RoleCard [${role}] renderizado con props:`, {
-    role,
-    title,
-    description,
-    isSelected,
-    isVisible,
-    hasIcon: !!icon,
-    hasOnClick: !!onClick
-  });
 
   const handleClick = () => {
-    console.log(`🔥 RoleCard [${role}] clickeado`);
     onClick(role);
   };
 
@@ -41,8 +29,6 @@ const RoleCard = ({
       : 'border-transparent hover:border-primary dark:hover:border-blue-400'
     }
   `;
-
-  console.log(`🎨 RoleCard [${role}] clases CSS:`, cardClasses.trim());
 
   return (
     <div 

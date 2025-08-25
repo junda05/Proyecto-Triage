@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from datetime import date
 from .models import Paciente, ContactoEmergencia
 import re
 
@@ -14,11 +13,30 @@ class ContactoEmergenciaSerializer(serializers.ModelSerializer):
         }
         
     def validate(self, data):
+        
+        # Para actualizaciones parciales (PATCH), obtener los datos existentes
+        if self.instance is not None:
+            # Combinar los datos existentes con los nuevos datos
+            instance_data = {
+                'primer_nombre': getattr(self.instance, 'primer_nombre', None),
+                'segundo_nombre': getattr(self.instance, 'segundo_nombre', None),
+                'primer_apellido': getattr(self.instance, 'primer_apellido', None),
+                'segundo_apellido': getattr(self.instance, 'segundo_apellido', None)
+            }
+            # Filtrar campos None
+            instance_data = {k: v for k, v in instance_data.items() if v is not None}
+            # Actualizar con los nuevos datos
+            instance_data.update(data)
+            validation_data = instance_data
+        else:
+            validation_data = data
+            
         nombre_completo = []
         for field in ['primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido']:
-            if field in data:
+            # Verificar si el campo tiene un valor, ya sea en los datos nuevos o existentes
+            if validation_data.get(field):
                 # Eliminar espacios extras y dividir en palabras
-                nombres = [nombre.strip() for nombre in data[field].split() if nombre.strip()]
+                nombres = [nombre.strip() for nombre in validation_data[field].split() if nombre.strip()]
                 
                 # Verificar que haya al menos una palabra
                 if not nombres:
@@ -98,18 +116,11 @@ class ContactoEmergenciaSerializer(serializers.ModelSerializer):
 
 class PacienteSerializer(serializers.ModelSerializer):
     contacto_emergencia = ContactoEmergenciaSerializer(required=True, write_only=True)
-    edad = serializers.SerializerMethodField(read_only=True)
+    edad = serializers.ReadOnlyField()  # Lee directamente la propiedad edad del modelo
 
     class Meta:
         model = Paciente
         fields = '__all__'
-
-    def get_edad(self, obj):
-        today = date.today()
-        edad = today.year - obj.fecha_nacimiento.year
-        if today.month < obj.fecha_nacimiento.month or (today.month == obj.fecha_nacimiento.month and today.day < obj.fecha_nacimiento.day):
-            edad -= 1
-        return edad
 
     # Método para crear un paciente y su contacto de emergencia
     def create(self, validated_data):

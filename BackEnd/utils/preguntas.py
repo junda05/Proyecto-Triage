@@ -12,32 +12,73 @@ PREGUNTAS = {
         "tipo": "choice",
         "opciones": ["Dolor intenso", "Sangrado", "Fiebre alta", "Dificultad para respirar", "Ninguno"]
     },
+    
+    
+    # Preguntas para embarazo
     "embarazo": {
         "texto": "¿Está embarazada?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "semanas_embarazo": {
         "texto": "¿Cuántas semanas de embarazo tiene?",
-        "tipo": "numeric",
-        "unidad": "semanas"
+        "tipo": "choice",
+        "opciones": ["1-4 semanas", "5-8 semanas", "9-13 semanas", "14-17 semanas", 
+                     "18-22 semanas", "23-27 semanas", "28-31 semanas", "32-35 semanas",
+                     "36-40 semanas"]
     },
-    "sangrado_embarazo": {
-        "texto": "¿Presenta sangrado vaginal?",
-        "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+    "sintomas_graves_embarazo_ESI1": {
+        "texto": "¿Presenta alguno de los siguientes síntomas?",
+        "tipo": "choice",
+        "opciones": ["Sangrado vaginal abundante o con coágulos", "Dolor abdominal intenso o persistente", "Pérdida súbita de líquido por vagina", 
+                     "Fiebre alta con escalofríos", "Mareo intenso o pérdida de conciencia", "Movimientos fetales ausentes", "Convulsiones o visión borrosa",
+                     "Ninguna de las anteriores"]
     },
-    "dolor_abdominal_embarazo": {
-        "texto": "¿Presenta dolor abdominal intenso?",
-        "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+    "sintomas_moderados_embarazo_ESI23": {
+        "texto": "¿Presenta alguno de los siguientes síntomas?",
+        "tipo": "choice",
+        "opciones": ["Sangrado vaginal leve o manchado", "Dolor abdominal leve o intermitente", "Náuseas o vómitos persistentes", 
+                     "Dolor de cabeza fuerte sin otros síntomas", "Disminución de movimientos fetales", "Presión alta conocida o sospechada",
+                     "Ninguna de las anteriores"]
+    },
+    "sintomas_leves_embarazo_ESI45": {
+        "texto": "¿Presenta alguno de estos síntomas?",
+        "tipo": "choice",
+        "opciones": ["Náuseas leves o vómitos ocasionales", "Dolor lumbar leve",
+                     "Fatiga o somnolencia", "Flujo vaginal sin mal olor ni coloración anormal"]
+    },
+    
+    # Preguntas para adulto mayor
+    "adulto_mayor_ESI1": {
+        "texto": "¿Presenta alguno de los siguientes síntomas?",
+        "tipo": "choice",
+        "opciones": ["Dificultad para respirar muy fuerte", "Dolor en el pecho muy intenso", "Confusión o desorientación repentina",
+                     "Fiebre muy alta junto con debilidad extrema", "Ninguna de las anteriores"]
+    },
+    "adulto_mayor_ESI2": {
+        "texto": "¿Tiene alguno de estos sintomas repentinos?",
+        "tipo": "choice",
+        "opciones": ["Vómitos persistentes", "Una caída con posible golpe fuerte o fractura", "Confusión repentina o dificultad para pensar claramente",
+                     "Fiebre acompañada de escalofríos fuertes", "Dificultad para comer, beber o moverse por sí mismo", "Ninguna de las anteriores"]
+    },
+    "adulto_mayor_ESI3": {
+        "texto": "¿Ha notado alguno de estos malestares?",
+        "tipo": "choice",
+        "opciones": ["Tos que no mejora", "Cansancio o fatiga constante", "Pérdida del apetito", "Dolor leve pero molesto",
+                     "Sensación de decaimiento o falta de energía", "Ninguna de las anteriores"]
+    },
+    "adulto_mayor_ESI45": {
+        "texto": "¿Viene por alguna de estas razones?",
+        "tipo": "choice",
+        "opciones": ["Dolor localizado y controlable", "Necesidad de un medicamento o receta", "Exámenes o pruebas que le solicitó su médico",
+                     "Tiene una herida que desee revisar", "Ninguna de las anteriores"]
     },
     
     # Preguntas sobre dificultad respiratoria
     "dificultad_respiratoria": {
         "texto": "¿Experimenta sensación de ahogo o falta de aire?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "dificultad_respirar_esfuerzo": {
         "texto": "¿En reposo o con mínimo esfuerzo?",
@@ -47,70 +88,70 @@ PREGUNTAS = {
     "habla_entrecortada": {
         "texto": "¿Al hablar, tiene que parar para tomar aire entre cada 2-3 palabras para respirar?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "silbido_respirar": {
         "texto": "¿Al respirar hace un silbido como de asma?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas sobre dolor en el pecho
     "dolor_pecho": {
         "texto": "¿Tiene dolor en el pecho?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "dolor_pecho_sudoracion": {
         "texto": "¿Con sudoración fría o irradiación?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "dolor_pecho_tipo": {
         "texto": "¿El dolor de pecho es como un peso aplastante o quemazón?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "dolor_pecho_respirar": {
         "texto": "¿El dolor empeora al respirar hondo?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas sobre parálisis o debilidad
     "debilidad_extremidades": {
         "texto": "¿No puede mover un brazo/pierna de repente?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas sobre dolor abdominal
     "dolor_abdominal": {
         "texto": "¿Tiene dolor abdominal intenso o vómitos?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "dolor_abdominal_intensidad": {
         "texto": "¿El dolor es tan fuerte que no encuentra posición cómoda?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "vomito_sangre": {
         "texto": "¿El vómito tiene sangre o parece café molido (negro)?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "incapacidad_caminar": {
         "texto": "¿Tiene incapacidad para caminar?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas sobre hemorragias
     "tos_sangre": {
         "texto": "¿Tose sangre o flemas con sangre fresca?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas sobre síntomas principales
@@ -122,71 +163,71 @@ PREGUNTAS = {
     "respiracion_rapida": {
         "texto": "¿Respira más rápido de lo normal (más de 1 respiración por segundo)?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "dolor_abdomen_postura": {
         "texto": "¿El dolor es tan fuerte que no puede pararse derecho?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "estreñimiento_hinchazón": {
         "texto": "¿Ha dejado de ir al baño por más de 3 días con hinchazón?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "dolor_cabeza_intenso": {
         "texto": "¿El dolor de cabeza es el peor que ha sentido en su vida?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "vision_alterada": {
         "texto": "¿Ve luces brillantes o pierde visión por segundos?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas sobre estado mental
     "confusion": {
         "texto": "¿Tiene confusión?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "perdida_memoria": {
         "texto": "¿Ha tenido momentos donde no recuerda qué hizo?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "alucinaciones": {
         "texto": "¿Ve luces o formas raras que no existen?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas para adultos mayores
     "mareo_severo": {
         "texto": "¿Se ha sentido tan mareado que casi se cae al pararse?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "escalofrios_severos": {
         "texto": "¿Ha tenido escalofríos tan fuertes que le tiembla el cuerpo?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "cianosis": {
         "texto": "¿Se le han puesto los labios o uñas morados?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "palpitaciones": {
         "texto": "¿Siente el corazón tan acelerado que lo escucha en sus oídos como si hubiera corrido estando quieto?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "dolor_opresivo": {
         "texto": "¿El dolor de pecho es como si alguien le estuviera pisando fuerte?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "fiebre_sintomas": {
         "texto": "¿Qué le duele o molesta más?",
@@ -203,19 +244,19 @@ PREGUNTAS = {
     "sintomas_leves": {
         "texto": "¿Tiene síntomas leves (tos, dolor de garganta, diarrea)?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas sobre antecedentes médicos
     "alergia_relacionada": {
         "texto": "¿Su síntoma está relacionado con sus alergias?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "condicion_medica_relacionada": {
         "texto": "¿Su síntoma está relacionado con su condición médica?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas específicas para diabetes
@@ -237,12 +278,12 @@ PREGUNTAS = {
     "diabetes_sintomas_leves": {
         "texto": "¿Presenta hambre aumentada o irritabilidad leve, no presenta más síntomas graves?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "diabetes_control": {
         "texto": "¿Control rutinario de diabetes sin síntomas nuevos?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas específicas para asma
@@ -254,22 +295,22 @@ PREGUNTAS = {
     "asma_sibilancias": {
         "texto": "¿Tiene sibilancias en la respiración, uso del inhalador sin mejora?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "asma_tos": {
         "texto": "¿Presenta tos, necesidad de usar inhalador más de dos veces por semana?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "asma_leve": {
         "texto": "¿Presenta tos ocasional que mejora con el inhalador, sibilancias leves durante ejercicios o exposición a alérgenos?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "asma_control": {
         "texto": "¿Control rutinario de asma estable?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas específicas para ACV (Accidente Cerebrovascular)
@@ -286,12 +327,12 @@ PREGUNTAS = {
     "acv_sintomas_leves": {
         "texto": "¿Los síntomas desaparecen después de horas, mareos aislados sin otros síntomas, dolor de cabeza leves?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "acv_seguimiento": {
         "texto": "¿Consulta para seguimiento o síntomas no relacionados?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas específicas para insuficiencia cardiaca
@@ -318,80 +359,80 @@ PREGUNTAS = {
     "ic_medicacion": {
         "texto": "¿Revisión de medicación sin síntomas nuevos?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas específicas para hipertensión arterial
     "hta_dolor_cabeza": {
         "texto": "¿Tiene dolor de cabeza + visión borrosa?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "hta_manchas_vision": {
         "texto": "¿Ve manchas o lucecitas?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "hta_dolor_cabeza_intenso": {
         "texto": "¿Le duele la cabeza como nunca antes?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "hta_mareo": {
         "texto": "¿Tiene mareo severo?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas específicas para enfermedad coronaria
     "ec_dolor_pecho_irradiado": {
         "texto": "¿Dolor en pecho como peso que irradia a brazo/mandíbula?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "ec_opresion_intensa": {
         "texto": "¿Siente que un elefante le pisó el pecho?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "ec_dolor_irradiado": {
         "texto": "¿El dolor le llega hasta el cuello/brazo?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "ec_dolor_sudor": {
         "texto": "¿Dolor opresivo con sudor frío?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas específicas para EPOC
     "epoc_labios_azules": {
         "texto": "¿Labios/uñas azules + no puede hablar?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "epoc_silbido_respirar": {
         "texto": "¿Al respirar hace sonido de pitillo?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "epoc_tos_pegamento": {
         "texto": "¿Tose como si tuviera pegamento en los pulmones?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "epoc_silbidos_flemas": {
         "texto": "¿Silbidos al respirar + flemas verdes/amarillas?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     
     # Preguntas específicas para fibromialgia
     "fm_autolesion": {
         "texto": "¿El paciente presenta síntomas asociados a la autolesión?",
         "tipo": "boolean",
-        "opciones": ["Sí", "No"]
+        "opciones": ["Si", "No"]
     },
     "fm_deshidratacion": {
         "texto": "¿El paciente tiene deshidratación severa, síndrome de colon irritable, síncopes o taquicardia extrema, dolor torácico o sospecha de causa cardiaca?",
@@ -424,19 +465,49 @@ FLUJO_PREGUNTAS = {
     
     # Flujo para embarazo
     "embarazo": {
-        "siguiente": "dificultad_respiratoria",
+        "siguiente": "mayor_riesgo",  # Si no está embarazada, continúa con flujo general
+        "Si": "semanas_embarazo",     # Si está embarazada, va al flujo específico
         "True": "semanas_embarazo"
     },
     "semanas_embarazo": {
-        "siguiente": "sangrado_embarazo"
+        "siguiente": "sintomas_graves_embarazo_ESI1"
     },
-    "sangrado_embarazo": {
-        "siguiente": "dolor_abdominal_embarazo"
+    "sintomas_graves_embarazo_ESI1": {
+        "siguiente": None,  # Finalizar evaluación - ESI 1
+        "Ninguna de las anteriores": "sintomas_moderados_embarazo_ESI23",
+        "default": None  # Cualquier otro síntoma grave = ESI 1, finalizar
     },
-    "dolor_abdominal_embarazo": {
-        "siguiente": "dificultad_respiratoria"
+    "sintomas_moderados_embarazo_ESI23": {
+        "siguiente": None,  # Finalizar evaluación - ESI 2 o 3 según síntoma
+        "Ninguna de las anteriores": "sintomas_leves_embarazo_ESI45",
+        "default": None  # Síntomas ESI 2 o 3, finalizar
+    },
+    "sintomas_leves_embarazo_ESI45": {
+        "siguiente": None,  # Finalizar evaluación - ESI 4 o 5
+        "default": None  # Síntomas ESI 4 o 5, finalizar
     },
     
+    # Flujo para >65 años
+    "adulto_mayor_ESI1": {
+        "siguiente": None,
+        "Ninguna de las anteriores": "adulto_mayor_ESI2",
+        "default": None
+    },
+    "adulto_mayor_ESI2": {
+        "siguiente": None,
+        "Ninguna de las anteriores": "adulto_mayor_ESI3",
+        "default": None
+    },
+    "adulto_mayor_ESI3": {
+        "siguiente": None,
+        "Ninguna de las anteriores": "adulto_mayor_ESI45",
+        "default": None
+    },
+    "adulto_mayor_ESI45": {
+        "siguiente": None,
+        "default": None
+    },
+
     # Flujo para dificultad respiratoria
     "dificultad_respiratoria": {
         "siguiente": "dolor_pecho",
@@ -674,88 +745,100 @@ FLUJO_PREGUNTAS = {
 
 # Reglas de clasificación ESI basadas en respuestas
 REGLAS_ESI = [
-    # Reglas para ESI 1 (Emergencia)
-    {
-        "condiciones": [
-            {"pregunta": "mayor_riesgo", "valor": ["Dolor intenso", "Sangrado", "Fiebre alta", "Dificultad para respirar"]},
-            {"pregunta": "dificultad_respirar_esfuerzo", "valor": "En reposo"},
-            {"pregunta": "habla_entrecortada", "valor": True},
-            {"pregunta": "dolor_pecho_tipo", "valor": True},
-            {"pregunta": "debilidad_extremidades", "valor": True},
-            {"pregunta": "cianosis", "valor": True},
-            {"pregunta": "dolor_opresivo", "valor": True},
-            {"pregunta": "dolor_cabeza_intenso", "valor": True},
-            {"pregunta": "perdida_memoria", "valor": True},
-            {"pregunta": "acv_inconciencia", "valor": ["Pérdida de conciencia", "Convulsiones"]},
-            {"pregunta": "ic_inestabilidad", "valor": ["Falta de aire extrema", "Tos con esputo rosado"]},
-            {"pregunta": "ec_opresion_intensa", "valor": True},
-            {"pregunta": "epoc_labios_azules", "valor": True}
-        ],
-        "nivel_esi": 1
-    },
-    # Reglas para ESI 2 (Urgencia Crítica)
-    {
-        "condiciones": [
-            {"pregunta": "silbido_respirar", "valor": True},
-            {"pregunta": "dolor_pecho_respirar", "valor": True},
-            {"pregunta": "dolor_pecho_sudoracion", "valor": True},
-            {"pregunta": "vomito_sangre", "valor": True},
-            {"pregunta": "incapacidad_caminar", "valor": True},
-            {"pregunta": "tos_sangre", "valor": True},
-            {"pregunta": "respiracion_rapida", "valor": True},
-            {"pregunta": "dolor_abdomen_postura", "valor": True},
-            {"pregunta": "estreñimiento_hinchazón", "valor": True},
-            {"pregunta": "alucinaciones", "valor": True},
-            {"pregunta": "mareo_severo", "valor": True},
-            {"pregunta": "escalofrios_severos", "valor": True},
-            {"pregunta": "diabetes_inestabilidad", "valor": ["Respiración rápida", "Confusión"]},
-            {"pregunta": "asma_inestabilidad", "valor": ["Labios azulados", "Alteración del estado mental"]},
-            {"pregunta": "acv_sintomas", "valor": ["Asimetría facial", "Debilidad en brazos", "Dificultad para hablar"]},
-            {"pregunta": "ic_retencion", "valor": ["Disnea en reposo", "Dolor torácico"]},
-            {"pregunta": "hta_manchas_vision", "valor": True},
-            {"pregunta": "ec_dolor_sudor", "valor": True},
-            {"pregunta": "epoc_silbido_respirar", "valor": True},
-            {"pregunta": "fm_deshidratacion", "valor": ["Deshidratación severa", "Taquicardia extrema", "Dolor torácico"]}
-        ],
-        "nivel_esi": 2
-    },
-    # Reglas para ESI 3 (Urgencia No Crítica)
-    {
-        "condiciones": [
-            {"pregunta": "dificultad_respiratoria", "valor": True},
-            {"pregunta": "dolor_pecho", "valor": True},
-            {"pregunta": "dolor_abdominal", "valor": True},
-            {"pregunta": "vision_alterada", "valor": True},
-            {"pregunta": "confusion", "valor": True},
-            {"pregunta": "diabetes_sintomas", "valor": ["Vómitos persistentes", "Dolor abdominal intenso"]},
-            {"pregunta": "diabetes_vision", "valor": ["Visión borrosa", "Debilidad extrema"]},
-            {"pregunta": "asma_tos", "valor": True},
-            {"pregunta": "ic_sintomas_cronicos", "valor": ["Fatiga extrema", "Hinchazón moderada"]},
-            {"pregunta": "fm_dolor_migraña", "valor": ["Migraña refractiva", "Dolor generalizado extremo"]}
-        ],
-        "nivel_esi": 3
-    },
-    # Reglas para ESI 4 (Consulta Prioritaria)
-    {
-        "condiciones": [
-            {"pregunta": "sintomas_leves", "valor": True},
-            {"pregunta": "diabetes_sintomas_leves", "valor": True},
-            {"pregunta": "asma_leve", "valor": True},
-            {"pregunta": "acv_sintomas_leves", "valor": True},
-            {"pregunta": "ic_sintomas_leves", "valor": ["Hinchazón leve"]},
-            {"pregunta": "fm_dolor_moderado", "valor": ["Dolor moderado", "Insomnio grave"]}
-        ],
-        "nivel_esi": 4
-    },
-    # Reglas para ESI 5 (Consulta Externa)
-    {
-        "condiciones": [
-            {"pregunta": "sintomas_leves", "valor": False},
-            {"pregunta": "diabetes_control", "valor": True},
-            {"pregunta": "asma_control", "valor": True},
-            {"pregunta": "acv_seguimiento", "valor": True},
-            {"pregunta": "ic_medicacion", "valor": True}
-        ],
-        "nivel_esi": 5
-    }
+    # Reglas para ESI 1 (Emergencia) - Adultos Mayores
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI1", "valor": "Dificultad para respirar muy fuerte"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI1", "valor": "Dolor en el pecho muy intenso"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI1", "valor": "Confusión o desorientación repentina"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI1", "valor": "Fiebre muy alta junto con debilidad extrema"}], "nivel_esi": 1},
+    
+    # Reglas para ESI 2 (Urgencia Crítica) - Adultos Mayores
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Vómitos persistentes"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Una caída con posible golpe fuerte o fractura"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Confusión repentina o dificultad para pensar claramente"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Fiebre acompañada de escalofríos fuertes"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Dificultad para comer, beber o moverse por sí mismo"}], "nivel_esi": 2},
+    
+    # Reglas para ESI 3 (Urgencia No Crítica) - Adultos Mayores
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Tos que no mejora"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Cansancio o fatiga constante"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Pérdida del apetito"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Dolor leve pero molesto"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Sensación de decaimiento o falta de energía"}], "nivel_esi": 3},
+    
+    # Reglas para ESI 4 (Consulta Prioritaria) - Adultos Mayores
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Dolor localizado y controlable"}], "nivel_esi": 4},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Necesidad de un medicamento o receta"}], "nivel_esi": 4},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Exámenes o pruebas que le solicitó su médico"}], "nivel_esi": 4},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Tiene una herida que desee revisar"}], "nivel_esi": 4},
+    
+    # Reglas para ESI 5 (Consulta Externa) - Adultos Mayores
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Ninguna de las anteriores"}], "nivel_esi": 5},
+    
+    # Reglas para ESI 1 (Emergencia) - Mujeres Embarazadas
+    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Sangrado vaginal abundante o con coágulos"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Dolor abdominal intenso o persistente"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Pérdida súbita de líquido por vagina"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Fiebre alta con escalofríos"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Mareo intenso o pérdida de conciencia"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Movimientos fetales ausentes"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Convulsiones o visión borrosa"}], "nivel_esi": 1},
+    
+    # Reglas para ESI 2 (Urgencia Crítica) - Mujeres Embarazadas
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI23", "valor": "Disminución de movimientos fetales"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI23", "valor": "Náuseas o vómitos persistentes"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI23", "valor": "Presión alta conocida o sospechada"}], "nivel_esi": 2},
+    
+    # Reglas para ESI 3 (Urgencia No Crítica) - Mujeres Embarazadas
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI23", "valor": "Sangrado vaginal leve o manchado"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI23", "valor": "Dolor abdominal leve o intermitente"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI23", "valor": "Dolor de cabeza fuerte sin otros síntomas"}], "nivel_esi": 3},
+    
+    # Reglas para ESI 4 (Consulta Prioritaria) - Mujeres Embarazadas
+    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI45", "valor": "Flujo vaginal sin mal olor ni coloración anormal"}], "nivel_esi": 4},
+    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI45", "valor": "Dolor lumbar leve"}], "nivel_esi": 4},
+    
+    # Reglas para ESI 5 (Consulta Externa) - Mujeres Embarazadas
+    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI45", "valor": "Náuseas leves o vómitos ocasionales"}], "nivel_esi": 5},
+    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI45", "valor": "Fatiga o somnolencia"}], "nivel_esi": 5},
+    
+    # Reglas generales para ESI 1 (Emergencia)
+    {"condiciones": [{"pregunta": "mayor_riesgo", "valor": "Dolor intenso"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "mayor_riesgo", "valor": "Sangrado"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "mayor_riesgo", "valor": "Fiebre alta"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "mayor_riesgo", "valor": "Dificultad para respirar"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "dificultad_respirar_esfuerzo", "valor": "En reposo"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "habla_entrecortada", "valor": "Si"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "dolor_pecho_tipo", "valor": "Si"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "debilidad_extremidades", "valor": "Si"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "cianosis", "valor": "Si"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "dolor_opresivo", "valor": "Si"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "dolor_cabeza_intenso", "valor": "Si"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "perdida_memoria", "valor": "Si"}], "nivel_esi": 1},
+    
+    # Reglas generales para ESI 2 (Urgencia Crítica)
+    {"condiciones": [{"pregunta": "silbido_respirar", "valor": "Si"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "dolor_pecho_respirar", "valor": "Si"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "dolor_pecho_sudoracion", "valor": "Si"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "vomito_sangre", "valor": "Si"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "incapacidad_caminar", "valor": "Si"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "tos_sangre", "valor": "Si"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "respiracion_rapida", "valor": "Si"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "dolor_abdomen_postura", "valor": "Si"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "estreñimiento_hinchazón", "valor": "Si"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "alucinaciones", "valor": "Si"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "mareo_severo", "valor": "Si"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "escalofrios_severos", "valor": "Si"}], "nivel_esi": 2},
+    
+    # Reglas generales para ESI 3 (Urgencia No Crítica)
+    {"condiciones": [{"pregunta": "dificultad_respiratoria", "valor": "Si"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "dolor_pecho", "valor": "Si"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "dolor_abdominal", "valor": "Si"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "vision_alterada", "valor": "Si"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "confusion", "valor": "Si"}], "nivel_esi": 3},
+    
+    # Reglas generales para ESI 4 (Consulta Prioritaria)
+    {"condiciones": [{"pregunta": "sintomas_leves", "valor": "Si"}], "nivel_esi": 4},
+    
+    # Reglas generales para ESI 5 (Consulta Externa)
+    {"condiciones": [{"pregunta": "sintomas_leves", "valor": "No"}], "nivel_esi": 5}
 ]

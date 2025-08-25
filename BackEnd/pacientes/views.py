@@ -4,7 +4,7 @@ from .models import Paciente, ContactoEmergencia
 from .serializers import PacienteSerializer, ContactoEmergenciaSerializer
 from utils.IsAdmin import IsAdminUser
 
-class CrearPacienteView(generics.ListCreateAPIView):
+class ListaCreatePacienteView(generics.ListCreateAPIView):
     queryset = Paciente.objects.all()
     serializer_class = PacienteSerializer
     permission_classes = [permissions.AllowAny]

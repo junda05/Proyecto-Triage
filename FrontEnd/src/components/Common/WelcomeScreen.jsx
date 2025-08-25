@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../ui/Button';
 import ProgressBar from '../ui/ProgressBar';
@@ -9,10 +9,6 @@ const WelcomeScreen = () => {
   const [showRoles, setShowRoles] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
   const navigate = useNavigate();
-
-  // Debug: Log inicial
-  console.log('🚀 WelcomeScreen: Componente montado');
-  console.log('📊 Estado inicial:', { showRoles, selectedRole });
 
   // Configuración de roles
   const roles = [
@@ -25,26 +21,20 @@ const WelcomeScreen = () => {
     {
       id: 'staff',
       title: 'Personal médico',
-      description: 'Soy parte del equipo sanitario',
+      description: 'Soy parte del personal asistencial',
       icon: <ShieldIcon className="h-16 w-16" />
     }
   ];
 
   const handleStartClick = () => {
-    console.log('🎯 Botón "Seleccionar mi rol" clickeado');
-    console.log('📊 Estado antes del cambio:', { showRoles });
     setShowRoles(true);
-    console.log('✅ showRoles establecido a true');
   };
 
   const handleRoleSelection = (roleId) => {
-    console.log('🎭 Rol seleccionado:', roleId);
-    console.log('📊 Estado actual:', { showRoles, selectedRole });
     setSelectedRole(roleId);
     
     // Esperar un momento para mostrar la selección
     setTimeout(() => {
-      console.log('⏰ Navegando después del timeout a:', roleId);
       if (roleId === 'patient') {
         // Navegar a la página de datos básicos del paciente
         navigate('/patient/basic-data');
@@ -54,32 +44,6 @@ const WelcomeScreen = () => {
       }
     }, 500);
   };
-
-  // Debug: Efecto para rastrear cambios de estado
-  useEffect(() => {
-    console.log('🔄 Estado actualizado:', { showRoles, selectedRole });
-    console.log('👀 ¿Roles visibles?', showRoles);
-    
-    // Debug: Verificar el DOM
-    setTimeout(() => {
-      const rolesContainer = document.querySelector('.roles-container');
-      const roleCards = document.querySelectorAll('.role-card');
-      console.log('🌐 Elementos DOM encontrados:');
-      console.log('  - Contenedor de roles:', rolesContainer);
-      console.log('  - Cards de roles:', roleCards.length);
-      if (rolesContainer) {
-        console.log('  - Estilos del contenedor:', window.getComputedStyle(rolesContainer));
-      }
-      roleCards.forEach((card, index) => {
-        console.log(`  - Card ${index} estilos:`, window.getComputedStyle(card));
-      });
-    }, 100);
-  }, [showRoles, selectedRole]);
-
-  // Debug: Log del render
-  console.log('🎨 Renderizando componente con estado:', { showRoles, selectedRole });
-  console.log('🔍 ¿Mostrar botón?', !showRoles);
-  console.log('🎭 ¿Mostrar roles?', showRoles);
 
   return (
     <div className="w-full max-w-5xl">
@@ -118,10 +82,8 @@ const WelcomeScreen = () => {
         {/* Área de selección de roles */}
         {showRoles && (
           <div className="roles-container animate-fadeInUp mt-8">
-            {console.log('🏗️ Contenedor de roles renderizado con renderizado condicional. showRoles:', showRoles)}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {roles.map((role, index) => {
-                console.log(`🃏 Renderizando role card ${index}:`, role.id);
                 return (
                   <div
                     key={role.id}
@@ -130,13 +92,6 @@ const WelcomeScreen = () => {
                       animationDelay: `${index * 100}ms`
                     }}
                   >
-                    {console.log(`🎭 RoleCard props para ${role.id}:`, {
-                      role: role.id,
-                      title: role.title,
-                      description: role.description,
-                      isSelected: selectedRole === role.id,
-                      isVisible: showRoles
-                    })}
                     <RoleCard
                       role={role.id}
                       title={role.title}
