@@ -6,14 +6,6 @@ Las preguntas están basadas en el diagrama de flujo del archivo:
 
 # Definición de preguntas para el sistema de triage
 PREGUNTAS = {
-    # Preguntas de evaluación inicial
-    "mayor_riesgo": {
-        "texto": "¿Presenta alguno de estos síntomas de mayor riesgo?",
-        "tipo": "choice",
-        "opciones": ["Dolor intenso", "Sangrado", "Fiebre alta", "Dificultad para respirar", "Ninguno"]
-    },
-    
-    
     # Preguntas para embarazo
     "embarazo": {
         "texto": "¿Está embarazada?",
@@ -30,22 +22,35 @@ PREGUNTAS = {
     "sintomas_graves_embarazo_ESI1": {
         "texto": "¿Presenta alguno de los siguientes síntomas?",
         "tipo": "choice",
-        "opciones": ["Sangrado vaginal abundante o con coágulos", "Dolor abdominal intenso o persistente", "Pérdida súbita de líquido por vagina", 
-                     "Fiebre alta con escalofríos", "Mareo intenso o pérdida de conciencia", "Movimientos fetales ausentes", "Convulsiones o visión borrosa",
+        "opciones": ["Sangrado vaginal muy abundante o con coágulos grandes", "Dolor fuerte en el vientre que no se quita", "Salida repentina de líquido por la vagina (como si se rompiera una bolsa)", 
+                     "Fiebre alta con escalofríos", "Mareo muy fuerte o desmayo", "No siente que el bebé se mueva (si tiene más de 5 meses)", "Convulsiones o visión borrosa",
                      "Ninguna de las anteriores"]
     },
-    "sintomas_moderados_embarazo_ESI23": {
+    "sintomas_moderados_embarazo_ESI2": {
         "texto": "¿Presenta alguno de los siguientes síntomas?",
         "tipo": "choice",
-        "opciones": ["Sangrado vaginal leve o manchado", "Dolor abdominal leve o intermitente", "Náuseas o vómitos persistentes", 
-                     "Dolor de cabeza fuerte sin otros síntomas", "Disminución de movimientos fetales", "Presión alta conocida o sospechada",
+        "opciones": ["Sangrado leve o pequeñas manchas de sangre", "Dolor leve en el vientre que va y viene", "Vómitos que no paran", 
+                     "Dolor de cabeza muy fuerte", "El bebé se mueve menos de lo normal (si tiene más de 7 meses)", "Le han dicho que tiene la presión alta o lo sospecha",
                      "Ninguna de las anteriores"]
     },
-    "sintomas_leves_embarazo_ESI45": {
+    "sintomas_moderados_embarazo_ESI3": {
+        "texto": "¿Presenta alguno de los siguientes síntomas?",
+        "tipo": "choice",
+        "opciones": ["Vómitos o náuseas frecuentes pero no graves", "Dolor en la espalda que molesta al caminar o moverse", 
+                     "Cansancio extremo o mucho sueño", "Flujo vaginal diferente (color raro, mal olor, más cantidad)",
+                     "Ninguna de las anteriores"]
+    },
+    "sintomas_leves_embarazo_ESI4": {
         "texto": "¿Presenta alguno de estos síntomas?",
         "tipo": "choice",
-        "opciones": ["Náuseas leves o vómitos ocasionales", "Dolor lumbar leve",
-                     "Fatiga o somnolencia", "Flujo vaginal sin mal olor ni coloración anormal"]
+        "opciones": ["Náuseas leves o vómitos ocasionales", "Dolor leve en la espalda",
+                     "Cansancio leve o sueño normal", "Flujo vaginal normal (sin mal olor ni color extraño)"]
+    },
+    "sintomas_leves_embarazo_ESI5": {
+        "texto": "¿Alguno de los siguientes enunciados le aplica?",
+        "tipo": "choice",
+        "opciones": ["Está embarazada pero se siente bien", "Solo quiere información o recomendaciones",
+                     "Está en control prenatal regular"]
     },
     
     # Preguntas para adulto mayor
@@ -73,6 +78,17 @@ PREGUNTAS = {
         "opciones": ["Dolor localizado y controlable", "Necesidad de un medicamento o receta", "Exámenes o pruebas que le solicitó su médico",
                      "Tiene una herida que desee revisar", "Ninguna de las anteriores"]
     },
+    
+    
+    # Preguntas de evaluación inicial - Antecedentes
+    "mayor_riesgo": {
+        "texto": "¿Presenta alguno de estos síntomas de mayor riesgo?",
+        "tipo": "choice",
+        "opciones": ["Dolor intenso", "Sangrado", "Fiebre alta", "Dificultad para respirar", "Ninguno"]
+    },
+    
+    
+    
     
     # Preguntas sobre dificultad respiratoria
     "dificultad_respiratoria": {
@@ -474,15 +490,25 @@ FLUJO_PREGUNTAS = {
     },
     "sintomas_graves_embarazo_ESI1": {
         "siguiente": None,  # Finalizar evaluación - ESI 1
-        "Ninguna de las anteriores": "sintomas_moderados_embarazo_ESI23",
+        "Ninguna de las anteriores": "sintomas_moderados_embarazo_ESI2",
         "default": None  # Cualquier otro síntoma grave = ESI 1, finalizar
     },
-    "sintomas_moderados_embarazo_ESI23": {
-        "siguiente": None,  # Finalizar evaluación - ESI 2 o 3 según síntoma
-        "Ninguna de las anteriores": "sintomas_leves_embarazo_ESI45",
+    "sintomas_moderados_embarazo_ESI2": {
+        "siguiente": None,  # Finalizar evaluación - ESI 2
+        "Ninguna de las anteriores": "sintomas_moderados_embarazo_ESI3",
         "default": None  # Síntomas ESI 2 o 3, finalizar
     },
-    "sintomas_leves_embarazo_ESI45": {
+    "sintomas_moderados_embarazo_ESI3": {
+        "siguiente": None,  # Finalizar evaluación - ESI 3
+        "Ninguna de las anteriores": "sintomas_leves_embarazo_ESI4",
+        "default": None  # Síntomas ESI 2 o 3, finalizar
+    },
+    "sintomas_moderados_embarazo_ESI4": {
+        "siguiente": None,  # Finalizar evaluación - ESI 2 o 3 según síntoma
+        "Ninguna de las anteriores": "sintomas_leves_embarazo_ESI5",
+        "default": None  # Síntomas ESI 2 o 3, finalizar
+    },
+    "sintomas_leves_embarazo_ESI5": {
         "siguiente": None,  # Finalizar evaluación - ESI 4 o 5
         "default": None  # Síntomas ESI 4 o 5, finalizar
     },
@@ -745,61 +771,21 @@ FLUJO_PREGUNTAS = {
 
 # Reglas de clasificación ESI basadas en respuestas
 REGLAS_ESI = [
+    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
     # Reglas para ESI 1 (Emergencia) - Adultos Mayores
     {"condiciones": [{"pregunta": "adulto_mayor_ESI1", "valor": "Dificultad para respirar muy fuerte"}], "nivel_esi": 1},
     {"condiciones": [{"pregunta": "adulto_mayor_ESI1", "valor": "Dolor en el pecho muy intenso"}], "nivel_esi": 1},
     {"condiciones": [{"pregunta": "adulto_mayor_ESI1", "valor": "Confusión o desorientación repentina"}], "nivel_esi": 1},
     {"condiciones": [{"pregunta": "adulto_mayor_ESI1", "valor": "Fiebre muy alta junto con debilidad extrema"}], "nivel_esi": 1},
     
-    # Reglas para ESI 2 (Urgencia Crítica) - Adultos Mayores
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Vómitos persistentes"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Una caída con posible golpe fuerte o fractura"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Confusión repentina o dificultad para pensar claramente"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Fiebre acompañada de escalofríos fuertes"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Dificultad para comer, beber o moverse por sí mismo"}], "nivel_esi": 2},
-    
-    # Reglas para ESI 3 (Urgencia No Crítica) - Adultos Mayores
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Tos que no mejora"}], "nivel_esi": 3},
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Cansancio o fatiga constante"}], "nivel_esi": 3},
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Pérdida del apetito"}], "nivel_esi": 3},
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Dolor leve pero molesto"}], "nivel_esi": 3},
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Sensación de decaimiento o falta de energía"}], "nivel_esi": 3},
-    
-    # Reglas para ESI 4 (Consulta Prioritaria) - Adultos Mayores
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Dolor localizado y controlable"}], "nivel_esi": 4},
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Necesidad de un medicamento o receta"}], "nivel_esi": 4},
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Exámenes o pruebas que le solicitó su médico"}], "nivel_esi": 4},
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Tiene una herida que desee revisar"}], "nivel_esi": 4},
-    
-    # Reglas para ESI 5 (Consulta Externa) - Adultos Mayores
-    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Ninguna de las anteriores"}], "nivel_esi": 5},
-    
     # Reglas para ESI 1 (Emergencia) - Mujeres Embarazadas
-    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Sangrado vaginal abundante o con coágulos"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Dolor abdominal intenso o persistente"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Pérdida súbita de líquido por vagina"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Sangrado vaginal muy abundante o con coágulos grandes"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Dolor fuerte en el vientre que no se quita"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Salida repentina de líquido por la vagina (como si se rompiera una bolsa)"}], "nivel_esi": 1},
     {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Fiebre alta con escalofríos"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Mareo intenso o pérdida de conciencia"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Movimientos fetales ausentes"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Mareo muy fuerte o desmayo"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "No siente que el bebé se mueva (si tiene más de 5 meses)"}], "nivel_esi": 1},
     {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Convulsiones o visión borrosa"}], "nivel_esi": 1},
-    
-    # Reglas para ESI 2 (Urgencia Crítica) - Mujeres Embarazadas
-    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI23", "valor": "Disminución de movimientos fetales"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI23", "valor": "Náuseas o vómitos persistentes"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI23", "valor": "Presión alta conocida o sospechada"}], "nivel_esi": 2},
-    
-    # Reglas para ESI 3 (Urgencia No Crítica) - Mujeres Embarazadas
-    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI23", "valor": "Sangrado vaginal leve o manchado"}], "nivel_esi": 3},
-    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI23", "valor": "Dolor abdominal leve o intermitente"}], "nivel_esi": 3},
-    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI23", "valor": "Dolor de cabeza fuerte sin otros síntomas"}], "nivel_esi": 3},
-    
-    # Reglas para ESI 4 (Consulta Prioritaria) - Mujeres Embarazadas
-    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI45", "valor": "Flujo vaginal sin mal olor ni coloración anormal"}], "nivel_esi": 4},
-    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI45", "valor": "Dolor lumbar leve"}], "nivel_esi": 4},
-    
-    # Reglas para ESI 5 (Consulta Externa) - Mujeres Embarazadas
-    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI45", "valor": "Náuseas leves o vómitos ocasionales"}], "nivel_esi": 5},
-    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI45", "valor": "Fatiga o somnolencia"}], "nivel_esi": 5},
     
     # Reglas generales para ESI 1 (Emergencia)
     {"condiciones": [{"pregunta": "mayor_riesgo", "valor": "Dolor intenso"}], "nivel_esi": 1},
@@ -814,6 +800,24 @@ REGLAS_ESI = [
     {"condiciones": [{"pregunta": "dolor_opresivo", "valor": "Si"}], "nivel_esi": 1},
     {"condiciones": [{"pregunta": "dolor_cabeza_intenso", "valor": "Si"}], "nivel_esi": 1},
     {"condiciones": [{"pregunta": "perdida_memoria", "valor": "Si"}], "nivel_esi": 1},
+    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+    
+    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    # Reglas para ESI 2 (Urgencia Crítica) - Adultos Mayores
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Vómitos persistentes"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Una caída con posible golpe fuerte o fractura"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Confusión repentina o dificultad para pensar claramente"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Fiebre acompañada de escalofríos fuertes"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI2", "valor": "Dificultad para comer, beber o moverse por sí mismo"}], "nivel_esi": 2},
+    
+    # Reglas para ESI 2 (Urgencia Crítica) - Mujeres Embarazadas
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI2", "valor": "Sangrado leve o pequeñas manchas de sangre"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI2", "valor": "Dolor leve en el vientre que va y viene"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI2", "valor": "Vómitos que no paran"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI2", "valor": "Dolor de cabeza muy fuerte"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI2", "valor": "El bebé se mueve menos de lo normal (si tiene más de 7 meses)"}], "nivel_esi": 2},
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI2", "valor": "Le han dicho que tiene la presión alta o lo sospecha"}], "nivel_esi": 2},
     
     # Reglas generales para ESI 2 (Urgencia Crítica)
     {"condiciones": [{"pregunta": "silbido_respirar", "valor": "Si"}], "nivel_esi": 2},
@@ -828,6 +832,23 @@ REGLAS_ESI = [
     {"condiciones": [{"pregunta": "alucinaciones", "valor": "Si"}], "nivel_esi": 2},
     {"condiciones": [{"pregunta": "mareo_severo", "valor": "Si"}], "nivel_esi": 2},
     {"condiciones": [{"pregunta": "escalofrios_severos", "valor": "Si"}], "nivel_esi": 2},
+    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+
+    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    # Reglas para ESI 3 (Urgencia No Crítica) - Adultos Mayores
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Tos que no mejora"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Cansancio o fatiga constante"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Pérdida del apetito"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Dolor leve pero molesto"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI3", "valor": "Sensación de decaimiento o falta de energía"}], "nivel_esi": 3},
+    
+    # Reglas para ESI 3 (Urgencia No Crítica) - Mujeres Embarazadas
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI3", "valor": "Vómitos o náuseas frecuentes pero no graves"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI3", "valor": "Dolor en la espalda que molesta al caminar o moverse"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI3", "valor": "Cansancio extremo o mucho sueño"}], "nivel_esi": 3},
+    {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI3", "valor": "Flujo vaginal diferente (color raro, mal olor, más cantidad)"}], "nivel_esi": 3},
     
     # Reglas generales para ESI 3 (Urgencia No Crítica)
     {"condiciones": [{"pregunta": "dificultad_respiratoria", "valor": "Si"}], "nivel_esi": 3},
@@ -835,10 +856,37 @@ REGLAS_ESI = [
     {"condiciones": [{"pregunta": "dolor_abdominal", "valor": "Si"}], "nivel_esi": 3},
     {"condiciones": [{"pregunta": "vision_alterada", "valor": "Si"}], "nivel_esi": 3},
     {"condiciones": [{"pregunta": "confusion", "valor": "Si"}], "nivel_esi": 3},
+    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+     
+     
+    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------   
+    # Reglas para ESI 4 (Consulta Prioritaria) - Adultos Mayores
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Dolor localizado y controlable"}], "nivel_esi": 4},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Necesidad de un medicamento o receta"}], "nivel_esi": 4},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Exámenes o pruebas que le solicitó su médico"}], "nivel_esi": 4},
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Tiene una herida que desee revisar"}], "nivel_esi": 4},
+    
+    # Reglas para ESI 4 (Consulta Prioritaria) - Mujeres Embarazadas
+    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI4", "valor": "Náuseas leves o vómitos ocasionales"}], "nivel_esi": 4},
+    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI4", "valor": "Dolor leve en la espalda"}], "nivel_esi": 4},
+    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI4", "valor": "Cansancio leve o sueño normal"}], "nivel_esi": 4},
+    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI4", "valor": "Flujo vaginal normal (sin mal olor ni color extraño)"}], "nivel_esi": 4},
     
     # Reglas generales para ESI 4 (Consulta Prioritaria)
     {"condiciones": [{"pregunta": "sintomas_leves", "valor": "Si"}], "nivel_esi": 4},
+    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    
+    # ----------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+    # Reglas para ESI 5 (Consulta Externa) - Adultos Mayores
+    {"condiciones": [{"pregunta": "adulto_mayor_ESI45", "valor": "Ninguna de las anteriores"}], "nivel_esi": 5},
+
+    # Reglas para ESI 5 (Consulta Externa) - Mujeres Embarazadas
+    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI5", "valor": "Está embarazada pero se siente bien"}], "nivel_esi": 5},
+    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI5", "valor": "Solo quiere información o recomendaciones"}], "nivel_esi": 5},
+    {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI5", "valor": "Está en control prenatal regular"}], "nivel_esi": 5},
     
     # Reglas generales para ESI 5 (Consulta Externa)
     {"condiciones": [{"pregunta": "sintomas_leves", "valor": "No"}], "nivel_esi": 5}
+    # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 ]
