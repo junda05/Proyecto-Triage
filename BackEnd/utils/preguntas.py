@@ -785,18 +785,7 @@ REGLAS_ESI = [
     {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Convulsiones o visión borrosa"}], "nivel_esi": 1},
     
     # Reglas generales para ESI 1 (Emergencia)
-    {"condiciones": [{"pregunta": "antecedentes", "valor": "Dolor intenso"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "antecedentes", "valor": "Sangrado"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "antecedentes", "valor": "Fiebre alta"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "antecedentes", "valor": "Dificultad para respirar"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "dificultad_respirar_esfuerzo", "valor": "En reposo"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "habla_entrecortada", "valor": "Si"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "dolor_pecho_tipo", "valor": "Si"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "debilidad_extremidades", "valor": "Si"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "cianosis", "valor": "Si"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "dolor_opresivo", "valor": "Si"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "dolor_cabeza_intenso", "valor": "Si"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "perdida_memoria", "valor": "Si"}], "nivel_esi": 1},
+
     # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
     
     
@@ -817,18 +806,7 @@ REGLAS_ESI = [
     {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI2", "valor": "Le han dicho que tiene la presión alta o lo sospecha"}], "nivel_esi": 2},
     
     # Reglas generales para ESI 2 (Urgencia Crítica)
-    {"condiciones": [{"pregunta": "silbido_respirar", "valor": "Si"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "dolor_pecho_respirar", "valor": "Si"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "dolor_pecho_sudoracion", "valor": "Si"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "vomito_sangre", "valor": "Si"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "incapacidad_caminar", "valor": "Si"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "tos_sangre", "valor": "Si"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "respiracion_rapida", "valor": "Si"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "dolor_abdomen_postura", "valor": "Si"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "estreñimiento_hinchazón", "valor": "Si"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "alucinaciones", "valor": "Si"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "mareo_severo", "valor": "Si"}], "nivel_esi": 2},
-    {"condiciones": [{"pregunta": "escalofrios_severos", "valor": "Si"}], "nivel_esi": 2},
+
     # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
     
 
@@ -848,11 +826,7 @@ REGLAS_ESI = [
     {"condiciones": [{"pregunta": "sintomas_moderados_embarazo_ESI3", "valor": "Flujo vaginal diferente (color raro, mal olor, más cantidad)"}], "nivel_esi": 3},
     
     # Reglas generales para ESI 3 (Urgencia No Crítica)
-    {"condiciones": [{"pregunta": "dificultad_respiratoria", "valor": "Si"}], "nivel_esi": 3},
-    {"condiciones": [{"pregunta": "dolor_pecho", "valor": "Si"}], "nivel_esi": 3},
-    {"condiciones": [{"pregunta": "dolor_abdominal", "valor": "Si"}], "nivel_esi": 3},
-    {"condiciones": [{"pregunta": "vision_alterada", "valor": "Si"}], "nivel_esi": 3},
-    {"condiciones": [{"pregunta": "confusion", "valor": "Si"}], "nivel_esi": 3},
+
     # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
      
      
@@ -884,6 +858,6 @@ REGLAS_ESI = [
     {"condiciones": [{"pregunta": "sintomas_leves_embarazo_ESI5", "valor": "Está en control prenatal regular"}], "nivel_esi": 5},
     
     # Reglas generales para ESI 5 (Consulta Externa)
-    {"condiciones": [{"pregunta": "sintomas_leves", "valor": "No"}], "nivel_esi": 5}
+    
     # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 ]

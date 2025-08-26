@@ -90,200 +90,152 @@ class RespuestaCreate(generics.CreateAPIView):
         Determina la siguiente pregunta basada en la respuesta actual
         y las reglas de flujo definidas en FLUJO_PREGUNTAS.
         """
-        codigo_pregunta_actual = respuesta.pregunta.codigo
+        codigo_pregunta = respuesta.pregunta.codigo
         valor_respuesta = respuesta.valor
         
-        # Manejo específico para el flujo de embarazo
-        if codigo_pregunta_actual == 'embarazo':
-            if valor_respuesta in ['Sí', 'Si', True, 'True']:
-                try:
-                    return Pregunta.objects.get(codigo='semanas_embarazo')
-                except Pregunta.DoesNotExist:
-                    pass
-            else:
-                # Si no está embarazada, seguir con el flujo normal
-                try:
-                    return Pregunta.objects.get(codigo='antecedentes')
-                except Pregunta.DoesNotExist:
-                    pass
-                
-        elif codigo_pregunta_actual == 'semanas_embarazo':
-            try:
-                return Pregunta.objects.get(codigo='sintomas_graves_embarazo_ESI1')
-            except Pregunta.DoesNotExist:
-                pass
-                
-        elif codigo_pregunta_actual == 'sintomas_graves_embarazo_ESI1':
-            if valor_respuesta == 'Ninguna de las anteriores':
-                try:
-                    return Pregunta.objects.get(codigo='sintomas_moderados_embarazo_ESI23')
-                except Pregunta.DoesNotExist:
-                    pass
-            else:
-                # Si presenta síntomas graves, asignar ESI 1 y finalizar triage
-                # Estos síntomas requieren atención inmediata
-                sintomas_esi1 = [
-                    "Sangrado vaginal abundante o con coágulos",
-                    "Dolor abdominal intenso o persistente", 
-                    "Pérdida súbita de líquido por vagina",
-                    "Fiebre alta con escalofríos",
-                    "Mareo intenso o pérdida de conciencia",
-                    "Movimientos fetales ausentes",
-                    "Convulsiones o visión borrosa"
-                ]
-                if valor_respuesta in sintomas_esi1:
-                    # Finalizar triage - ESI 1 ya asignado por reglas
-                    return None
-                # Para otros síntomas, continuar flujo normal
-                try:
-                    return Pregunta.objects.get(codigo='antecedentes')
-                except Pregunta.DoesNotExist:
-                    pass
-                
-        elif codigo_pregunta_actual == 'sintomas_moderados_embarazo_ESI23':
-            if valor_respuesta == 'Ninguna de las anteriores':
-                try:
-                    return Pregunta.objects.get(codigo='sintomas_leves_embarazo_ESI45')
-                except Pregunta.DoesNotExist:
-                    pass
-            else:
-                # Clasificar según el tipo de síntoma y finalizar si corresponde
-                sintomas_esi2 = [
-                    "Disminución de movimientos fetales",
-                    "Náuseas o vómitos persistentes", 
-                    "Presión alta conocida o sospechada"
-                ]
-                sintomas_esi3 = [
-                    "Sangrado vaginal leve o manchado",
-                    "Dolor abdominal leve o intermitente",
-                    "Dolor de cabeza fuerte sin otros síntomas"
-                ]
-                
-                if valor_respuesta in sintomas_esi2 or valor_respuesta in sintomas_esi3:
-                    # Finalizar triage - ESI 2 o 3 ya asignado por reglas
-                    return None
-                # Para otros síntomas, continuar flujo normal
-                try:
-                    return Pregunta.objects.get(codigo='antecedentes')
-                except Pregunta.DoesNotExist:
-                    pass
-                
-        elif codigo_pregunta_actual == 'sintomas_leves_embarazo_ESI45':
-            # Evaluar síntomas leves y finalizar si hay clasificación ESI
-            sintomas_esi4 = [
-                "Flujo vaginal sin mal olor ni coloración anormal",
-                "Dolor lumbar leve"
-            ]
-            sintomas_esi5 = [
-                "Náuseas leves o vómitos ocasionales",
-                "Fatiga o somnolencia"
-            ]
-            
-            if valor_respuesta in sintomas_esi4 or valor_respuesta in sintomas_esi5:
-                # Finalizar triage - ESI 4 o 5 ya asignado por reglas
-                return None
-            # Para otros síntomas, continuar flujo normal
-            try:
-                return Pregunta.objects.get(codigo='antecedentes')
-            except Pregunta.DoesNotExist:
-                pass
+        # Obtener el código de la siguiente pregunta
+        siguiente_codigo = self._obtener_siguiente_codigo(codigo_pregunta, valor_respuesta)
         
-        # Continuar con la lógica existente para otras preguntas
-        if codigo_pregunta_actual not in FLUJO_PREGUNTAS:
+        # Buscar y retornar la pregunta correspondiente
+        return self._buscar_pregunta_por_codigo(siguiente_codigo)
+    
+    def _obtener_siguiente_codigo(self, codigo_pregunta, valor_respuesta):
+        """
+        Obtiene el código de la siguiente pregunta según las reglas de flujo.
+        """
+        if codigo_pregunta not in FLUJO_PREGUNTAS:
             return None
             
-        # Obtener regla de flujo para esta pregunta
-        regla_flujo = FLUJO_PREGUNTAS[codigo_pregunta_actual]
+        regla_flujo = FLUJO_PREGUNTAS[codigo_pregunta]
         
-        # Determinar el siguiente código de pregunta
-        siguiente_codigo = None
+        # Si la regla es simple (string), retornarla directamente
+        if not isinstance(regla_flujo, dict):
+            return regla_flujo
         
-        # Si valor_respuesta coincide con alguna clave específica en la regla
-        if isinstance(valor_respuesta, (str, bool)) and str(valor_respuesta) in regla_flujo:
-            siguiente_codigo = regla_flujo[str(valor_respuesta)]
-        # Si hay un valor por defecto en la regla
-        elif "default" in regla_flujo:
-            siguiente_codigo = regla_flujo["default"]
-        # Si hay un valor "siguiente" genérico
-        elif "siguiente" in regla_flujo:
-            siguiente_codigo = regla_flujo["siguiente"]
+        # Buscar siguiente pregunta por prioridad
+        return (self._buscar_por_valor_exacto(regla_flujo, valor_respuesta) or
+                self._buscar_por_default(regla_flujo) or
+                self._buscar_por_siguiente(regla_flujo))
+    
+    def _buscar_por_valor_exacto(self, regla_flujo, valor_respuesta):
+        """Busca coincidencia exacta con el valor de la respuesta."""
+        return regla_flujo.get(str(valor_respuesta))
+    
+    def _buscar_por_default(self, regla_flujo):
+        """Busca la regla por defecto."""
+        return regla_flujo.get("default")
+    
+    def _buscar_por_siguiente(self, regla_flujo):
+        """Busca la regla siguiente genérica."""
+        return regla_flujo.get("siguiente")
+    
+    def _buscar_pregunta_por_codigo(self, codigo):
+        """Busca una pregunta por su código."""
+        if not codigo:
+            return None
         
-        # Si encontramos un siguiente código, buscar la pregunta correspondiente
-        if siguiente_codigo:
-            try:
-                return Pregunta.objects.get(codigo=siguiente_codigo)
-            except Pregunta.DoesNotExist:
-                return None
-        
-        return None
+        try:
+            return Pregunta.objects.get(codigo=codigo)
+        except Pregunta.DoesNotExist:
+            return None
     
     def determinar_nivel_triage(self, sesion):
         """
         Determina el nivel ESI (Emergency Severity Index) basado en las respuestas
         de la sesión y las reglas definidas en REGLAS_ESI.
         """
-        # Obtener todas las respuestas de la sesión
-        respuestas = Respuesta.objects.filter(sesion=sesion)
+        respuestas_dict = self._obtener_respuestas_dict(sesion)
+        contexto_paciente = self._obtener_contexto_paciente(sesion, respuestas_dict)
         
-        # Convertir respuestas a un diccionario para fácil acceso
-        respuestas_dict = {resp.pregunta.codigo: resp.valor for resp in respuestas}
-        
-        # Verificar si es una paciente embarazada
-        es_embarazada = respuestas_dict.get('embarazo') in ['Sí', 'Si', True, 'True']
-        
-        # Verificar si es un adulto mayor (>65 años)
-        es_adulto_mayor = sesion.paciente.edad > 65
-        
-        # Evaluar cada regla ESI - las reglas de embarazo y adulto mayor tienen prioridad
+        # Evaluar reglas ESI por orden de prioridad
         for regla in REGLAS_ESI:
-            condiciones_cumplidas = True
-            
-            # Para reglas de embarazo, verificar que la paciente esté embarazada
-            regla_es_embarazo = any('embarazo' in condicion.get('pregunta', '') for condicion in regla["condiciones"])
-            
-            if regla_es_embarazo and not es_embarazada:
-                continue  # Saltar reglas de embarazo si no está embarazada
-            
-            # Para reglas de adultos mayores, verificar que el paciente tenga >65 años
-            regla_es_adulto_mayor = any('adulto_mayor' in condicion.get('pregunta', '') for condicion in regla["condiciones"])
-            
-            if regla_es_adulto_mayor and not es_adulto_mayor:
-                continue  # Saltar reglas de adulto mayor si no tiene >65 años
-            
-            for condicion in regla["condiciones"]:
-                pregunta_codigo = condicion["pregunta"]
-                valor_esperado = condicion["valor"]
-                
-                # Si la pregunta no fue respondida, la condición no se cumple
-                if pregunta_codigo not in respuestas_dict:
-                    condiciones_cumplidas = False
-                    break
-                
-                valor_respuesta = respuestas_dict[pregunta_codigo]
-                
-                # Comparar el valor de la respuesta con el valor esperado
-                if isinstance(valor_esperado, list):
-                    # Para listas (multi_choice), verificar si algún valor coincide
-                    if isinstance(valor_respuesta, list):
-                        if not any(val in valor_esperado for val in valor_respuesta):
-                            condiciones_cumplidas = False
-                            break
-                    else:
-                        if valor_respuesta not in valor_esperado:
-                            condiciones_cumplidas = False
-                            break
-                else:
-                    # Para valores simples, comparación directa
-                    if valor_respuesta != valor_esperado:
-                        condiciones_cumplidas = False
-                        break
-            
-            # Si todas las condiciones se cumplen, retornar el nivel ESI de esta regla
-            if condiciones_cumplidas:
+            if self._evaluar_regla_esi(regla, respuestas_dict, contexto_paciente):
                 return regla["nivel_esi"]
         
-        # Si ninguna regla aplica, retornar nivel por defecto (5 - menos urgente)
+        # Nivel por defecto si ninguna regla aplica
         return 5
+    
+    def _obtener_respuestas_dict(self, sesion):
+        """Obtiene las respuestas de la sesión en formato diccionario."""
+        respuestas = Respuesta.objects.filter(sesion=sesion)
+        return {resp.pregunta.codigo: resp.valor for resp in respuestas}
+    
+    def _obtener_contexto_paciente(self, sesion, respuestas_dict):
+        """Obtiene el contexto del paciente (embarazo, edad, etc.)."""
+        es_embarazada = respuestas_dict.get('embarazo') in ['Sí', 'Si', True, 'True']
+        es_adulto_mayor = sesion.paciente.edad > 65
+        
+        return {
+            'es_embarazada': es_embarazada,
+            'es_adulto_mayor': es_adulto_mayor
+        }
+    
+    def _evaluar_regla_esi(self, regla, respuestas_dict, contexto_paciente):
+        """Evalúa si una regla ESI se cumple con las respuestas dadas."""
+        # Verificar si la regla aplica al contexto del paciente
+        if not self._regla_aplica_al_contexto(regla, contexto_paciente):
+            return False
+        
+        # Evaluar todas las condiciones de la regla
+        return all(
+            self._evaluar_condicion(condicion, respuestas_dict)
+            for condicion in regla["condiciones"]
+        )
+    
+    def _regla_aplica_al_contexto(self, regla, contexto_paciente):
+        """Verifica si una regla aplica al contexto específico del paciente."""
+        regla_es_embarazo = self._es_regla_de_embarazo(regla)
+        regla_es_adulto_mayor = self._es_regla_de_adulto_mayor(regla)
+        
+        # Saltar reglas de embarazo si no está embarazada
+        if regla_es_embarazo and not contexto_paciente['es_embarazada']:
+            return False
+        
+        # Saltar reglas de adulto mayor si no es adulto mayor
+        if regla_es_adulto_mayor and not contexto_paciente['es_adulto_mayor']:
+            return False
+        
+        return True
+    
+    def _es_regla_de_embarazo(self, regla):
+        """Verifica si es una regla específica para embarazadas."""
+        return any('embarazo' in condicion.get('pregunta', '') 
+                   for condicion in regla["condiciones"])
+    
+    def _es_regla_de_adulto_mayor(self, regla):
+        """Verifica si es una regla específica para adultos mayores."""
+        return any('adulto_mayor' in condicion.get('pregunta', '') 
+                   for condicion in regla["condiciones"])
+    
+    def _evaluar_condicion(self, condicion, respuestas_dict):
+        """Evalúa una condición específica de una regla ESI."""
+        pregunta_codigo = condicion["pregunta"]
+        valor_esperado = condicion["valor"]
+        
+        # Si la pregunta no fue respondida, la condición no se cumple
+        if pregunta_codigo not in respuestas_dict:
+            return False
+        
+        valor_respuesta = respuestas_dict[pregunta_codigo]
+        
+        # Comparar valores según el tipo
+        return self._comparar_valores(valor_respuesta, valor_esperado)
+    
+    def _comparar_valores(self, valor_respuesta, valor_esperado):
+        """Compara el valor de la respuesta con el valor esperado."""
+        if isinstance(valor_esperado, list):
+            return self._comparar_con_lista(valor_respuesta, valor_esperado)
+        else:
+            return valor_respuesta == valor_esperado
+    
+    def _comparar_con_lista(self, valor_respuesta, valor_esperado):
+        """Compara un valor de respuesta con una lista de valores esperados."""
+        if isinstance(valor_respuesta, list):
+            # Respuesta múltiple: al menos un valor debe coincidir
+            return any(val in valor_esperado for val in valor_respuesta)
+        else:
+            # Respuesta simple: debe estar en la lista
+            return valor_respuesta in valor_esperado
 
 class IniciarTriage(APIView):
     """

@@ -155,7 +155,7 @@ class TriageConsoleTest:
         # Prioridad 3: Flujo normal para otros casos
         else:
             print(f"Paciente masculino detectado (edad: {self.paciente.edad}) - Iniciando flujo normal")
-            return 'mayor_riesgo'
+            return 'antecedentes'
             
     def obtener_respuesta(self, info_pregunta):
         """Obtiene la respuesta del usuario según el tipo de pregunta"""
@@ -198,81 +198,29 @@ class TriageConsoleTest:
     def obtener_siguiente_pregunta(self, codigo_actual, respuesta):
         """
         Determina la siguiente pregunta basada en la respuesta usando FLUJO_PREGUNTAS.
-        Esta función replica la lógica de determinar_siguiente_pregunta de las vistas reales.
+        Utiliza la misma lógica simplificada que las vistas reales.
         """
-        # Manejo específico para el flujo de adultos mayores
-        if codigo_actual == 'adulto_mayor_ESI1':
-            if respuesta == 'Ninguna de las anteriores':
-                # Si no tiene síntomas de ESI 1, continuar con ESI 2
-                return 'adulto_mayor_ESI2'
-            else:
-                return None  # Finalizar - síntoma grave detectado (ESI 1)
-        
-        elif codigo_actual == 'adulto_mayor_ESI2':
-            if respuesta == 'Ninguna de las anteriores':
-                # Si no tiene síntomas de ESI 2, continuar con ESI 3
-                return 'adulto_mayor_ESI3'
-            else:
-                return None  # Finalizar - síntoma ESI 2 detectado
-                
-        elif codigo_actual == 'adulto_mayor_ESI3':
-            if respuesta == 'Ninguna de las anteriores':
-                # Si no tiene síntomas de ESI 3, continuar con ESI 4/5
-                return 'adulto_mayor_ESI45'
-            else:
-                return None  # Finalizar - síntoma ESI 3 detectado
-                
-        elif codigo_actual == 'adulto_mayor_ESI45':
-            # Siempre finalizar después de esta pregunta
-            return None
-        
-        # Manejo específico para el flujo de embarazo (similar a las vistas reales)
-        elif codigo_actual == 'embarazo':
-            if respuesta in ['Sí', 'Si', True, 'True', 'si', 'sí']:
-                return 'semanas_embarazo'
-            else:
-                return 'mayor_riesgo'
-                
-        elif codigo_actual == 'semanas_embarazo':
-            return 'sintomas_graves_embarazo_ESI1'
-            
-        elif codigo_actual == 'sintomas_graves_embarazo_ESI1':
-            if respuesta == 'Ninguna de las anteriores':
-                return 'sintomas_moderados_embarazo_ESI23'
-            else:
-                return None  # Finalizar - síntoma grave detectado
-                
-        elif codigo_actual == 'sintomas_moderados_embarazo_ESI23':
-            if respuesta == 'Ninguna de las anteriores':
-                return 'sintomas_leves_embarazo_ESI45'
-            else:
-                return None  # Finalizar - síntoma moderado detectado
-                
-        elif codigo_actual == 'sintomas_leves_embarazo_ESI45':
-            if respuesta == 'Ninguna de las anteriores':
-                return 'mayor_riesgo'  # Continuar con flujo general
-            else:
-                return None  # Finalizar - síntoma leve detectado
-        
-        # Usar la lógica de FLUJO_PREGUNTAS para el resto de preguntas
+        # Usar directamente FLUJO_PREGUNTAS para determinar la siguiente pregunta
         if codigo_actual not in FLUJO_PREGUNTAS:
             return None
             
-        # Obtener regla de flujo para esta pregunta
         regla_flujo = FLUJO_PREGUNTAS[codigo_actual]
-        
-        # Determinar el siguiente código de pregunta
         siguiente_codigo = None
         
-        # Si valor_respuesta coincide con alguna clave específica en la regla
-        if isinstance(respuesta, (str, bool)) and str(respuesta) in regla_flujo:
-            siguiente_codigo = regla_flujo[str(respuesta)]
-        # Si hay un valor por defecto en la regla
-        elif "default" in regla_flujo:
-            siguiente_codigo = regla_flujo["default"]
-        # Si hay un valor "siguiente" genérico
-        elif "siguiente" in regla_flujo:
-            siguiente_codigo = regla_flujo["siguiente"]
+        # Buscar el siguiente código según las reglas de flujo
+        if isinstance(regla_flujo, dict):
+            # Buscar coincidencia exacta primero
+            if str(respuesta) in regla_flujo:
+                siguiente_codigo = regla_flujo[str(respuesta)]
+            # Luego buscar valor por defecto
+            elif "default" in regla_flujo:
+                siguiente_codigo = regla_flujo["default"]
+            # Finalmente usar "siguiente" genérico
+            elif "siguiente" in regla_flujo:
+                siguiente_codigo = regla_flujo["siguiente"]
+        else:
+            # Si no es dict, asumir que es el siguiente código directamente
+            siguiente_codigo = regla_flujo
         
         # Retornar el siguiente código (puede ser None si debe finalizar)
         return siguiente_codigo
