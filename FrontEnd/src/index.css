@@ -79,3 +79,102 @@ code {
     transform: translateX(100%);
   }
 }
+
+/* Animación de expansión para el card de personal médico */
+@keyframes expandToFull {
+  0% {
+    transform: translate(0, 0) scale(1);
+    border-radius: 0.75rem;
+  }
+  50% {
+    transform: translate(-25%, -25%) scale(1.2);
+    border-radius: 1rem;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5);
+    border-radius: 1.5rem;
+    width: 100vw;
+    height: 100vh;
+  }
+}
+
+/* Transición suave para elementos durante la animación */
+.transition-expand {
+  transition: all 0.7s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+/* Estilo para el contenedor durante la transición */
+.expanding-container {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animación de fade para el contenido del formulario */
+@keyframes fadeInContent {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fadeInContent {
+  animation: fadeInContent 0.6s ease-out both;
+}
+
+/* Animación de expansión suave para el card seleccionado */
+@keyframes cardExpand {
+  0% {
+    transform: scale(1) rotate(0deg);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    transform: scale(1.1) rotate(1deg);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    transform: scale(1.15) rotate(0deg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+}
+
+.animate-cardExpand {
+  animation: cardExpand 0.8s ease-out both;
+}
+
+/* Mejoras para el hover del card durante la transición */
+.role-card.transitioning {
+  pointer-events: none;
+  z-index: 10;
+}
+
+.role-card.expanding {
+  animation: cardExpand 0.8s ease-out both;
+  z-index: 20;
+}
+
+/* Estilos para el backdrop durante la transición */
+.transition-backdrop {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(2px);
+  transition: all 0.3s ease;
+}
+
+/* Animación de pulse mejorada */
+@keyframes gentlePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+.animate-gentlePulse {
+  animation: gentlePulse 2s ease-in-out infinite;
+}
