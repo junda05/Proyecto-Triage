@@ -77,9 +77,8 @@ PREGUNTAS = {
                      "Tiene una herida que desee revisar", "Ninguna de las anteriores"]
     },
     
-    
     # Preguntas de evaluación inicial - Antecedentes
-    "mayor_riesgo": {
+    "antecedentes": {
         "texto": "¿Presenta alguno de estos síntomas de mayor riesgo?",
         "tipo": "choice",
         "opciones": ["Dolor intenso", "Sangrado", "Fiebre alta", "Dificultad para respirar", "Ninguno"]
@@ -468,10 +467,10 @@ PREGUNTAS = {
 # Mapa de flujo de preguntas (qué pregunta sigue después de cada respuesta)
 FLUJO_PREGUNTAS = {
     # Flujo básico inicial
-    "inicio": "mayor_riesgo",
+    "inicio": "antecedentes",
     
     # Flujo para preguntas de riesgo
-    "mayor_riesgo": {
+    "antecedentes": {
         "siguiente": "dificultad_respiratoria",
         "Ninguno": "dificultad_respiratoria",
         "default": "dificultad_respiratoria"  # Por defecto continuar con dificultad respiratoria
@@ -479,7 +478,7 @@ FLUJO_PREGUNTAS = {
     
     # Flujo para embarazo
     "embarazo": {
-        "siguiente": "mayor_riesgo",  # Si no está embarazada, continúa con flujo general
+        "siguiente": "antecedentes",  # Si no está embarazada, continúa con flujo general
         "Si": "semanas_embarazo",     # Si está embarazada, va al flujo específico
         "True": "semanas_embarazo"
     },
@@ -786,10 +785,10 @@ REGLAS_ESI = [
     {"condiciones": [{"pregunta": "sintomas_graves_embarazo_ESI1", "valor": "Convulsiones o visión borrosa"}], "nivel_esi": 1},
     
     # Reglas generales para ESI 1 (Emergencia)
-    {"condiciones": [{"pregunta": "mayor_riesgo", "valor": "Dolor intenso"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "mayor_riesgo", "valor": "Sangrado"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "mayor_riesgo", "valor": "Fiebre alta"}], "nivel_esi": 1},
-    {"condiciones": [{"pregunta": "mayor_riesgo", "valor": "Dificultad para respirar"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "antecedentes", "valor": "Dolor intenso"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "antecedentes", "valor": "Sangrado"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "antecedentes", "valor": "Fiebre alta"}], "nivel_esi": 1},
+    {"condiciones": [{"pregunta": "antecedentes", "valor": "Dificultad para respirar"}], "nivel_esi": 1},
     {"condiciones": [{"pregunta": "dificultad_respirar_esfuerzo", "valor": "En reposo"}], "nivel_esi": 1},
     {"condiciones": [{"pregunta": "habla_entrecortada", "valor": "Si"}], "nivel_esi": 1},
     {"condiciones": [{"pregunta": "dolor_pecho_tipo", "valor": "Si"}], "nivel_esi": 1},

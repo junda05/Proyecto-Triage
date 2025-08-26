@@ -103,7 +103,7 @@ class RespuestaCreate(generics.CreateAPIView):
             else:
                 # Si no está embarazada, seguir con el flujo normal
                 try:
-                    return Pregunta.objects.get(codigo='mayor_riesgo')
+                    return Pregunta.objects.get(codigo='antecedentes')
                 except Pregunta.DoesNotExist:
                     pass
                 
@@ -136,7 +136,7 @@ class RespuestaCreate(generics.CreateAPIView):
                     return None
                 # Para otros síntomas, continuar flujo normal
                 try:
-                    return Pregunta.objects.get(codigo='mayor_riesgo')
+                    return Pregunta.objects.get(codigo='antecedentes')
                 except Pregunta.DoesNotExist:
                     pass
                 
@@ -164,7 +164,7 @@ class RespuestaCreate(generics.CreateAPIView):
                     return None
                 # Para otros síntomas, continuar flujo normal
                 try:
-                    return Pregunta.objects.get(codigo='mayor_riesgo')
+                    return Pregunta.objects.get(codigo='antecedentes')
                 except Pregunta.DoesNotExist:
                     pass
                 
@@ -184,7 +184,7 @@ class RespuestaCreate(generics.CreateAPIView):
                 return None
             # Para otros síntomas, continuar flujo normal
             try:
-                return Pregunta.objects.get(codigo='mayor_riesgo')
+                return Pregunta.objects.get(codigo='antecedentes')
             except Pregunta.DoesNotExist:
                 pass
         

@@ -1,9 +1,9 @@
 from django.urls import path
-from .views import ListaCreatePacienteView, DetallePacienteView, DetalleContactoEmergenciaView
+from .views import ListCreatePacienteView, DetallePacienteView, DetalleContactoEmergenciaView
 
 urlpatterns = [
     # POST /api/v1/pacientes/ - Crear un nuevo paciente
-    path('', ListaCreatePacienteView.as_view(), name='paciente-list-create'),
+    path('', ListCreatePacienteView.as_view(), name='paciente-list-create'),
     
     # GET /api/v1/pacientes/{id} - Obtener un paciente por ID
     # PUT - PATCH /api/v1/pacientes/{id} - Actualizar un paciente por ID
