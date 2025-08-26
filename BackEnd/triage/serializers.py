@@ -10,7 +10,7 @@ class PreguntaSerializer(serializers.ModelSerializer):
 class RespuestaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Respuesta
-        fields = ['id', 'pregunta', 'valor', 'timestamp', 'pregunta_siguiente']
+        fields = ['id', 'pregunta', 'valor', 'informacion_adicional', 'timestamp', 'pregunta_siguiente']
         read_only_fields = ['id', 'timestamp', 'pregunta_siguiente']
         
     def validate(self, data):
@@ -26,6 +26,40 @@ class RespuestaSerializer(serializers.ModelSerializer):
         
         if pregunta.tipo == 'choice' and valor not in pregunta.opciones:
             raise serializers.ValidationError(f"La respuesta debe ser una de las opciones válidas: {', '.join(pregunta.opciones)}")
+        
+        if pregunta.tipo == 'text':
+            if not isinstance(valor, str):
+                raise serializers.ValidationError("La respuesta debe ser texto")
+            
+            # Validar longitud mínima y máxima
+            if len(valor.strip()) == 0:
+                raise serializers.ValidationError("La respuesta de texto no puede estar vacía")
+            
+            if len(valor) > 1000:  # Límite máximo de caracteres
+                raise serializers.ValidationError("La respuesta no puede exceder los 1000 caracteres")
+            
+            # Validar caracteres especiales peligrosos (prevención básica de XSS)
+            import re
+            if re.search(r'[<>"\']', valor):
+                raise serializers.ValidationError("La respuesta contiene caracteres no permitidos")
+        
+        if pregunta.tipo == 'choice':
+            # Validar que si se selecciona "Otro (especificar)", se proporcione información adicional
+            if "Otro (especificar)" in valor and not data.get('informacion_adicional'):
+                raise serializers.ValidationError("Debe especificar la información adicional cuando selecciona 'Otra (especificar)'")
+        
+        if pregunta.tipo == 'multi_choice':
+            if not isinstance(valor, list):
+                raise serializers.ValidationError("La respuesta debe ser una lista de opciones")
+            if len(valor) == 0:
+                raise serializers.ValidationError("Debe seleccionar al menos una opción")
+            for v in valor:
+                if v not in pregunta.opciones:
+                    raise serializers.ValidationError(f"La opción '{v}' no es válida. Opciones válidas: {', '.join(pregunta.opciones)}")
+            
+            # Validar que si se selecciona "Otro (especificar)", se proporcione información adicional
+            if "Otro (especificar)" in valor and not data.get('informacion_adicional'):
+                raise serializers.ValidationError("Debe especificar la información adicional cuando selecciona 'Otra (especificar)'")
             
         return data
 
@@ -46,7 +80,7 @@ class ReglaFlujoSerializer(serializers.ModelSerializer):
 class RespuestaCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Respuesta
-        fields = ['sesion', 'pregunta', 'valor']
+        fields = ['sesion', 'pregunta', 'valor', 'informacion_adicional']
     
     def validate(self, data):
         """Validar que el valor de la respuesta coincida con el tipo de pregunta."""
@@ -61,5 +95,34 @@ class RespuestaCreateSerializer(serializers.ModelSerializer):
         
         if pregunta.tipo == 'choice' and valor not in pregunta.opciones:
             raise serializers.ValidationError(f"La respuesta debe ser una de las opciones válidas: {', '.join(pregunta.opciones)}")
+        
+        if pregunta.tipo == 'text':
+            if not isinstance(valor, str):
+                raise serializers.ValidationError("La respuesta debe ser texto")
+            
+            # Validar longitud mínima y máxima
+            if len(valor.strip()) == 0:
+                raise serializers.ValidationError("La respuesta de texto no puede estar vacía")
+            
+            if len(valor) > 1000:  # Límite máximo de caracteres
+                raise serializers.ValidationError("La respuesta no puede exceder los 1000 caracteres")
+            
+            # Validar caracteres especiales peligrosos (prevención básica de XSS)
+            import re
+            if re.search(r'[<>"\']', valor):
+                raise serializers.ValidationError("La respuesta contiene caracteres no permitidos")
+        
+        if pregunta.tipo == 'multi_choice':
+            if not isinstance(valor, list):
+                raise serializers.ValidationError("La respuesta debe ser una lista de opciones")
+            if len(valor) == 0:
+                raise serializers.ValidationError("Debe seleccionar al menos una opción")
+            for v in valor:
+                if v not in pregunta.opciones:
+                    raise serializers.ValidationError(f"La opción '{v}' no es válida. Opciones válidas: {', '.join(pregunta.opciones)}")
+            
+            # Validar que si se selecciona "Otra (especificar)", se proporcione información adicional
+            if "Otra (especificar)" in valor and not data.get('informacion_adicional'):
+                raise serializers.ValidationError("Debe especificar la información adicional cuando selecciona 'Otra (especificar)'")
             
         return data

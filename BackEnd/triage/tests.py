@@ -60,7 +60,7 @@ class TriageConsoleTest:
                 paciente_id = input("\nIngresa el ID del paciente: ").strip()
                 
                 if not paciente_id:
-                    print("❌ Por favor ingresa un ID válido.")
+                    print("Por favor ingresa un ID válido.")
                     continue
                     
                 self.paciente = Paciente.objects.get(id=int(paciente_id))
@@ -103,7 +103,10 @@ class TriageConsoleTest:
         # Determinar la primera pregunta según la edad y sexo del paciente
         codigo_pregunta = self.obtener_primera_pregunta()
         
-        while codigo_pregunta:
+        contador_preguntas = 0
+        while codigo_pregunta and contador_preguntas < 50:  # Límite de seguridad
+            contador_preguntas += 1
+            
             # Obtener información de la pregunta desde PREGUNTAS
             if codigo_pregunta not in PREGUNTAS:
                 print(f"Pregunta '{codigo_pregunta}' no encontrada en el sistema.")
@@ -111,7 +114,8 @@ class TriageConsoleTest:
                 
             info_pregunta = PREGUNTAS[codigo_pregunta]
 
-            print(f"\nPregunta: {info_pregunta['texto']}")
+            print(f"\n[Pregunta {contador_preguntas}] Código: {codigo_pregunta}")
+            print(f"{info_pregunta['texto']}")
             
             # Mostrar opciones según el tipo de pregunta
             respuesta_usuario = self.obtener_respuesta(info_pregunta)
@@ -139,23 +143,36 @@ class TriageConsoleTest:
             
             print(f"Respuesta guardada: {respuesta_usuario}")
             
-            # Determinar siguiente pregunta según lógica simple
-            codigo_pregunta = self.obtener_siguiente_pregunta(codigo_pregunta, respuesta_usuario)
+            # Determinar siguiente pregunta según FLUJO_PREGUNTAS
+            siguiente_codigo = self.obtener_siguiente_pregunta(codigo_pregunta, respuesta_usuario)
+            
+            if siguiente_codigo:
+                print(f"Siguiente pregunta: {siguiente_codigo}")
+            else:
+                print("Fin del flujo de preguntas.")
+                
+            codigo_pregunta = siguiente_codigo
+            
+        if contador_preguntas >= 50:
+            print("Se alcanzó el límite máximo de preguntas (50). Finalizando evaluación.")
+        
+        print(f"\nTotal de preguntas respondidas: {contador_preguntas}")
             
     def obtener_primera_pregunta(self):
-        """Determina la primera pregunta basada en la edad y sexo del paciente"""
+        """Determina la primera pregunta basada en la edad y sexo del paciente siguiendo la lógica de las vistas"""
         # Prioridad 1: Adultos mayores (>65 años)
         if self.paciente.edad > 65:
             print(f"Paciente adulto mayor detectado (edad: {self.paciente.edad}) - Iniciando con evaluación geriátrica")
             return 'adulto_mayor_ESI1'
         # Prioridad 2: Mujeres (cualquier edad) - preguntar sobre embarazo
-        elif self.paciente.sexo.lower() in ['femenino', 'mujer', 'f', 'female']:
+        elif self.paciente.sexo == 'F':
             print(f"Paciente femenino detectado (edad: {self.paciente.edad}) - Iniciando con preguntas de embarazo")
             return 'embarazo'
-        # Prioridad 3: Flujo normal para otros casos
+        # Prioridad 3: Flujo normal para otros casos - usar inicio del flujo
         else:
-            print(f"Paciente masculino detectado (edad: {self.paciente.edad}) - Iniciando flujo normal")
-            return 'antecedentes'
+            primera_pregunta_codigo = FLUJO_PREGUNTAS.get("inicio", 'cirugias_previas')
+            print(f"Paciente detectado (edad: {self.paciente.edad}) - Iniciando flujo normal con: {primera_pregunta_codigo}")
+            return primera_pregunta_codigo
             
     def obtener_respuesta(self, info_pregunta):
         """Obtiene la respuesta del usuario según el tipo de pregunta"""
@@ -166,9 +183,9 @@ class TriageConsoleTest:
             while True:
                 try:
                     respuesta = input("Respuesta (Si/No): ").strip().lower()
-                    if respuesta in ['si', 'sí', 's', 'yes', 'y']:
+                    if respuesta in ['si', 'sí', 's', 'yes', 'y', 'true']:
                         return 'Si'
-                    elif respuesta in ['no', 'n']:
+                    elif respuesta in ['no', 'n', 'false']:
                         return 'No'
                     else:
                         print("Respuesta no válida. Ingresa 'Si' o 'No'.")
@@ -192,38 +209,89 @@ class TriageConsoleTest:
                     if KeyboardInterrupt:
                         return None
                     print("Por favor ingresa un número válido.")
+        
+        elif tipo == 'multi_choice':
+            print("Opciones (puedes seleccionar múltiples separadas por comas):")
+            for i, opcion in enumerate(opciones, 1):
+                print(f"  {i}. {opcion}")
+                
+            while True:
+                try:
+                    seleccion = input(f"Selecciona opciones (ej: 1,3,5 o solo 2): ").strip()
+                    if not seleccion:
+                        print("Debes seleccionar al menos una opción.")
+                        continue
+                        
+                    # Procesar múltiples selecciones
+                    indices = []
+                    for parte in seleccion.split(','):
+                        indice = int(parte.strip()) - 1
+                        if 0 <= indice < len(opciones):
+                            indices.append(indice)
+                        else:
+                            raise ValueError(f"Opción {parte.strip()} no válida")
+                    
+                    # Retornar las opciones seleccionadas
+                    respuestas_seleccionadas = [opciones[i] for i in indices]
+                    return respuestas_seleccionadas
+                    
+                except (ValueError, KeyboardInterrupt):
+                    if KeyboardInterrupt:
+                        return None
+                    print("Por favor ingresa números válidos separados por comas.")
+        
+        elif tipo == 'text':
+            try:
+                respuesta = input("Ingresa tu respuesta: ").strip()
+                return respuesta if respuesta else ""
+            except KeyboardInterrupt:
+                return None
                     
         return "Respuesta no capturada"
         
     def obtener_siguiente_pregunta(self, codigo_actual, respuesta):
         """
         Determina la siguiente pregunta basada en la respuesta usando FLUJO_PREGUNTAS.
-        Utiliza la misma lógica simplificada que las vistas reales.
+        Utiliza la misma lógica que las vistas reales.
         """
         # Usar directamente FLUJO_PREGUNTAS para determinar la siguiente pregunta
         if codigo_actual not in FLUJO_PREGUNTAS:
             return None
             
         regla_flujo = FLUJO_PREGUNTAS[codigo_actual]
-        siguiente_codigo = None
         
-        # Buscar el siguiente código según las reglas de flujo
-        if isinstance(regla_flujo, dict):
-            # Buscar coincidencia exacta primero
-            if str(respuesta) in regla_flujo:
-                siguiente_codigo = regla_flujo[str(respuesta)]
-            # Luego buscar valor por defecto
-            elif "default" in regla_flujo:
-                siguiente_codigo = regla_flujo["default"]
-            # Finalmente usar "siguiente" genérico
-            elif "siguiente" in regla_flujo:
-                siguiente_codigo = regla_flujo["siguiente"]
-        else:
-            # Si no es dict, asumir que es el siguiente código directamente
-            siguiente_codigo = regla_flujo
+        # Si la regla es simple (string), retornarla directamente
+        if not isinstance(regla_flujo, dict):
+            return regla_flujo
         
-        # Retornar el siguiente código (puede ser None si debe finalizar)
+        # Buscar siguiente pregunta por prioridad (como en las vistas)
+        siguiente_codigo = (self._buscar_por_valor_exacto(regla_flujo, respuesta) or
+                           self._buscar_por_default(regla_flujo) or
+                           self._buscar_por_siguiente(regla_flujo))
+        
         return siguiente_codigo
+    
+    def _buscar_por_valor_exacto(self, regla_flujo, respuesta):
+        """Busca coincidencia exacta con el valor de la respuesta."""
+        # Para respuestas múltiples, verificar si alguna opción está en la regla
+        if isinstance(respuesta, list):
+            for valor in respuesta:
+                if str(valor) in regla_flujo:
+                    return regla_flujo[str(valor)]
+        else:
+            # Para respuestas simples, buscar coincidencia directa
+            if str(respuesta) in regla_flujo:
+                return regla_flujo[str(respuesta)]
+        
+        return None
+    
+    def _buscar_por_default(self, regla_flujo):
+        """Busca la regla por defecto."""
+        return regla_flujo.get("default")
+    
+    def _buscar_por_siguiente(self, regla_flujo):
+        """Busca la regla siguiente genérica."""
+        return regla_flujo.get("siguiente")
         
     def mostrar_resultado_final(self):
         """Muestra el resultado final del triage"""
@@ -261,62 +329,101 @@ class TriageConsoleTest:
         # Convertir respuestas a un diccionario para fácil acceso
         respuestas_dict = {resp.pregunta.codigo: resp.valor for resp in respuestas}
         
-        # Verificar si es una paciente embarazada
-        es_embarazada = respuestas_dict.get('embarazo') in ['Sí', 'Si', True, 'True', 'si', 'sí']
+        # Obtener contexto del paciente
+        contexto_paciente = self._obtener_contexto_paciente(respuestas_dict)
         
-        # Evaluar cada regla ESI - las reglas de embarazo y adulto mayor tienen prioridad
+        # Evaluar cada regla ESI por orden de prioridad
         for regla in REGLAS_ESI:
-            condiciones_cumplidas = True
-            
-            # Para reglas de embarazo, verificar que la paciente esté embarazada
-            regla_es_embarazo = any('embarazo' in condicion.get('pregunta', '') for condicion in regla["condiciones"])
-            
-            if regla_es_embarazo and not es_embarazada:
-                continue  # Saltar reglas de embarazo si no está embarazada
-            
-            # Para reglas de adultos mayores, verificar que el paciente tenga >65 años
-            regla_es_adulto_mayor = any('adulto_mayor' in condicion.get('pregunta', '') for condicion in regla["condiciones"])
-            
-            if regla_es_adulto_mayor and self.paciente.edad <= 65:
-                continue  # Saltar reglas de adulto mayor si no tiene >65 años
-            
-            for condicion in regla["condiciones"]:
-                pregunta_codigo = condicion["pregunta"]
-                valor_esperado = condicion["valor"]
-                
-                # Si la pregunta no fue respondida, la condición no se cumple
-                if pregunta_codigo not in respuestas_dict:
-                    condiciones_cumplidas = False
-                    break
-                
-                valor_respuesta = respuestas_dict[pregunta_codigo]
-                
-                # Verificar si la condición se cumple
-                if isinstance(valor_esperado, list):
-                    # Si valor_esperado es una lista, verificar si la respuesta está en ella
-                    if valor_respuesta not in valor_esperado:
-                        condiciones_cumplidas = False
-                        break
-                else:
-                    # Si es un valor único, comparar directamente
-                    if valor_respuesta != valor_esperado:
-                        condiciones_cumplidas = False
-                        break
-            
-            # Si todas las condiciones se cumplen, retornar el nivel ESI de esta regla
-            if condiciones_cumplidas:
+            if self._evaluar_regla_esi(regla, respuestas_dict, contexto_paciente):
                 print(f"Regla ESI {regla['nivel_esi']} aplicada basada en las respuestas.")
                 return regla["nivel_esi"]
         
         # Si ninguna regla aplica, considerar factores adicionales
         # Adultos mayores sin síntomas específicos → ESI 3
         if self.paciente.edad > 65:
-            print(f"Aplicando ESI 3 por edad avanzada (>{self.paciente.edad} años) sin síntomas específicos.")
+            print(f"Aplicando ESI 3 por edad avanzada ({self.paciente.edad} años) sin síntomas específicos.")
             return 3
         
-        # Si ninguna regla aplica, retornar nivel por defecto (4 - menos urgente)
-        print("Aplicando ESI 4 por defecto - no se encontraron condiciones específicas.")
-        return 4
+        # Si ninguna regla aplica, retornar nivel por defecto (5 - menos urgente)
+        print("Aplicando ESI 5 por defecto - no se encontraron condiciones específicas.")
+        return 5
+    
+    def _obtener_contexto_paciente(self, respuestas_dict):
+        """Obtiene el contexto del paciente (embarazo, edad, etc.)."""
+        es_embarazada = respuestas_dict.get('embarazo') in ['Sí', 'Si', True, 'True', 'si', 'sí']
+        es_adulto_mayor = self.paciente.edad > 65
+        
+        return {
+            'es_embarazada': es_embarazada,
+            'es_adulto_mayor': es_adulto_mayor
+        }
+    
+    def _evaluar_regla_esi(self, regla, respuestas_dict, contexto_paciente):
+        """Evalúa si una regla ESI se cumple con las respuestas dadas."""
+        # Verificar si la regla aplica al contexto del paciente
+        if not self._regla_aplica_al_contexto(regla, contexto_paciente):
+            return False
+        
+        # Evaluar todas las condiciones de la regla
+        return all(
+            self._evaluar_condicion(condicion, respuestas_dict)
+            for condicion in regla["condiciones"]
+        )
+    
+    def _regla_aplica_al_contexto(self, regla, contexto_paciente):
+        """Verifica si una regla aplica al contexto específico del paciente."""
+        regla_es_embarazo = self._es_regla_de_embarazo(regla)
+        regla_es_adulto_mayor = self._es_regla_de_adulto_mayor(regla)
+        
+        # Saltar reglas de embarazo si no está embarazada
+        if regla_es_embarazo and not contexto_paciente['es_embarazada']:
+            return False
+        
+        # Saltar reglas de adulto mayor si no es adulto mayor
+        if regla_es_adulto_mayor and not contexto_paciente['es_adulto_mayor']:
+            return False
+        
+        return True
+    
+    def _es_regla_de_embarazo(self, regla):
+        """Verifica si es una regla específica para embarazadas."""
+        return any('embarazo' in condicion.get('pregunta', '') 
+                   for condicion in regla["condiciones"])
+    
+    def _es_regla_de_adulto_mayor(self, regla):
+        """Verifica si es una regla específica para adultos mayores."""
+        return any('adulto_mayor' in condicion.get('pregunta', '') 
+                   for condicion in regla["condiciones"])
+    
+    def _evaluar_condicion(self, condicion, respuestas_dict):
+        """Evalúa una condición específica de una regla ESI."""
+        pregunta_codigo = condicion["pregunta"]
+        valor_esperado = condicion["valor"]
+        
+        # Si la pregunta no fue respondida, la condición no se cumple
+        if pregunta_codigo not in respuestas_dict:
+            return False
+        
+        valor_respuesta = respuestas_dict[pregunta_codigo]
+        
+        # Comparar valores según el tipo
+        return self._comparar_valores(valor_respuesta, valor_esperado)
+    
+    def _comparar_valores(self, valor_respuesta, valor_esperado):
+        """Compara el valor de la respuesta con el valor esperado."""
+        if isinstance(valor_esperado, list):
+            return self._comparar_con_lista(valor_respuesta, valor_esperado)
+        else:
+            return valor_respuesta == valor_esperado
+    
+    def _comparar_con_lista(self, valor_respuesta, valor_esperado):
+        """Compara un valor de respuesta con una lista de valores esperados."""
+        if isinstance(valor_respuesta, list):
+            # Respuesta múltiple: al menos un valor debe coincidir
+            return any(val in valor_esperado for val in valor_respuesta)
+        else:
+            # Respuesta simple: debe estar en la lista
+            return valor_respuesta in valor_esperado
 
 
 def main():

@@ -77,14 +77,58 @@ PREGUNTAS = {
                      "Tiene una herida que desee revisar", "Ninguna de las anteriores"]
     },
     
-    # Preguntas de evaluación inicial - Antecedentes
-    "antecedentes": {
-        "texto": "¿Presenta alguno de estos síntomas de mayor riesgo?",
-        "tipo": "choice",
-        "opciones": ["Dolor intenso", "Sangrado", "Fiebre alta", "Dificultad para respirar", "Ninguno"]
+    # Preguntas de antecedentes médicos
+    "cirugias_previas": {
+        "texto": "¿Ha tenido cirugías previas? (Describa brevemente cada cirugía y el año aproximado)",
+        "tipo": "text",
+        "placeholder": "Ejemplo: Apendicectomía en 2018, Cesárea en 2020...",
+        "max_length": 1000,
+        "required": False
+    },
+     
+    "antecedentes_enfermedades_cronicas": {
+        "texto": "Enfermedades Crónicas (puede seleccionar múltiples opciones)",
+        "tipo": "multi_choice",
+        "opciones": [
+            "Diabetes 1/2",
+            "Asma",
+            "Acidente cerebrovascular (ACV)",
+            "Insuficiencia cardíaca",
+            "Fibromialgia",
+            "Hipertensión arterial",
+            "Enfermedad coronaria",
+            "Enfermedad pulmonar obstructiva crónica (EPOC)",
+            "Otro (especificar)",
+            "Ninguna de las anteriores"
+        ]
     },
     
-    
+    #   "pregunta": "antecedentes_alergias",
+    #   "valor": ["Penicilina", "Otra (especificar)"],
+    #   "informacion_adicional": "Alergia al polen de girasol",
+    "antecedentes_alergias": {
+        "texto": "Alergias conocidas (puede seleccionar múltiples opciones)",
+        "tipo": "multi_choice",
+        "opciones": [
+            "Ninguna",
+            "Penicilina",
+            "AINES (Antiinflamatorios no esteroideos)",
+            "Anestésicos",
+            "Anticonvulsivos", 
+            "Sulfamidas",
+            "Contrastes yodados",
+            "Leche",
+            "Huevos",
+            "Pescado / Mariscos",
+            "Cacahuetes / Frutos secos",
+            "Trigo / Gluten",
+            "Soja",
+            "Sésamo",
+            "Látex",
+            "Otro (especificar)",
+            "Ninguna de las anteriores"
+        ]
+    },
     
     
     # Preguntas sobre dificultad respiratoria
@@ -245,7 +289,7 @@ PREGUNTAS = {
     "fiebre_sintomas": {
         "texto": "¿Qué le duele o molesta más?",
         "tipo": "choice",
-        "opciones": ["Cabeza", "Garganta", "Cuerpo", "Estómago", "Pecho", "Otro"]
+        "opciones": ["Cabeza", "Garganta", "Cuerpo", "Estómago", "Pecho", "Otro (especificar)"]
     },
     "sintomas_generales": {
         "texto": "¿Presenta alguno de estos síntomas?",
@@ -260,7 +304,7 @@ PREGUNTAS = {
         "opciones": ["Si", "No"]
     },
     
-    # Preguntas sobre antecedentes médicos
+    # Preguntas sobre relacion alergia
     "alergia_relacionada": {
         "texto": "¿Su síntoma está relacionado con sus alergias?",
         "tipo": "boolean",
@@ -467,18 +511,36 @@ PREGUNTAS = {
 # Mapa de flujo de preguntas (qué pregunta sigue después de cada respuesta)
 FLUJO_PREGUNTAS = {
     # Flujo básico inicial
-    "inicio": "antecedentes",
+    "inicio": "cirugias_previas",
     
-    # Flujo para preguntas de riesgo
-    "antecedentes": {
+    # Flujo para preguntas de antecedentes médicos
+    "cirugias_previas": {
+        "siguiente": "antecedentes_enfermedades_cronicas",
+    },
+    "antecedentes_enfermedades_cronicas": {
+        "siguiente": "antecedentes_alergias",  # Por defecto ir a alergias
+        "Ninguna de las anteriores": "antecedentes_alergias",
+        "Diabetes 1/2": "diabetes_inestabilidad",  # Si tiene diabetes, ir al flujo específico
+        "Asma": "asma_inestabilidad",              # Si tiene asma, ir al flujo específico
+        "Acidente cerebrovascular (ACV)": "acv_inconciencia", # Si tiene ACV, ir al flujo específico
+        "Insuficiencia cardíaca": "ic_inestabilidad",         # Si tiene IC, ir al flujo específico
+        "Fibromialgia": "fm_autolesion",                      # Si tiene fibromialgia, ir al flujo específico
+        "Hipertensión arterial": "hta_dolor_cabeza",          # Si tiene HTA, ir al flujo específico
+        "Enfermedad coronaria": "ec_dolor_pecho_irradiado",   # Si tiene EC, ir al flujo específico
+        "Enfermedad pulmonar obstructiva crónica (EPOC)": "epoc_labios_azules", # Si tiene EPOC, ir al flujo específico
+        "default": "antecedentes_alergias"  # Cualquier otra selección va a alergias
+    },
+    
+    # Flujo para alergias
+    "antecedentes_alergias": {
         "siguiente": "dificultad_respiratoria",
-        "Ninguno": "dificultad_respiratoria",
+        "Ninguna": "dificultad_respiratoria",
         "default": "dificultad_respiratoria"  # Por defecto continuar con dificultad respiratoria
     },
     
     # Flujo para embarazo
     "embarazo": {
-        "siguiente": "antecedentes",  # Si no está embarazada, continúa con flujo general
+        "siguiente": "antecedentes_enfermedades_cronicas",  # Si no está embarazada, continúa con flujo general
         "Si": "semanas_embarazo",     # Si está embarazada, va al flujo específico
         "True": "semanas_embarazo"
     },
@@ -493,21 +555,21 @@ FLUJO_PREGUNTAS = {
     "sintomas_moderados_embarazo_ESI2": {
         "siguiente": None,  # Finalizar evaluación - ESI 2
         "Ninguna de las anteriores": "sintomas_moderados_embarazo_ESI3",
-        "default": None  # Síntomas ESI 2 o 3, finalizar
+        "default": None  # Síntomas ESI 2, finalizar
     },
     "sintomas_moderados_embarazo_ESI3": {
         "siguiente": None,  # Finalizar evaluación - ESI 3
         "Ninguna de las anteriores": "sintomas_leves_embarazo_ESI4",
-        "default": None  # Síntomas ESI 2 o 3, finalizar
+        "default": None  # Síntomas ESI 3, finalizar
     },
     "sintomas_moderados_embarazo_ESI4": {
-        "siguiente": None,  # Finalizar evaluación - ESI 2 o 3 según síntoma
+        "siguiente": None,  # Finalizar evaluación - ESI 4 según síntoma
         "Ninguna de las anteriores": "sintomas_leves_embarazo_ESI5",
-        "default": None  # Síntomas ESI 2 o 3, finalizar
+        "default": None  # Síntomas ESI 4, finalizar
     },
     "sintomas_leves_embarazo_ESI5": {
-        "siguiente": None,  # Finalizar evaluación - ESI 4 o 5
-        "default": None  # Síntomas ESI 4 o 5, finalizar
+        "siguiente": None,  # Finalizar evaluación - ESI 5
+        "default": None  # Síntomas ESI 5, finalizar
     },
     
     # Flujo para >65 años

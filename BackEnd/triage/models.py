@@ -13,14 +13,15 @@ class SesionTriage(models.Model):
     completado = models.BooleanField(default=False)
     
     def __str__(self):
-        return f"Triage {self.id} - Paciente: {self.paciente.nombre} {self.paciente.apellido}"
+        return f"Triage {self.id} - Paciente: {self.paciente.primer_nombre} {self.paciente.primer_apellido}"
 
 class Pregunta(models.Model):
     """Modelo para representar una pregunta del sistema de triage."""
     TIPOS_PREGUNTA = [
         ('boolean', 'Sí/No'),
         ('numeric', 'Numérico'),
-        ('choice', 'Selección'),
+        ('choice', 'Selección única'),
+        ('multi_choice', 'Selección múltiple'),
         ('scale', 'Escala'),
         ('text', 'Texto libre'),
     ]
@@ -41,6 +42,7 @@ class Respuesta(models.Model):
     sesion = models.ForeignKey(SesionTriage, on_delete=models.CASCADE, related_name='respuestas')
     pregunta = models.ForeignKey(Pregunta, on_delete=models.CASCADE)
     valor = models.JSONField()  # Almacena cualquier tipo de respuesta como JSON
+    informacion_adicional = models.TextField(null=True, blank=True)  # Para campos como "Otra alergia especificar"
     timestamp = models.DateTimeField(auto_now_add=True)
     pregunta_siguiente = models.CharField(max_length=100, null=True, blank=True)  # Código de la siguiente pregunta basada en esta respuesta
     
