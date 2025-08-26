@@ -1,7 +1,5 @@
 """
-Módulo que contiene la definición de las preguntas para el sistema de triage.
-Las preguntas están basadas en el diagrama de flujo del archivo:
-"Flujos de decisión PRETRIAGE.drawio.xml"
+Módulo que contiene la definición de las preguntas para el sistema de triage"
 """
 
 # Definición de preguntas para el sistema de triage
