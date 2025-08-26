@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../ui/Button';
 import ProgressBar from '../ui/ProgressBar';
-import RoleCard from '../ui/RoleCard';
+import PageContainer from '../ui/PageContainer';
+import AnimatedRoleTransition from './AnimatedRoleTransition';
 import { UserIcon, ShieldIcon } from '../icons/Icons';
 
 const WelcomeScreen = () => {
   const [showRoles, setShowRoles] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(null);
   const navigate = useNavigate();
 
   // Configuración de roles
@@ -31,23 +31,19 @@ const WelcomeScreen = () => {
   };
 
   const handleRoleSelection = (roleId) => {
-    setSelectedRole(roleId);
-    
     // Esperar un momento para mostrar la selección
     setTimeout(() => {
       if (roleId === 'patient') {
         // Navegar a la página de datos básicos del paciente
         navigate('/patient/basic-data');
-      } else if (roleId === 'staff') {
-        // Redirigir a una página en blanco como especificasta
-        navigate('/staff/dashboard');
       }
+      // Para staff, la navegación se maneja en AnimatedRoleTransition
     }, 500);
   };
 
   return (
     <div className="w-full max-w-5xl">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-10 w-full text-center transition-colors duration-300">
+      <PageContainer variant="large">
         {/* Barra de progreso */}
         <ProgressBar progress={16.67} />
         
@@ -82,32 +78,13 @@ const WelcomeScreen = () => {
         {/* Área de selección de roles */}
         {showRoles && (
           <div className="roles-container animate-fadeInUp mt-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {roles.map((role, index) => {
-                return (
-                  <div
-                    key={role.id}
-                    className="animate-fadeInUp"
-                    style={{ 
-                      animationDelay: `${index * 100}ms`
-                    }}
-                  >
-                    <RoleCard
-                      role={role.id}
-                      title={role.title}
-                      description={role.description}
-                      icon={role.icon}
-                      onClick={handleRoleSelection}
-                      isSelected={selectedRole === role.id}
-                      isVisible={showRoles}
-                    />
-                  </div>
-                );
-              })}
-            </div>
+            <AnimatedRoleTransition 
+              roles={roles}
+              onRoleSelect={handleRoleSelection}
+            />
           </div>
         )}
-      </div>
+      </PageContainer>
     </div>
   );
 };
