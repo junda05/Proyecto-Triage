@@ -6,11 +6,11 @@ import usuarioService from './usuarioService';
  * Servicio de autenticación para manejo de usuarios
  * 
  * Endpoints:
- * POST /api/v1/auth/login/        -> { access, refresh }
- * POST /api/v1/auth/refresh/      -> { access, refresh? }
- * POST /api/v1/auth/logout/       -> blacklist refresh token
- * POST /api/v1/crear/             -> registro de usuario
- * GET  /api/v1/perfil/            -> datos del usuario
+ * POST /api/v1/auth/login/             -> { access, refresh }
+ * POST /api/v1/auth/refresh-access     -> { access, refresh? }
+ * POST /api/v1/auth/logout             -> blacklist refresh token
+ * POST /api/v1/auth/usuarios           -> registro de usuario
+ * GET  /api/v1/perfil                  -> datos del usuario
  */
 
 const authService = {
@@ -83,7 +83,7 @@ const authService = {
   //  * La vista TokenBlacklistView de DRF Simple JWT requiere el refresh token
   //  * en el body de la petición para invalidarlo correctamente.
   //  */
-  
+
   logout: async () => {
     try {
       const refreshToken = obtenerRefreshToken();
