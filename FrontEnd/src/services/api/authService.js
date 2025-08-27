@@ -57,32 +57,33 @@ const authService = {
     }
   },
 
-  /**
-   * Registra un nuevo usuario
-   * 
-   * @param {Object} userData - Datos del usuario a registrar
-   * @returns {Promise<Object>} Respuesta del registro
-   */
-  registrar: async ({ username, email, password, password_confirm, first_name, last_name }) => {
-    const payload = { 
-      username, 
-      email, 
-      password, 
-      password_confirm, 
-      first_name, 
-      last_name 
-    };
-    // Usar endpoint correcto sin / al final
-    const { data } = await axiosClient.post('/auth/usuarios', payload);
-    return data;
-  },
+  // /**
+  //  * Registra un nuevo usuario
+  //  * 
+  //  * @param {Object} userData - Datos del usuario a registrar
+  //  * @returns {Promise<Object>} Respuesta del registro
+  //  */
+  // registrar: async ({ username, email, password, password_confirm, first_name, last_name }) => {
+  //   const payload = { 
+  //     username, 
+  //     email, 
+  //     password, 
+  //     password_confirm, 
+  //     first_name, 
+  //     last_name 
+  //   };
+  //   // Usar endpoint correcto sin / al final
+  //   const { data } = await axiosClient.post('/auth/usuarios', payload);
+  //   return data;
+  // },
 
-  /**
-   * Cierra sesión invalidando el refresh token
-   * 
-   * La vista TokenBlacklistView de DRF Simple JWT requiere el refresh token
-   * en el body de la petición para invalidarlo correctamente.
-   */
+  // /**
+  //  * Cierra sesión invalidando el refresh token
+  //  * 
+  //  * La vista TokenBlacklistView de DRF Simple JWT requiere el refresh token
+  //  * en el body de la petición para invalidarlo correctamente.
+  //  */
+  
   logout: async () => {
     try {
       const refreshToken = obtenerRefreshToken();

@@ -60,41 +60,41 @@ export const AuthProvider = ({ children }) => {
     }
   }, [notificaciones]);
 
-  const registrar = useCallback(async (formData) => {
-    setCargando(true);
-    setErrorAuth(null);
-    try {
-      const data = await authService.registrar(formData);
+  // const registrar = useCallback(async (formData) => {
+  //   setCargando(true);
+  //   setErrorAuth(null);
+  //   try {
+  //     const data = await authService.registrar(formData);
       
-      return { ok: true, data };
-    } catch (e) {
-      let errorMsg;
-      let titulo = 'Error en el registro';
+  //     return { ok: true, data };
+  //   } catch (e) {
+  //     let errorMsg;
+  //     let titulo = 'Error en el registro';
       
-      // Verificar si es un error de conexión con el servidor
-      if (!e.response) {
-        errorMsg = 'No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet e intenta nuevamente.';
-        titulo = 'Error de conexión';
-        setErrorAuth(errorMsg);
-      } else {
-        const errorData = e.response?.data || 'Error al registrar';
-        setErrorAuth(errorData);
+  //     // Verificar si es un error de conexión con el servidor
+  //     if (!e.response) {
+  //       errorMsg = 'No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet e intenta nuevamente.';
+  //       titulo = 'Error de conexión';
+  //       setErrorAuth(errorMsg);
+  //     } else {
+  //       const errorData = e.response?.data || 'Error al registrar';
+  //       setErrorAuth(errorData);
         
-        // Mostrar notificación de error específica
-        errorMsg = typeof errorData === 'string' 
-          ? errorData 
-          : errorData.non_field_errors?.[0] || 'Error al crear la cuenta';
-      }
+  //       // Mostrar notificación de error específica
+  //       errorMsg = typeof errorData === 'string' 
+  //         ? errorData 
+  //         : errorData.non_field_errors?.[0] || 'Error al crear la cuenta';
+  //     }
         
-      notificaciones.mostrarError(errorMsg, {
-        titulo: titulo
-      });
+  //     notificaciones.mostrarError(errorMsg, {
+  //       titulo: titulo
+  //     });
       
-      return { ok: false, error: e };
-    } finally {
-      setCargando(false);
-    }
-  }, [notificaciones]);
+  //     return { ok: false, error: e };
+  //   } finally {
+  //     setCargando(false);
+  //   }
+  // }, [notificaciones]);
 
   const cerrarSesion = useCallback(async () => {
     setCargando(true);
@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }) => {
         autoCloseMs: 2000
       });
     } catch (error) {
-      // Log del error pero no fallar el logout del lado cliente
+      // Log del error pero no falló en el lado cliente
       console.warn('Error en logout del servidor:', error.message);
     } finally {
       limpiarTokens();
@@ -155,7 +155,7 @@ export const AuthProvider = ({ children }) => {
     cargando: cargando || inicializando, // Incluir inicializando en cargando
     errorAuth,
     iniciarSesion,
-    registrar,
+    // registrar,
     cerrarSesion,
     autenticado: !!usuario,
     inicializando,
@@ -168,7 +168,8 @@ export const AuthProvider = ({ children }) => {
     mostrarError: notificaciones.mostrarError,
     mostrarAdvertencia: notificaciones.mostrarAdvertencia,
     mostrarInfo: notificaciones.mostrarInfo
-  }), [usuario, cargando, inicializando, errorAuth, iniciarSesion, registrar, cerrarSesion, notificaciones]);
+  // }), [usuario, cargando, inicializando, errorAuth, iniciarSesion, registrar, cerrarSesion, notificaciones]);
+  }), [usuario, cargando, inicializando, errorAuth, iniciarSesion, cerrarSesion, notificaciones]);
 
   return (
     <AuthContext.Provider value={valor}>
