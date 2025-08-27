@@ -1,5 +1,4 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import authService from '../services/api/authService';
 import { obtenerUsuario, limpiarTokens, obtenerTokens } from '../services/utils/tokenStorage';
 import useNotificaciones from '../hooks/useNotificaciones';
@@ -13,17 +12,11 @@ export const AuthProvider = ({ children }) => {
   const [inicializando, setInicializando] = useState(true); // Nuevo estado
   const [errorAuth, setErrorAuth] = useState(null);
   
-  const navigate = useNavigate();
-  
   // Hook de notificaciones integrado
   const notificaciones = useNotificaciones();
 
-  // Configurar sessionManager con callbacks de navegación y notificaciones
+  // Configurar sessionManager con callback de notificaciones
   useEffect(() => {
-    sessionManager.setRedirectCallback((path, options = {}) => {
-      navigate(path, options);
-    });
-    
     sessionManager.setNotificationCallback((notificacion) => {
       if (notificacion.type === 'warning') {
         notificaciones.mostrarAdvertencia(notificacion.mensaje, {
@@ -42,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     // Escuchar eventos de sesión expirada
     const removeSessionListener = sessionManager.addSessionListener((evento) => {
       if (evento.type === 'SESSION_EXPIRED') {
-        console.log('🔄 Sesión expirada detectada, limpiando estado usuario...');
+        console.log('Sesión expirada detectada, limpiando estado usuario...');
         setUsuario(null);
         setErrorAuth('Sesión expirada');
       }
@@ -52,7 +45,7 @@ export const AuthProvider = ({ children }) => {
       removeSessionListener();
       sessionManager.cleanup();
     };
-  }, [navigate, notificaciones]);
+  }, [notificaciones]);
 
   const iniciarSesion = useCallback(async (username, password) => {
     setCargando(true);

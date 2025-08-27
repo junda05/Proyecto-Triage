@@ -7,15 +7,12 @@ import { limpiarTokens } from './tokenStorage';
 class SessionManager {
   constructor() {
     this.listeners = new Set();
-    this.redirectCallback = null;
     this.notificationCallback = null;
-  }
-
-  /**
-   * Registra callback para redirección automática
-   */
-  setRedirectCallback(callback) {
-    this.redirectCallback = callback;
+    this.redirectUrl = '/staff/login';
+    
+    // Flags para evitar múltiples ejecuciones
+    this.sessionExpiredHandled = false;
+    this.redirectTimeout = null;
   }
 
   /**
@@ -26,11 +23,37 @@ class SessionManager {
   }
 
   /**
+   * Configura la URL de redirección por defecto
+   */
+  setRedirectUrl(url) {
+    this.redirectUrl = url;
+  }
+
+  /**
+   * Redirige usando window.location (más robusto que useNavigate en este contexto)
+   */
+  redirectTo(path, state = null) {
+    if (typeof window !== 'undefined') {
+      if (state) {
+        sessionStorage.setItem('redirect_state', JSON.stringify(state));
+      }
+      window.location.href = path;
+    }
+  }
+
+  /**
    * Maneja cuando el refresh token ha expirado
-   * Se llama desde axios interceptor cuando falla el refresh
+   * INCLUYE DEBOUNCE para evitar múltiples ejecuciones
    */
   handleRefreshTokenExpired(error) {
-    console.warn('🚨 Refresh token expirado, cerrando sesión:', error?.message);
+    // Evitar múltiples ejecuciones con debounce
+    if (this.sessionExpiredHandled) {
+      console.log('Session expired ya está siendo manejada, ignorando...');
+      return;
+    }
+    
+    this.sessionExpiredHandled = true;
+    console.warn('Refresh token expirado, cerrando sesión:', error?.message);
     
     // 1. Limpiar tokens inmediatamente
     limpiarTokens();
@@ -39,35 +62,43 @@ class SessionManager {
     this.notifySessionExpired();
     
     // 3. Mostrar notificación al usuario
+    // 
     if (this.notificationCallback) {
       this.notificationCallback({
         type: 'warning',
         titulo: 'Sesión Expirada',
-        mensaje: 'Tu sesión ha expirado por seguridad. Por favor, inicia sesión nuevamente.',
-        autoCloseMs: 8000,
-        dismissible: true
+        mensaje: 'Tu sesión anterior ha expirado por seguridad. Por favor, inicia sesión nuevamente.',
+        autoCloseMs: 8000
       });
     }
     
-    // 4. Redirigir al login con delay para que se vea la notificación
-    setTimeout(() => {
-      if (this.redirectCallback) {
-        this.redirectCallback('/staff/login', {
-          replace: true,
-          state: { 
-            mensaje: 'Sesión expirada',
-            tipo: 'session_expired'
-          }
-        });
-      }
-    }, 1500);
+    // 4. Redirigir al login con delay
+    if (this.redirectTimeout) {
+      clearTimeout(this.redirectTimeout);
+    }
+    
+    this.redirectTimeout = setTimeout(() => {
+      this.redirectTo(this.redirectUrl, {
+        mensaje: 'Sesión expirada',
+        tipo: 'session_expired'
+      });
+      // Reset del flag después de la redirección
+      this.sessionExpiredHandled = false;
+    }, 2000);
   }
 
   /**
    * Maneja errores de tokens inválidos o corruptos
    */
   handleInvalidToken(error) {
-    console.warn('🚨 Token inválido detectado:', error?.message);
+    // Evitar múltiples ejecuciones
+    if (this.sessionExpiredHandled) {
+      console.log('Invalid token ya está siendo manejado, ignorando...');
+      return;
+    }
+    
+    this.sessionExpiredHandled = true;
+    console.warn('Token inválido detectado:', error?.message);
     
     limpiarTokens();
     this.notifySessionExpired();
@@ -77,15 +108,18 @@ class SessionManager {
         type: 'error',
         titulo: 'Token Inválido',
         mensaje: 'Se detectó un problema con tu sesión. Redirigiendo al login...',
-        autoCloseMs: 5000
+        autoCloseMs: 4000
       });
     }
     
-    setTimeout(() => {
-      if (this.redirectCallback) {
-        this.redirectCallback('/staff/login', { replace: true });
-      }
-    }, 2000);
+    if (this.redirectTimeout) {
+      clearTimeout(this.redirectTimeout);
+    }
+    
+    this.redirectTimeout = setTimeout(() => {
+      this.redirectTo(this.redirectUrl);
+      this.sessionExpiredHandled = false;
+    }, 1500);
   }
 
   /**
@@ -110,12 +144,23 @@ class SessionManager {
   }
 
   /**
-   * Limpia todos los callbacks (útil para testing)
+   * Reinicia el estado (útil para testing o situaciones especiales)
+   */
+  reset() {
+    this.sessionExpiredHandled = false;
+    if (this.redirectTimeout) {
+      clearTimeout(this.redirectTimeout);
+      this.redirectTimeout = null;
+    }
+  }
+
+  /**
+   * Limpia todos los callbacks
    */
   cleanup() {
     this.listeners.clear();
-    this.redirectCallback = null;
     this.notificationCallback = null;
+    this.reset();
   }
 }
 

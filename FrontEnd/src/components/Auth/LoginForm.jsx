@@ -30,17 +30,6 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
       setIsLoaded(true);
     }, 100);
     
-    // Verificar si llegó desde una sesión expirada
-    if (location.state?.tipo === 'session_expired') {
-      mostrarAdvertencia('Tu sesión anterior ha expirado por seguridad. Por favor, inicia sesión nuevamente.', {
-        titulo: 'Sesión Expirada',
-        autoCloseMs: 8000
-      });
-      
-      // Limpiar el state para evitar mostrar el mensaje repetidamente
-      navigate(location.pathname, { replace: true, state: null });
-    }
-    
     return () => clearTimeout(timer);
   }, [location.state, mostrarAdvertencia, navigate, location.pathname]);
 
