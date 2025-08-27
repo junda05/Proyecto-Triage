@@ -156,41 +156,6 @@ const useNotificaciones = () => {
     );
   }, [mostrarExito]);
 
-  const notificarProcesoPDF = useCallback((fase, opciones = {}) => {
-    const mensajes = {
-      cargando: 'Subiendo archivo PDF...',
-      procesando: 'Extrayendo texto del documento...',
-      completado: 'Texto extraído exitosamente',
-      error: 'Error al procesar el archivo PDF'
-    };
-
-    const tipos = {
-      cargando: 'info',
-      procesando: 'info', 
-      completado: 'success',
-      error: 'error'
-    };
-
-    return agregarNotificacion({
-      type: tipos[fase] || 'info',
-      mensaje: mensajes[fase] || fase,
-      autoCloseMs: fase === 'completado' ? 3000 : 5000,
-      ...opciones
-    });
-  }, [agregarNotificacion]);
-
-  /**
-   * Estadísticas útiles para debugging
-   */
-  const estadisticas = {
-    total: notificaciones.length,
-    porTipo: notificaciones.reduce((acc, notif) => {
-      acc[notif.type] = (acc[notif.type] || 0) + 1;
-      return acc;
-    }, {}),
-    timersActivos: timersRef.current.size
-  };
-
   return {
     // Estado
     notificaciones,
@@ -209,10 +174,6 @@ const useNotificaciones = () => {
     // Funciones específicas de la app
     notificarRegistroExitoso,
     notificarLoginExitoso,
-    notificarProcesoPDF,
-    
-    // Utilidades
-    estadisticas
   };
 };
 
