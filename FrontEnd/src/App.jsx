@@ -1,12 +1,15 @@
 import React from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
 import AppRouter from './routes/AppRouter';
 import './App.css';
 
 function App() {
   return (
     <ThemeProvider>
-      <AppRouter />
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
     </ThemeProvider>
   );
 }

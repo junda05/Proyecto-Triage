@@ -4,16 +4,23 @@ import Button from '../ui/Button';
 import FormInput from '../ui/FormInput';
 import PageContainer from '../ui/PageContainer';
 import { EyeIcon, EyeSlashIcon, ArrowLeftIcon } from '../icons/Icons';
+import useAuth from '../../hooks/useAuth';
+import useFormulario from '../../hooks/useFormulario';
+import { validadoresLogin } from '../../services/utils/validadores';
 
 const LoginForm = ({ isExpanding, onBackClick }) => {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: ''
-  });
+  // Hooks de autenticación y formulario
+  const { iniciarSesion, cargando } = useAuth();
+  const { valores, errores, onChange, esValido } = useFormulario(
+    { username: '', password: '' },
+    validadoresLogin
+  );
+
+  // Estados locales para UI
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({});
   const [isLoaded, setIsLoaded] = useState(false);
+  const [errorGeneral, setErrorGeneral] = useState('');
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,63 +32,40 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Limpiar errores cuando el usuario empiece a escribir
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+  // Limpiar error general cuando el usuario empiece a escribir
+  useEffect(() => {
+    if (errorGeneral && (valores.username || valores.password)) {
+      setErrorGeneral('');
     }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.username.trim()) {
-      newErrors.username = 'El nombre de usuario es requerido';
-    }
-    
-    if (!formData.password.trim()) {
-      newErrors.password = 'La contraseña es requerida';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
-    }
-    
-    return newErrors;
-  };
+  }, [valores.username, valores.password, errorGeneral]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const newErrors = validateForm();
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    // Validar formulario antes de enviar
+    if (!esValido()) {
       return;
     }
     
-    setIsLoading(true);
-    setErrors({});
+    setErrorGeneral('');
     
     try {
-      // Simular autenticación
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const resultado = await iniciarSesion(valores.username, valores.password);
       
-      // Aquí iría la lógica real de autenticación
-      console.log('Datos de login:', formData);
-      
-      // Redirigir al dashboard del staff
-      navigate('/staff/dashboard');
+      if (resultado.ok) {
+        // La notificación de éxito y navegación se manejan en el AuthContext
+        // Añadir un pequeño delay para que se vea la notificación
+        setTimeout(() => {
+          navigate('/staff/dashboard');
+        }, 1000);
+      } else {
+        // El error ya se muestra como notificación, pero también mostramos uno local
+        setErrorGeneral('Credenciales incorrectas. Verifique su usuario y contraseña.');
+      }
     } catch (error) {
-      setErrors({ general: 'Error al iniciar sesión. Inténtelo nuevamente.' });
-    } finally {
-      setIsLoading(false);
+      // Fallback por si algo sale mal
+      setErrorGeneral('Error de conexión. Intente nuevamente.');
+      console.error('Error en login:', error);
     }
   };
 
@@ -117,9 +101,9 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
   </div>
 
         {/* Mostrar error general si existe */}
-        {errors.general && (
+        {errorGeneral && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-red-600 dark:text-red-400 text-sm">{errors.general}</p>
+            <p className="text-red-600 dark:text-red-400 text-sm">{errorGeneral}</p>
           </div>
         )}
 
@@ -130,12 +114,12 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
             id="username"
             name="username"
             type="text"
-            value={formData.username}
-            onChange={handleInputChange}
+            value={valores.username}
+            onChange={onChange}
             label="Nombre de usuario o email"
             placeholder="Ingrese su usuario o email"
-            error={errors.username}
-            disabled={isLoading}
+            error={errores.username}
+            disabled={cargando}
             required
           />
 
@@ -144,12 +128,12 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
             id="password"
             name="password"
             type={showPassword ? 'text' : 'password'}
-            value={formData.password}
-            onChange={handleInputChange}
+            value={valores.password}
+            onChange={onChange}
             label="Contraseña"
             placeholder="Ingrese su contraseña"
-            error={errors.password}
-            disabled={isLoading}
+            error={errores.password}
+            disabled={cargando}
             required
             className="pr-12"
           >
@@ -157,7 +141,7 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200"
-              disabled={isLoading}
+              disabled={cargando}
             >
               {showPassword ? (
                 <EyeSlashIcon className="h-5 w-5" />
@@ -175,7 +159,7 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
                 name="remember-me"
                 type="checkbox"
                 className="h-4 w-4 text-primary focus:ring-primary dark:focus:ring-blue-400 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
-                disabled={isLoading}
+                disabled={cargando}
               />
               <label htmlFor="remember-me" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                 Recordarme
@@ -185,7 +169,7 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
             <button
               type="button"
               className="text-sm text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200"
-              disabled={isLoading}
+              disabled={cargando}
             >
               ¿Olvidaste tu contraseña?
             </button>
@@ -197,9 +181,9 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
               type="submit"
               size="sm"
               className="w-full py-3 text-[17px]"
-              disabled={isLoading}
+              disabled={cargando}
             >
-              {isLoading ? (
+              {cargando ? (
                 <div className="flex items-center justify-center">
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

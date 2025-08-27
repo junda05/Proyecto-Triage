@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../ui/Button';
-import ProgressBar from '../ui/ProgressBar';
-import PageContainer from '../ui/PageContainer';
-import AnimatedRoleTransition from './AnimatedRoleTransition';
-import { UserIcon, ShieldIcon } from '../icons/Icons';
+import Button from '../components/ui/Button';
+import ProgressBar from '../components/ui/ProgressBar';
+import PageContainer from '../components/ui/PageContainer';
+import AnimatedRoleTransition from '../components/Common/AnimatedRoleTransition';
+import { UserIcon, ShieldIcon } from '../components/icons/Icons';
 
 const WelcomeScreen = () => {
   const [showRoles, setShowRoles] = useState(false);

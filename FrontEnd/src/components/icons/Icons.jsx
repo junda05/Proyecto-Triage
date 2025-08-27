@@ -1,4 +1,6 @@
 import React from 'react';
+// Importar iconos de lucide-react para notificaciones
+import { CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
 
 // Icono de usuario para pacientes
 export const UserIcon = ({ className = "h-6 w-6" }) => (
@@ -145,7 +147,72 @@ export const ArrowLeftIcon = ({ className = "h-6 w-6" }) => (
       strokeLinecap="round" 
       strokeLinejoin="round" 
       strokeWidth="2" 
-      d="M10 19l-7-7m0 0l7-7m-7 7h18" 
     />
   </svg>
 );
+
+// === ICONOS PARA NOTIFICACIONES (Lucide React) ===
+
+// Icono de éxito (CheckCircle de Lucide)
+export const IconoExito = ({ tamaño = 'md', className = '' }) => {
+  const sizes = {
+    sm: 16,
+    md: 20,
+    lg: 24,
+    xl: 28
+  };
+  return (
+    <CheckCircle 
+      size={sizes[tamaño]} 
+      className={className}
+    />
+  );
+};
+
+// Icono de error (XCircle de Lucide)
+export const IconoError = ({ tamaño = 'md', className = '' }) => {
+  const sizes = {
+    sm: 16,
+    md: 20,
+    lg: 24,
+    xl: 28
+  };
+  return (
+    <XCircle 
+      size={sizes[tamaño]} 
+      className={className}
+    />
+  );
+};
+
+// Icono de advertencia (AlertTriangle de Lucide)
+export const IconoAdvertencia = ({ tamaño = 'md', className = '' }) => {
+  const sizes = {
+    sm: 16,
+    md: 20,
+    lg: 24,
+    xl: 28
+  };
+  return (
+    <AlertTriangle 
+      size={sizes[tamaño]} 
+      className={className}
+    />
+  );
+};
+
+// Icono de información (Info de Lucide)
+export const IconoInfo = ({ tamaño = 'md', className = '' }) => {
+  const sizes = {
+    sm: 16,
+    md: 20,
+    lg: 24,
+    xl: 28
+  };
+  return (
+    <Info 
+      size={sizes[tamaño]} 
+      className={className}
+    />
+  );
+};

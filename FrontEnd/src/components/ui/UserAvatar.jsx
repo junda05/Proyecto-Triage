@@ -1,7 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import useAuth from '../../hooks/useAuth';
 
 const UserAvatar = ({ userName = "Usuario", onMenuClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { cerrarSesion } = useAuth();
+  const menuRef = useRef(null);
+
+  // Cerrar menú al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   const getInitials = (name) => {
     return name
@@ -14,11 +34,23 @@ const UserAvatar = ({ userName = "Usuario", onMenuClick }) => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-    if (onMenuClick) onMenuClick();
+  };
+
+  const handleLogout = async () => {
+    setIsMenuOpen(false);
+    await cerrarSesion();
+    // La redirección se maneja automáticamente por las rutas protegidas
+  };
+
+  const handleMenuItemClick = (action) => {
+    setIsMenuOpen(false);
+    if (onMenuClick) {
+      onMenuClick(action);
+    }
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       <button
         onClick={toggleMenu}
         className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-400 
@@ -38,16 +70,25 @@ const UserAvatar = ({ userName = "Usuario", onMenuClick }) => {
                            border-gray-200 dark:border-gray-600">
               {userName}
             </div>
-            <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 
-                             hover:bg-gray-100 dark:hover:bg-gray-700">
+            <button 
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 
+                         hover:bg-gray-100 dark:hover:bg-gray-700"
+              onClick={() => handleMenuItemClick('profile')}
+            >
               Mi perfil
             </button>
-            <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 
-                             hover:bg-gray-100 dark:hover:bg-gray-700">
+            <button 
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 
+                         hover:bg-gray-100 dark:hover:bg-gray-700"
+              onClick={() => handleMenuItemClick('settings')}
+            >
               Configuración
             </button>
-            <button className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 
-                             hover:bg-gray-100 dark:hover:bg-gray-700">
+            <button 
+              className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 
+                         hover:bg-gray-100 dark:hover:bg-gray-700"
+              onClick={handleLogout}
+            >
               Cerrar sesión
             </button>
           </div>

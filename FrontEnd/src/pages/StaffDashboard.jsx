@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import PageContainer from '../components/ui/PageContainer';
 import UserAvatar from '../components/ui/UserAvatar';
 import PatientFilters from '../components/Staff/PatientFilters';
 import PatientTable from '../components/Staff/PatientTable';
+import useAuth from '../hooks/useAuth';
 
 const StaffDashboard = () => {
+  const { usuario } = useAuth();
   const [filters, setFilters] = useState({
     esi: '',
     sortBy: 'arrivalTime',
@@ -124,6 +126,12 @@ const StaffDashboard = () => {
     // Aquí implementarías la lógica para exportar los datos
   };
 
+  // Obtener nombre completo del usuario para mostrar
+  const nombreCompleto = usuario ? 
+    `${usuario.first_name || ''} ${usuario.last_name || ''}`.trim() || 
+    usuario.username || 'Usuario' 
+    : 'Usuario';
+
   return (
     <div className="w-full max-w-7xl mx-auto">
       <PageContainer variant="form" className="!p-8">
@@ -134,10 +142,15 @@ const StaffDashboard = () => {
               Panel de Gestión de Pacientes
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Dr. Maria Muñiz
+              {usuario?.role === 'admin' ? 'Administrador' : 'Dr.'} {nombreCompleto}
             </p>
+            {usuario?.email && (
+              <p className="text-sm text-gray-500 dark:text-gray-500">
+                {usuario.email}
+              </p>
+            )}
           </div>
-          <UserAvatar userName="Maria Muñiz" />
+          <UserAvatar userName={nombreCompleto} />
         </div>
 
         {/* Línea separadora */}
