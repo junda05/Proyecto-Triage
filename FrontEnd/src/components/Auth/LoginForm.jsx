@@ -79,23 +79,23 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
     {/* Header centrado con flecha y título */}
     <div className="flex flex-col items-center mb-8">
         {/* Contenedor de flecha y título */}
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-start sm:items-center gap-2 sm:gap-2 mb-4">
         <button
             type="button"
             onClick={onBackClick}
-            className="p-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+            className="p-0.5 sm:p-1.5 text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
             aria-label="Volver a la selección de roles"
         >
-            <ArrowLeftIcon className="h-6 w-6" />
+            <ArrowLeftIcon className="h-5 w-5 sm:h-6 sm:w-6" />
         </button>
         
-        <h2 className="text-2xl font-bold text-primary dark:text-blue-400 whitespace-nowrap">
+        <h2 className="text-xl sm:text-2xl font-bold text-primary dark:text-blue-400 text-center leading-tight">
             Acceso del personal médico
         </h2>
         </div>
     
     {/* Descripción centrada */}
-    <p className="text-gray-600 dark:text-gray-300 text-center">
+    <p className="text-base sm:text-base text-gray-600 dark:text-gray-300 text-center">
       Ingrese sus credenciales para acceder al sistema
     </p>
   </div>

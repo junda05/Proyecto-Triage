@@ -27,14 +27,31 @@ export const AuthProvider = ({ children }) => {
       
       return { ok: true };
     } catch (e) {
-      const errorMsg = e.response?.data?.detail || 
-                       e.response?.data?.non_field_errors?.[0] || 
-                       'Error de autenticación';
+      let errorMsg;
+      let titulo = 'Error de autenticación';
+      
+      // Verificar si es un error de conexión con el servidor
+      if (!e.response) {
+        errorMsg = 'No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet e intenta nuevamente.';
+        titulo = 'Error de conexión';
+      } else {
+        let rawErrorMsg = e.response?.data?.detail || 
+                         e.response?.data?.non_field_errors?.[0] || 
+                         'Error de autenticación';
+        
+        // Traducir mensajes comunes del servidor al español
+        if (rawErrorMsg === 'No active account found with the given credentials') {
+          errorMsg = 'No se encontró una cuenta activa con las credenciales proporcionadas';
+        } else {
+          errorMsg = rawErrorMsg;
+        }
+      }
+      
       setErrorAuth(e.response?.data || errorMsg);
       
       // Mostrar notificación de error
       notificaciones.mostrarError(errorMsg, {
-        titulo: 'Error de autenticación'
+        titulo: titulo
       });
       
       return { ok: false, error: e };
@@ -51,16 +68,26 @@ export const AuthProvider = ({ children }) => {
       
       return { ok: true, data };
     } catch (e) {
-      const errorData = e.response?.data || 'Error al registrar';
-      setErrorAuth(errorData);
+      let errorMsg;
+      let titulo = 'Error en el registro';
       
-      // Mostrar notificación de error específica
-      const errorMsg = typeof errorData === 'string' 
-        ? errorData 
-        : errorData.non_field_errors?.[0] || 'Error al crear la cuenta';
+      // Verificar si es un error de conexión con el servidor
+      if (!e.response) {
+        errorMsg = 'No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet e intenta nuevamente.';
+        titulo = 'Error de conexión';
+        setErrorAuth(errorMsg);
+      } else {
+        const errorData = e.response?.data || 'Error al registrar';
+        setErrorAuth(errorData);
+        
+        // Mostrar notificación de error específica
+        errorMsg = typeof errorData === 'string' 
+          ? errorData 
+          : errorData.non_field_errors?.[0] || 'Error al crear la cuenta';
+      }
         
       notificaciones.mostrarError(errorMsg, {
-        titulo: 'Error en el registro'
+        titulo: titulo
       });
       
       return { ok: false, error: e };
