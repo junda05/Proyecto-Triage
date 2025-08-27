@@ -94,6 +94,7 @@ const useNotificaciones = () => {
   const mostrarExito = useCallback((mensaje, opciones = {}) => {
     return agregarNotificacion({
       type: 'success',
+      titulo: opciones.titulo || 'Éxito',
       mensaje,
       autoCloseMs: 4000,
       ...opciones
@@ -103,6 +104,7 @@ const useNotificaciones = () => {
   const mostrarError = useCallback((mensaje, opciones = {}) => {
     return agregarNotificacion({
       type: 'error',
+      titulo: opciones.titulo || 'Error',
       mensaje,
       autoCloseMs: 7000, // Errores duran más
       ...opciones
@@ -112,6 +114,7 @@ const useNotificaciones = () => {
   const mostrarAdvertencia = useCallback((mensaje, opciones = {}) => {
     return agregarNotificacion({
       type: 'warning',
+      titulo: opciones.titulo || 'Advertencia',
       mensaje,
       autoCloseMs: 5000,
       ...opciones
@@ -121,6 +124,7 @@ const useNotificaciones = () => {
   const mostrarInfo = useCallback((mensaje, opciones = {}) => {
     return agregarNotificacion({
       type: 'info',
+      titulo: opciones.titulo || 'Información',
       mensaje,
       autoCloseMs: 4000,
       ...opciones

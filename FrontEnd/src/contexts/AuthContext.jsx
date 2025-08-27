@@ -100,7 +100,8 @@ export const AuthProvider = ({ children }) => {
     setCargando(true);
     try {
       await authService.logout();
-      notificaciones.mostrarInfo('Sesión cerrada exitosamente', {
+      notificaciones.mostrarExito('Sesión cerrada exitosamente', {
+        titulo: 'Logout',
         autoCloseMs: 2000
       });
     } catch (error) {
