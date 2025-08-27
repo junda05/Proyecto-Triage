@@ -119,28 +119,23 @@ export const AuthProvider = ({ children }) => {
     try {
       const tokens = obtenerTokens();
       if (tokens?.user && tokens?.access) {
-        // Verificar si tenemos datos completos del usuario
-        const usuario = tokens.user;
-        
-        // Si solo tenemos username, intentar cargar datos completos
-        if (usuario.username && !usuario.email && !usuario.first_name) {
-          try {
-            const datosCompletos = await authService.actualizarDatosUsuario();
-            setUsuario(datosCompletos);
-          } catch (error) {
-            // Si falla, usar datos básicos que tenemos
-            console.warn('No se pudieron cargar datos completos:', error);
-            setUsuario(usuario);
-          }
-        } else {
-          // Ya tenemos datos completos
-          setUsuario(usuario);
+        // VERIFICAR LA VALIDEZ DEL TOKEN CON EL SERVIDOR
+        try {
+          // Intentar obtener datos del usuario para validar que el token es válido
+          const datosCompletos = await authService.actualizarDatosUsuario();
+          setUsuario(datosCompletos);
+        } catch (error) {
+          console.warn('Token inválido o expirado, limpiando sesión:', error);
+          // Si el token no es válido, limpiar la sesión
+          limpiarTokens();
+          setUsuario(null);
         }
       }
     } catch (error) {
       console.error('Error al cargar sesión inicial:', error);
       // En caso de error, limpiar tokens corruptos
       limpiarTokens();
+      setUsuario(null);
     } finally {
       setInicializando(false);
     }
