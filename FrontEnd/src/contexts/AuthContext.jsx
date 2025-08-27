@@ -1,7 +1,9 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import authService from '../services/api/authService';
 import { obtenerUsuario, limpiarTokens, obtenerTokens } from '../services/utils/tokenStorage';
 import useNotificaciones from '../hooks/useNotificaciones';
+import sessionManager from '../services/utils/sessionManager';
 
 const AuthContext = createContext(null);
 
@@ -11,8 +13,46 @@ export const AuthProvider = ({ children }) => {
   const [inicializando, setInicializando] = useState(true); // Nuevo estado
   const [errorAuth, setErrorAuth] = useState(null);
   
+  const navigate = useNavigate();
+  
   // Hook de notificaciones integrado
   const notificaciones = useNotificaciones();
+
+  // Configurar sessionManager con callbacks de navegación y notificaciones
+  useEffect(() => {
+    sessionManager.setRedirectCallback((path, options = {}) => {
+      navigate(path, options);
+    });
+    
+    sessionManager.setNotificationCallback((notificacion) => {
+      if (notificacion.type === 'warning') {
+        notificaciones.mostrarAdvertencia(notificacion.mensaje, {
+          titulo: notificacion.titulo,
+          autoCloseMs: notificacion.autoCloseMs,
+          dismissible: notificacion.dismissible
+        });
+      } else if (notificacion.type === 'error') {
+        notificaciones.mostrarError(notificacion.mensaje, {
+          titulo: notificacion.titulo,
+          autoCloseMs: notificacion.autoCloseMs
+        });
+      }
+    });
+
+    // Escuchar eventos de sesión expirada
+    const removeSessionListener = sessionManager.addSessionListener((evento) => {
+      if (evento.type === 'SESSION_EXPIRED') {
+        console.log('🔄 Sesión expirada detectada, limpiando estado usuario...');
+        setUsuario(null);
+        setErrorAuth('Sesión expirada');
+      }
+    });
+
+    return () => {
+      removeSessionListener();
+      sessionManager.cleanup();
+    };
+  }, [navigate, notificaciones]);
 
   const iniciarSesion = useCallback(async (username, password) => {
     setCargando(true);
@@ -125,17 +165,22 @@ export const AuthProvider = ({ children }) => {
           const datosCompletos = await authService.actualizarDatosUsuario();
           setUsuario(datosCompletos);
         } catch (error) {
-          console.warn('Token inválido o expirado, limpiando sesión:', error);
-          // Si el token no es válido, limpiar la sesión
-          limpiarTokens();
-          setUsuario(null);
+          console.warn('Token inválido o expirado durante inicialización:', error);
+          
+          // Si es 401, probablemente token expirado - usar sessionManager
+          if (error.response?.status === 401) {
+            sessionManager.handleRefreshTokenExpired(error);
+          } else {
+            // Otros errores, limpiar sesión silenciosamente
+            limpiarTokens();
+            setUsuario(null);
+          }
         }
       }
     } catch (error) {
       console.error('Error al cargar sesión inicial:', error);
       // En caso de error, limpiar tokens corruptos
-      limpiarTokens();
-      setUsuario(null);
+      sessionManager.handleInvalidToken(error);
     } finally {
       setInicializando(false);
     }

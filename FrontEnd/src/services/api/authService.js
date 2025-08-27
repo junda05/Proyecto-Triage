@@ -23,7 +23,7 @@ const authService = {
    */
   login: async (username, password) => {
     try {
-      // 1. Obtener tokens (sin / al final según tu configuración)
+      // 1. Obtener tokens
       const { data: tokenData } = await axiosClient.post('/auth/login', { 
         username, 
         password 
@@ -89,7 +89,7 @@ const authService = {
       const refreshToken = obtenerRefreshToken();
       
       if (refreshToken) {
-        // Enviar refresh token para invalidarlo en el servidor (sin / al final)
+        // Enviar refresh token para invalidarlo en el servidor
         await axiosClient.post('/auth/logout', {
           refresh: refreshToken
         });

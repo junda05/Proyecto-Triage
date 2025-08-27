@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Button from '../ui/Button';
 import FormInput from '../ui/FormInput';
 import PageContainer from '../ui/PageContainer';
@@ -10,7 +10,7 @@ import { validadoresLogin } from '../../services/utils/validadores';
 
 const LoginForm = ({ isExpanding, onBackClick }) => {
   // Hooks de autenticación y formulario
-  const { iniciarSesion, cargando } = useAuth();
+  const { iniciarSesion, cargando, mostrarAdvertencia } = useAuth();
   const { valores, errores, onChange, esValido } = useFormulario(
     { username: '', password: '' },
     validadoresLogin
@@ -22,6 +22,7 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
   const [errorGeneral, setErrorGeneral] = useState('');
   
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Activar la animación de entrada después de montar el componente
@@ -29,8 +30,19 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
       setIsLoaded(true);
     }, 100);
     
+    // Verificar si llegó desde una sesión expirada
+    if (location.state?.tipo === 'session_expired') {
+      mostrarAdvertencia('Tu sesión anterior ha expirado por seguridad. Por favor, inicia sesión nuevamente.', {
+        titulo: 'Sesión Expirada',
+        autoCloseMs: 8000
+      });
+      
+      // Limpiar el state para evitar mostrar el mensaje repetidamente
+      navigate(location.pathname, { replace: true, state: null });
+    }
+    
     return () => clearTimeout(timer);
-  }, []);
+  }, [location.state, mostrarAdvertencia, navigate, location.pathname]);
 
   // Limpiar error general cuando el usuario empiece a escribir
   useEffect(() => {
