@@ -15,7 +15,7 @@ const Header = () => {
           className="h-10 w-auto object-contain mr-2"
         />
         <h1 className="ml-2 text-xl font-bold text-primary dark:text-blue-400">
-          Sistema de Pre-Triaje
+          Sistema de Pre-Triage
         </h1>
       </div>
       

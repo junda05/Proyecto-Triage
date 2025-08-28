@@ -128,7 +128,7 @@ const StaffDashboard = () => {
 
   // Obtener nombre completo del usuario para mostrar
   const nombreCompleto = usuario ? 
-    `${usuario.first_name || ''} ${usuario.last_name || ''}`.trim() || 
+    `${usuario.first_name || ''} ${usuario.middle_name || ''} ${usuario.last_name || ''} ${usuario.second_surname || ''}`.trim() || 
     usuario.username || 'Usuario' 
     : 'Usuario';
 
@@ -142,7 +142,7 @@ const StaffDashboard = () => {
               Panel de Gestión de Pacientes
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              {usuario?.role === 'admin' ? 'Administrador' : 'Dr.'} {nombreCompleto}
+              {usuario?.role === 'admin' ? 'Administrador -' : 'Dr.'} {nombreCompleto}
             </p>
             {usuario?.email && (
               <p className="text-sm text-gray-500 dark:text-gray-500">

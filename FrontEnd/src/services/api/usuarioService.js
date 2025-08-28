@@ -29,7 +29,6 @@ const usuarioService = {
    */
   obtenerPerfil: async () => {
     try {
-      // Usar endpoint correcto sin / al final
       const { data } = await axiosClient.get('/auth/perfil');
       
       if (!data.exito) {

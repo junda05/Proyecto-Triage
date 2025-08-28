@@ -117,8 +117,8 @@ const LoginForm = ({ isExpanding, onBackClick }) => {
             type="text"
             value={valores.username}
             onChange={onChange}
-            label="Nombre de usuario o email"
-            placeholder="Ingrese su usuario o email"
+            label="Nombre de usuario"
+            placeholder="Ingrese su usuario"
             error={errores.username}
             disabled={cargando}
             required

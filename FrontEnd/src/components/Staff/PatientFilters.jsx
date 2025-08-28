@@ -18,7 +18,6 @@ const PatientFilters = ({
   const sortOptions = [
     { value: 'arrivalTime', label: 'Hora de llegada' },
     { value: 'name', label: 'Nombre' },
-    { value: 'esiLevel', label: 'ESI' }
   ];
 
   const statusOptions = [

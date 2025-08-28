@@ -1,4 +1,4 @@
-const CLAVE = 'auth_tokens_v1';
+const CLAVE = 'auth_tokens_v1'; // Nombre de los tokens con el que se van a guardar en el localstorage
 
 export function guardarTokens({ access, refresh, user }) {
   const payload = { access, refresh, user };
