@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import authService from '../services/api/authService';
 import { obtenerUsuario, limpiarTokens, obtenerTokens } from '../services/utils/tokenStorage';
 import useNotificaciones from '../hooks/useNotificaciones';
+import sessionManager from '../services/utils/sessionManager';
 
 const AuthContext = createContext(null);
 
@@ -13,6 +14,38 @@ export const AuthProvider = ({ children }) => {
   
   // Hook de notificaciones integrado
   const notificaciones = useNotificaciones();
+
+  // Configurar sessionManager con callback de notificaciones
+  useEffect(() => {
+    sessionManager.setNotificationCallback((notificacion) => {
+      if (notificacion.type === 'warning') {
+        notificaciones.mostrarAdvertencia(notificacion.mensaje, {
+          titulo: notificacion.titulo,
+          autoCloseMs: notificacion.autoCloseMs,
+          dismissible: notificacion.dismissible
+        });
+      } else if (notificacion.type === 'error') {
+        notificaciones.mostrarError(notificacion.mensaje, {
+          titulo: notificacion.titulo,
+          autoCloseMs: notificacion.autoCloseMs
+        });
+      }
+    });
+
+    // Escuchar eventos de sesión expirada
+    const removeSessionListener = sessionManager.addSessionListener((evento) => {
+      if (evento.type === 'SESSION_EXPIRED') {
+        console.log('Sesión expirada detectada, limpiando estado usuario...');
+        setUsuario(null);
+        setErrorAuth('Sesión expirada');
+      }
+    });
+
+    return () => {
+      removeSessionListener();
+      sessionManager.cleanup();
+    };
+  }, [notificaciones]);
 
   const iniciarSesion = useCallback(async (username, password) => {
     setCargando(true);
@@ -27,14 +60,31 @@ export const AuthProvider = ({ children }) => {
       
       return { ok: true };
     } catch (e) {
-      const errorMsg = e.response?.data?.detail || 
-                       e.response?.data?.non_field_errors?.[0] || 
-                       'Error de autenticación';
+      let errorMsg;
+      let titulo = 'Error de autenticación';
+      
+      // Verificar si es un error de conexión con el servidor
+      if (!e.response) {
+        errorMsg = 'No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet e intenta nuevamente.';
+        titulo = 'Error de conexión';
+      } else {
+        let rawErrorMsg = e.response?.data?.detail || 
+                         e.response?.data?.non_field_errors?.[0] || 
+                         'Error de autenticación';
+        
+        // Traducir mensajes comunes del servidor al español
+        if (rawErrorMsg === 'No active account found with the given credentials') {
+          errorMsg = 'No se encontró una cuenta activa con las credenciales proporcionadas';
+        } else {
+          errorMsg = rawErrorMsg;
+        }
+      }
+      
       setErrorAuth(e.response?.data || errorMsg);
       
       // Mostrar notificación de error
       notificaciones.mostrarError(errorMsg, {
-        titulo: 'Error de autenticación'
+        titulo: titulo
       });
       
       return { ok: false, error: e };
@@ -43,41 +93,52 @@ export const AuthProvider = ({ children }) => {
     }
   }, [notificaciones]);
 
-  const registrar = useCallback(async (formData) => {
-    setCargando(true);
-    setErrorAuth(null);
-    try {
-      const data = await authService.registrar(formData);
+  // const registrar = useCallback(async (formData) => {
+  //   setCargando(true);
+  //   setErrorAuth(null);
+  //   try {
+  //     const data = await authService.registrar(formData);
       
-      return { ok: true, data };
-    } catch (e) {
-      const errorData = e.response?.data || 'Error al registrar';
-      setErrorAuth(errorData);
+  //     return { ok: true, data };
+  //   } catch (e) {
+  //     let errorMsg;
+  //     let titulo = 'Error en el registro';
       
-      // Mostrar notificación de error específica
-      const errorMsg = typeof errorData === 'string' 
-        ? errorData 
-        : errorData.non_field_errors?.[0] || 'Error al crear la cuenta';
+  //     // Verificar si es un error de conexión con el servidor
+  //     if (!e.response) {
+  //       errorMsg = 'No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet e intenta nuevamente.';
+  //       titulo = 'Error de conexión';
+  //       setErrorAuth(errorMsg);
+  //     } else {
+  //       const errorData = e.response?.data || 'Error al registrar';
+  //       setErrorAuth(errorData);
         
-      notificaciones.mostrarError(errorMsg, {
-        titulo: 'Error en el registro'
-      });
+  //       // Mostrar notificación de error específica
+  //       errorMsg = typeof errorData === 'string' 
+  //         ? errorData 
+  //         : errorData.non_field_errors?.[0] || 'Error al crear la cuenta';
+  //     }
+        
+  //     notificaciones.mostrarError(errorMsg, {
+  //       titulo: titulo
+  //     });
       
-      return { ok: false, error: e };
-    } finally {
-      setCargando(false);
-    }
-  }, [notificaciones]);
+  //     return { ok: false, error: e };
+  //   } finally {
+  //     setCargando(false);
+  //   }
+  // }, [notificaciones]);
 
   const cerrarSesion = useCallback(async () => {
     setCargando(true);
     try {
       await authService.logout();
-      notificaciones.mostrarInfo('Sesión cerrada exitosamente', {
+      notificaciones.mostrarExito('Sesión cerrada exitosamente', {
+        titulo: 'Logout',
         autoCloseMs: 2000
       });
     } catch (error) {
-      // Log del error pero no fallar el logout del lado cliente
+      // Log del error pero no falló en el lado cliente
       console.warn('Error en logout del servidor:', error.message);
     } finally {
       limpiarTokens();
@@ -91,28 +152,28 @@ export const AuthProvider = ({ children }) => {
     try {
       const tokens = obtenerTokens();
       if (tokens?.user && tokens?.access) {
-        // Verificar si tenemos datos completos del usuario
-        const usuario = tokens.user;
-        
-        // Si solo tenemos username, intentar cargar datos completos
-        if (usuario.username && !usuario.email && !usuario.first_name) {
-          try {
-            const datosCompletos = await authService.actualizarDatosUsuario();
-            setUsuario(datosCompletos);
-          } catch (error) {
-            // Si falla, usar datos básicos que tenemos
-            console.warn('No se pudieron cargar datos completos:', error);
-            setUsuario(usuario);
+        // VERIFICAR LA VALIDEZ DEL TOKEN CON EL SERVIDOR
+        try {
+          // Intentar obtener datos del usuario para validar que el token es válido
+          const datosCompletos = await authService.actualizarDatosUsuario();
+          setUsuario(datosCompletos);
+        } catch (error) {
+          console.warn('Token inválido o expirado durante inicialización:', error);
+          
+          // Si es 401, probablemente token expirado - usar sessionManager
+          if (error.response?.status === 401) {
+            sessionManager.handleRefreshTokenExpired(error);
+          } else {
+            // Otros errores, limpiar sesión silenciosamente
+            limpiarTokens();
+            setUsuario(null);
           }
-        } else {
-          // Ya tenemos datos completos
-          setUsuario(usuario);
         }
       }
     } catch (error) {
       console.error('Error al cargar sesión inicial:', error);
       // En caso de error, limpiar tokens corruptos
-      limpiarTokens();
+      sessionManager.handleInvalidToken(error);
     } finally {
       setInicializando(false);
     }
@@ -127,7 +188,7 @@ export const AuthProvider = ({ children }) => {
     cargando: cargando || inicializando, // Incluir inicializando en cargando
     errorAuth,
     iniciarSesion,
-    registrar,
+    // registrar,
     cerrarSesion,
     autenticado: !!usuario,
     inicializando,
@@ -140,7 +201,8 @@ export const AuthProvider = ({ children }) => {
     mostrarError: notificaciones.mostrarError,
     mostrarAdvertencia: notificaciones.mostrarAdvertencia,
     mostrarInfo: notificaciones.mostrarInfo
-  }), [usuario, cargando, inicializando, errorAuth, iniciarSesion, registrar, cerrarSesion, notificaciones]);
+  // }), [usuario, cargando, inicializando, errorAuth, iniciarSesion, registrar, cerrarSesion, notificaciones]);
+  }), [usuario, cargando, inicializando, errorAuth, iniciarSesion, cerrarSesion, notificaciones]);
 
   return (
     <AuthContext.Provider value={valor}>

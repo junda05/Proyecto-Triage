@@ -12,6 +12,7 @@
 
 import axios from 'axios';
 import { obtenerAccessToken, obtenerRefreshToken, guardarTokens, limpiarTokens } from '../services/utils/tokenStorage';
+import sessionManager from '../services/utils/sessionManager';
 
 const API_BASE = 'http://localhost:8001/api/v1';
 
@@ -77,7 +78,18 @@ const configurarInterceptores = (cliente) => {
           return cliente(original);
         } catch (e) {
           solicitudRefreshEnCurso = null;
-          limpiarTokens();
+          
+          // MANEJAR REFRESH TOKEN EXPIRADO
+          console.error('Error al refrescar token:', e.response?.status, e.message);
+          
+          if (e.response?.status === 401) {
+            // Refresh token expirado o inválido
+            sessionManager.handleRefreshTokenExpired(e);
+          } else {
+            // Otro tipo de error (red, servidor, etc.)
+            limpiarTokens();
+            sessionManager.handleInvalidToken(e);
+          }
         }
       }
 

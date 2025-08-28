@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../hooks/useTheme';
 import { SunIcon, MoonIcon } from '../icons/Icons';
 import Logo from '../../assets/Logo1.png';
 

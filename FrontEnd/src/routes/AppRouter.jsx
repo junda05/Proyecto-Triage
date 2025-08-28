@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout/Layout';
 import WelcomeScreen from '../pages/WelcomeScreen';
 import PatientBasicData from '../pages/PatientBasicData';
@@ -25,25 +25,23 @@ const StaffLoginRoute = () => {
 
 const AppRouter = () => {
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<WelcomeScreen />} />
-          <Route path="/patient/basic-data" element={<PatientBasicData />} />
-          <Route path="/staff/login" element={<StaffLoginRoute />} />
-          <Route 
-            path="/staff/dashboard" 
-            element={
-              <ProtectedRoute>
-                <StaffDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          {/* Ruta por defecto que redirige al inicio */}
-          <Route path="*" element={<WelcomeScreen />} />
-        </Routes>
-      </Layout>
-    </Router>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<WelcomeScreen />} />
+        <Route path="/patient/basic-data" element={<PatientBasicData />} />
+        <Route path="/staff/login" element={<StaffLoginRoute />} />
+        <Route 
+          path="/staff/dashboard" 
+          element={
+            <ProtectedRoute>
+              <StaffDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        {/* Ruta por defecto que redirige al inicio */}
+        <Route path="*" element={<WelcomeScreen />} />
+      </Routes>
+    </Layout>
   );
 };
 

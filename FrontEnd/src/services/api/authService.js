@@ -6,11 +6,11 @@ import usuarioService from './usuarioService';
  * Servicio de autenticación para manejo de usuarios
  * 
  * Endpoints:
- * POST /api/v1/auth/login/        -> { access, refresh }
- * POST /api/v1/auth/refresh/      -> { access, refresh? }
- * POST /api/v1/auth/logout/       -> blacklist refresh token
- * POST /api/v1/crear/             -> registro de usuario
- * GET  /api/v1/perfil/            -> datos del usuario
+ * POST /api/v1/auth/login/             -> { access, refresh }
+ * POST /api/v1/auth/refresh-access     -> { access, refresh? }
+ * POST /api/v1/auth/logout             -> blacklist refresh token
+ * POST /api/v1/auth/usuarios           -> registro de usuario
+ * GET  /api/v1/perfil                  -> datos del usuario
  */
 
 const authService = {
@@ -23,7 +23,7 @@ const authService = {
    */
   login: async (username, password) => {
     try {
-      // 1. Obtener tokens (sin / al final según tu configuración)
+      // 1. Obtener tokens
       const { data: tokenData } = await axiosClient.post('/auth/login', { 
         username, 
         password 
@@ -57,38 +57,39 @@ const authService = {
     }
   },
 
-  /**
-   * Registra un nuevo usuario
-   * 
-   * @param {Object} userData - Datos del usuario a registrar
-   * @returns {Promise<Object>} Respuesta del registro
-   */
-  registrar: async ({ username, email, password, password_confirm, first_name, last_name }) => {
-    const payload = { 
-      username, 
-      email, 
-      password, 
-      password_confirm, 
-      first_name, 
-      last_name 
-    };
-    // Usar endpoint correcto sin / al final
-    const { data } = await axiosClient.post('/auth/usuarios', payload);
-    return data;
-  },
+  // /**
+  //  * Registra un nuevo usuario
+  //  * 
+  //  * @param {Object} userData - Datos del usuario a registrar
+  //  * @returns {Promise<Object>} Respuesta del registro
+  //  */
+  // registrar: async ({ username, email, password, password_confirm, first_name, last_name }) => {
+  //   const payload = { 
+  //     username, 
+  //     email, 
+  //     password, 
+  //     password_confirm, 
+  //     first_name, 
+  //     last_name 
+  //   };
+  //   // Usar endpoint correcto sin / al final
+  //   const { data } = await axiosClient.post('/auth/usuarios', payload);
+  //   return data;
+  // },
 
-  /**
-   * Cierra sesión invalidando el refresh token
-   * 
-   * La vista TokenBlacklistView de DRF Simple JWT requiere el refresh token
-   * en el body de la petición para invalidarlo correctamente.
-   */
+  // /**
+  //  * Cierra sesión invalidando el refresh token
+  //  * 
+  //  * La vista TokenBlacklistView de DRF Simple JWT requiere el refresh token
+  //  * en el body de la petición para invalidarlo correctamente.
+  //  */
+
   logout: async () => {
     try {
       const refreshToken = obtenerRefreshToken();
       
       if (refreshToken) {
-        // Enviar refresh token para invalidarlo en el servidor (sin / al final)
+        // Enviar refresh token para invalidarlo en el servidor
         await axiosClient.post('/auth/logout', {
           refresh: refreshToken
         });

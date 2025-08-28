@@ -94,6 +94,7 @@ const useNotificaciones = () => {
   const mostrarExito = useCallback((mensaje, opciones = {}) => {
     return agregarNotificacion({
       type: 'success',
+      titulo: opciones.titulo || 'Éxito',
       mensaje,
       autoCloseMs: 4000,
       ...opciones
@@ -103,6 +104,7 @@ const useNotificaciones = () => {
   const mostrarError = useCallback((mensaje, opciones = {}) => {
     return agregarNotificacion({
       type: 'error',
+      titulo: opciones.titulo || 'Error',
       mensaje,
       autoCloseMs: 7000, // Errores duran más
       ...opciones
@@ -112,6 +114,7 @@ const useNotificaciones = () => {
   const mostrarAdvertencia = useCallback((mensaje, opciones = {}) => {
     return agregarNotificacion({
       type: 'warning',
+      titulo: opciones.titulo || 'Advertencia',
       mensaje,
       autoCloseMs: 5000,
       ...opciones
@@ -121,6 +124,7 @@ const useNotificaciones = () => {
   const mostrarInfo = useCallback((mensaje, opciones = {}) => {
     return agregarNotificacion({
       type: 'info',
+      titulo: opciones.titulo || 'Información',
       mensaje,
       autoCloseMs: 4000,
       ...opciones
@@ -152,41 +156,6 @@ const useNotificaciones = () => {
     );
   }, [mostrarExito]);
 
-  const notificarProcesoPDF = useCallback((fase, opciones = {}) => {
-    const mensajes = {
-      cargando: 'Subiendo archivo PDF...',
-      procesando: 'Extrayendo texto del documento...',
-      completado: 'Texto extraído exitosamente',
-      error: 'Error al procesar el archivo PDF'
-    };
-
-    const tipos = {
-      cargando: 'info',
-      procesando: 'info', 
-      completado: 'success',
-      error: 'error'
-    };
-
-    return agregarNotificacion({
-      type: tipos[fase] || 'info',
-      mensaje: mensajes[fase] || fase,
-      autoCloseMs: fase === 'completado' ? 3000 : 5000,
-      ...opciones
-    });
-  }, [agregarNotificacion]);
-
-  /**
-   * Estadísticas útiles para debugging
-   */
-  const estadisticas = {
-    total: notificaciones.length,
-    porTipo: notificaciones.reduce((acc, notif) => {
-      acc[notif.type] = (acc[notif.type] || 0) + 1;
-      return acc;
-    }, {}),
-    timersActivos: timersRef.current.size
-  };
-
   return {
     // Estado
     notificaciones,
@@ -205,10 +174,6 @@ const useNotificaciones = () => {
     // Funciones específicas de la app
     notificarRegistroExitoso,
     notificarLoginExitoso,
-    notificarProcesoPDF,
-    
-    // Utilidades
-    estadisticas
   };
 };
 
