@@ -1,33 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { IconoExito, IconoError, IconoAdvertencia, IconoInfo } from '../icons/Icons';
-import './AlertMessage.css';
 
 /**
- * Componente de mensajes de alerta reutilizable y completamente responsivo
- * Adaptado para el sistema de pre-triaje médico con mejoras en accesibilidad y tema oscuro
- * 
- * Características:
- * - Variants predefinidos con iconos profesionales de Lucide React
- * - Cierre automático opcional
- * - Botón de cierre funcional con mejor contraste
- * - Animaciones suaves de entrada/salida
- * - Accesibilidad completa (ARIA roles)
- * - Gestión de estado interno para auto-cierre
- * - Integrado con el sistema de colores del proyecto
- * - Completamente responsivo (se adapta a móviles y desktop)
- * - Texto con word-break para prevenir overflow
- * - Colores optimizados para tema oscuro con mejor contraste
- * - Posicionamiento centrado en móviles
- * - Efectos visuales mejorados con backdrop-blur
- * 
- * @param {Object} props
- * @param {string} props.type - Tipo de alerta (success, error, warning, info)
- * @param {string} props.mensaje - Texto del mensaje
- * @param {boolean} props.dismissible - Permite cerrar la alerta
- * @param {Function} props.onClose - Callback al cerrar
- * @param {string} props.titulo - Título opcional
- * @param {number} props.autoCloseMs - Milisegundos para auto-cierre (0 = no auto-cierre)
- * @param {boolean} props.mostrarIcono - Mostrar icono del tipo de alerta
+ * Componente de mensajes de alerta reutilizable
+ * Soporte para diferentes tipos, auto-cierre y tema oscuro
  */
 const AlertMessage = ({
   type = 'info',

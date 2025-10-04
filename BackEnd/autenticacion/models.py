@@ -19,11 +19,12 @@ class Usuario(AbstractUser):
     class Meta:
         verbose_name = 'Usuario'
         verbose_name_plural = 'Usuarios'
+        ordering = ['id']  # Default ordering to prevent pagination warnings
         
         # Indexar para realizar consulta más eficientes a la base de datos
         indexes = [
-            models.Index(fields=['username']),
-            models.Index(fields=['document_number']),
+            models.Index(fields=['username'], name='auth_username_idx'),
+            models.Index(fields=['document_number'], name='auth_doc_num_idx'),
         ]
 
     def __str__(self):

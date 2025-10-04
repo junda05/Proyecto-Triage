@@ -2,8 +2,9 @@ import os
 import sys
 import django
 
-# Add the parent directory to Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add the BackEnd directory to Python path to ensure proper imports
+backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, backend_dir)
 
 # Set up Django environment
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'BackEnd.settings')
@@ -12,7 +13,7 @@ django.setup()
 from django.conf import settings
 from pacientes.models import Paciente
 from triage.models import SesionTriage, Pregunta, Respuesta
-from utils.preguntas import PREGUNTAS, REGLAS_ESI, FLUJO_PREGUNTAS
+from triage.utils.preguntas import PREGUNTAS, REGLAS_ESI, FLUJO_PREGUNTAS
 from django.utils import timezone
 
 class TriageConsoleTest:
@@ -21,6 +22,8 @@ class TriageConsoleTest:
     def __init__(self):
         self.sesion = None
         self.paciente = None
+        self._enfermedades_en_sesion = []  # Para seguimiento de enfermedades seleccionadas
+        self._enfermedades_evaluadas = set()  # Para seguimiento de enfermedades ya evaluadas
         
     def ejecutar_test(self):
         """Ejecuta el test completo del flujo de triage"""
@@ -143,13 +146,22 @@ class TriageConsoleTest:
             
             print(f"Respuesta guardada: {respuesta_usuario}")
             
+            # Si es la pregunta de enfermedades crónicas, mostrar información adicional
+            if codigo_pregunta == 'antecedentes_enfermedades_cronicas':
+                if isinstance(respuesta_usuario, list) and len(respuesta_usuario) > 1:
+                    print(f"[INFO] Se seleccionaron múltiples enfermedades crónicas:")
+                    for enfermedad in respuesta_usuario:
+                        print(f"  - {enfermedad}")
+                    print(f"[INFO] El sistema evaluará cada enfermedad secuencialmente.")
+            
             # Determinar siguiente pregunta según FLUJO_PREGUNTAS
             siguiente_codigo = self.obtener_siguiente_pregunta(codigo_pregunta, respuesta_usuario)
             
             if siguiente_codigo:
                 print(f"Siguiente pregunta: {siguiente_codigo}")
             else:
-                print("Fin del flujo de preguntas.")
+                print("Evaluación completada - Calculando nivel ESI...")
+                break
                 
             codigo_pregunta = siguiente_codigo
             
@@ -252,9 +264,17 @@ class TriageConsoleTest:
     def obtener_siguiente_pregunta(self, codigo_actual, respuesta):
         """
         Determina la siguiente pregunta basada en la respuesta usando FLUJO_PREGUNTAS.
-        Utiliza la misma lógica que las vistas reales.
+        Utiliza la misma lógica que las vistas reales, incluyendo el manejo de enfermedades crónicas.
         """
-        # Usar directamente FLUJO_PREGUNTAS para determinar la siguiente pregunta
+        # Lógica especial para enfermedades crónicas (igual que en views.py)
+        if codigo_actual == 'antecedentes_enfermedades_cronicas':
+            return self._manejar_flujo_enfermedades_cronicas(respuesta)
+        
+        # Lógica especial para preguntas de síntomas relacionados con enfermedades específicas
+        if codigo_actual.startswith('sintoma_relacionado_') and codigo_actual != 'sintoma_relacionado_con_enfermedad_cronica':
+            return self._manejar_sintoma_enfermedad_especifica(codigo_actual, respuesta)
+        
+        # Usar directamente FLUJO_PREGUNTAS para determinar la siguiente pregunta (lógica original)
         if codigo_actual not in FLUJO_PREGUNTAS:
             return None
             
@@ -266,8 +286,15 @@ class TriageConsoleTest:
         
         # Buscar siguiente pregunta por prioridad (como en las vistas)
         siguiente_codigo = (self._buscar_por_valor_exacto(regla_flujo, respuesta) or
-                           self._buscar_por_default(regla_flujo) or
                            self._buscar_por_siguiente(regla_flujo))
+        
+        # Verificar si necesita manejo dinámico de enfermedades
+        if siguiente_codigo == "DINAMICO_SIGUIENTE_ENFERMEDAD":
+            siguiente_enfermedad = self._obtener_siguiente_enfermedad_a_evaluar_por_codigo(codigo_actual)
+            # Solo finalizar si se completó un flujo específico de enfermedad
+            if siguiente_enfermedad is None and self._se_completo_flujo_especifico():
+                return None
+            return siguiente_enfermedad
         
         return siguiente_codigo
     
@@ -285,13 +312,202 @@ class TriageConsoleTest:
         
         return None
     
-    def _buscar_por_default(self, regla_flujo):
-        """Busca la regla por defecto."""
-        return regla_flujo.get("default")
-    
     def _buscar_por_siguiente(self, regla_flujo):
         """Busca la regla siguiente genérica."""
         return regla_flujo.get("siguiente")
+    
+    def _manejar_flujo_enfermedades_cronicas(self, respuesta):
+        """
+        Maneja el flujo específico cuando el usuario selecciona enfermedades crónicas.
+        Replica la lógica de _manejar_flujo_enfermedades_cronicas de views.py
+        """
+        print(f"[DEBUG] Manejando flujo de enfermedades crónicas. Respuesta: {respuesta}")
+        
+        # Si no seleccionó ninguna enfermedad crónica, ir a alergias
+        if not respuesta or respuesta == "Ninguna de las anteriores":
+            print("[DEBUG] No se seleccionaron enfermedades crónicas -> antecedentes_alergias")
+            return "antecedentes_alergias"
+        
+        # Si seleccionó cáncer, ir al flujo específico de cáncer
+        if isinstance(respuesta, list) and "Cáncer" in respuesta:
+            print("[DEBUG] Cáncer detectado en lista -> esta_en_tratamiento")
+            return "esta_en_tratamiento"
+        elif isinstance(respuesta, str) and respuesta == "Cáncer":
+            print("[DEBUG] Cáncer detectado -> esta_en_tratamiento")
+            return "esta_en_tratamiento"
+        
+        # Obtener las enfermedades seleccionadas (excluyendo cáncer)
+        enfermedades_seleccionadas = self._obtener_enfermedades_seleccionadas(respuesta)
+        print(f"[DEBUG] Enfermedades seleccionadas: {enfermedades_seleccionadas}")
+        
+        # Almacenar las enfermedades seleccionadas para uso posterior
+        self._enfermedades_en_sesion = enfermedades_seleccionadas
+        
+        # Obtener la primera enfermedad a evaluar
+        primera_enfermedad = self._obtener_primera_enfermedad_a_evaluar(enfermedades_seleccionadas)
+        print(f"[DEBUG] Primera enfermedad a evaluar: {primera_enfermedad}")
+        return f"sintoma_relacionado_{primera_enfermedad}"
+    
+    def _manejar_sintoma_enfermedad_especifica(self, codigo_pregunta, respuesta):
+        """
+        Maneja el flujo cuando se responde sobre síntomas de enfermedades específicas.
+        Replica la lógica de _manejar_sintoma_enfermedad_especifica de views.py
+        """
+        print(f"[DEBUG] Manejando síntoma enfermedad específica: {codigo_pregunta}, respuesta: {respuesta}")
+        
+        # Extraer el nombre de la enfermedad del código de la pregunta
+        nombre_enfermedad = codigo_pregunta.replace('sintoma_relacionado_', '')
+        print(f"[DEBUG] Enfermedad extraída: {nombre_enfermedad}")
+        
+        # Verificar si esta enfermedad fue realmente seleccionada por el usuario
+        enfermedades_seleccionadas = getattr(self, '_enfermedades_en_sesion', [])
+        
+        if nombre_enfermedad not in enfermedades_seleccionadas:
+            # Esta enfermedad no fue seleccionada, saltar a la siguiente
+            print(f"[DEBUG] Enfermedad {nombre_enfermedad} no fue seleccionada, saltando a siguiente")
+            return self._obtener_siguiente_enfermedad_a_evaluar(nombre_enfermedad)
+        
+        # Si el síntoma está relacionado con la enfermedad, ir al flujo específico
+        if respuesta in ["Si", "True", True]:
+            print(f"[DEBUG] Síntomas relacionados con {nombre_enfermedad} -> iniciando flujo específico")
+            siguiente_codigo = self._buscar_por_valor_exacto(FLUJO_PREGUNTAS.get(codigo_pregunta, {}), respuesta)
+            if not siguiente_codigo:
+                siguiente_codigo = FLUJO_PREGUNTAS.get(codigo_pregunta, {}).get("siguiente")
+            return siguiente_codigo
+        
+        # Si no está relacionado, determinar la siguiente enfermedad a evaluar
+        print(f"[DEBUG] Sin síntomas relacionados con {nombre_enfermedad} -> siguiente enfermedad")
+        return self._obtener_siguiente_enfermedad_a_evaluar(nombre_enfermedad)
+    
+    def _obtener_enfermedades_seleccionadas(self, respuesta):
+        """
+        Extrae las enfermedades crónicas seleccionadas (excluyendo cáncer).
+        Replica la lógica de _obtener_enfermedades_seleccionadas de views.py
+        """
+        # Mapeo de nombres de enfermedades a códigos de preguntas
+        mapeo_enfermedades = {
+            "Diabetes 1/2": "diabetes",
+            "Asma": "asma", 
+            "Accidente cerebrovascular (ACV)": "acv",
+            "Insuficiencia cardíaca": "insuficiencia_cardiaca",
+            "Fibromialgia": "fibromialgia",
+            "Hipertensión arterial": "hipertension",
+            "Enfermedad coronaria": "enfermedad_coronaria",
+            "Enfermedad pulmonar obstructiva crónica (EPOC)": "epoc"
+        }
+        
+        enfermedades_seleccionadas = []
+        if isinstance(respuesta, list):
+            for enfermedad in respuesta:
+                if enfermedad in mapeo_enfermedades:
+                    enfermedades_seleccionadas.append(mapeo_enfermedades[enfermedad])
+        elif isinstance(respuesta, str) and respuesta in mapeo_enfermedades:
+            enfermedades_seleccionadas.append(mapeo_enfermedades[respuesta])
+        
+        return enfermedades_seleccionadas
+    
+    def _obtener_primera_enfermedad_a_evaluar(self, enfermedades_seleccionadas):
+        """
+        Determina cuál es la primera enfermedad a evaluar basada en el orden de prioridad.
+        Replica la lógica de _obtener_primera_enfermedad_a_evaluar de views.py
+        """
+        if not enfermedades_seleccionadas:
+            return "antecedentes_alergias"
+        
+        # Orden de prioridad de evaluación
+        orden_evaluacion = [
+            "diabetes", "asma", "acv", "insuficiencia_cardiaca", 
+            "fibromialgia", "hipertension", "enfermedad_coronaria", "epoc"
+        ]
+        
+        for enfermedad in orden_evaluacion:
+            if enfermedad in enfermedades_seleccionadas:
+                return enfermedad  # Devolver solo el nombre de la enfermedad
+        
+        # Si no encuentra ninguna, ir a alergias
+        return "antecedentes_alergias"
+    
+    def _obtener_siguiente_enfermedad_a_evaluar(self, enfermedad_actual):
+        """
+        Determina cuál es la siguiente enfermedad a evaluar basada en las enfermedades 
+        seleccionadas originalmente y cuáles ya se han evaluado.
+        """
+        # Obtener las enfermedades originalmente seleccionadas
+        enfermedades_originales = getattr(self, '_enfermedades_en_sesion', [])
+        
+        # Obtener las enfermedades ya evaluadas (agregar la actual)
+        enfermedades_evaluadas = getattr(self, '_enfermedades_evaluadas', set())
+        enfermedades_evaluadas.add(enfermedad_actual)
+        self._enfermedades_evaluadas = enfermedades_evaluadas
+        
+        # Determinar cuáles faltan por evaluar
+        enfermedades_pendientes = [e for e in enfermedades_originales if e not in enfermedades_evaluadas]
+        
+        print(f"[DEBUG] Enfermedades pendientes: {enfermedades_pendientes}")
+        
+        if enfermedades_pendientes:
+            # Obtener la siguiente enfermedad según el orden de prioridad
+            siguiente_enfermedad = self._obtener_primera_enfermedad_a_evaluar(enfermedades_pendientes)
+            return f"sintoma_relacionado_{siguiente_enfermedad}"
+        
+        # Si no hay más enfermedades que evaluar, continuar con el flujo normal
+        # Solo finalizar si se completaron flujos específicos de síntomas relacionados
+        return "antecedentes_alergias"
+    
+    def _obtener_siguiente_enfermedad_a_evaluar_por_codigo(self, codigo_pregunta_actual):
+        """
+        Determina la siguiente enfermedad a evaluar basándose en el código de pregunta actual.
+        Utilizado cuando se encuentra "DINAMICO_SIGUIENTE_ENFERMEDAD" en FLUJO_PREGUNTAS.
+        """
+        # Determinar la enfermedad actual basada en el código de pregunta
+        enfermedad_actual = None
+        
+        # Mapeo de códigos de preguntas a enfermedades
+        if codigo_pregunta_actual.startswith('diabetes_'):
+            enfermedad_actual = 'diabetes'
+        elif codigo_pregunta_actual.startswith('asma_'):
+            enfermedad_actual = 'asma'
+        elif codigo_pregunta_actual.startswith('acv_'):
+            enfermedad_actual = 'acv'
+        elif codigo_pregunta_actual.startswith('ic_'):
+            enfermedad_actual = 'insuficiencia_cardiaca'
+        elif codigo_pregunta_actual.startswith('fm_'):
+            enfermedad_actual = 'fibromialgia'
+        elif codigo_pregunta_actual.startswith('hta_'):
+            enfermedad_actual = 'hipertension'
+        elif codigo_pregunta_actual.startswith('ec_'):
+            enfermedad_actual = 'enfermedad_coronaria'
+        elif codigo_pregunta_actual.startswith('epoc_'):
+            enfermedad_actual = 'epoc'
+        
+        if enfermedad_actual:
+            print(f"[DEBUG] Terminando flujo de {enfermedad_actual}, determinando siguiente enfermedad")
+            return self._obtener_siguiente_enfermedad_a_evaluar(enfermedad_actual)
+        
+        # Si no se puede determinar la enfermedad, continuar con flujo normal
+        print(f"[DEBUG] No se pudo determinar enfermedad para {codigo_pregunta_actual}, continuando con flujo normal")
+        return "antecedentes_alergias"
+    
+    def _se_completo_flujo_especifico(self):
+        """
+        Verifica si se completó al menos un flujo específico de enfermedad
+        en la sesión actual del test.
+        """
+        # Verificar si hay alguna enfermedad que haya sido evaluada con síntomas específicos
+        respuestas = Respuesta.objects.filter(sesion=self.sesion)
+        
+        # Verificar si hay respuestas a preguntas específicas de enfermedades
+        codigos_flujos_especificos = [
+            'diabetes_', 'asma_', 'acv_', 'ic_', 'fm_', 'hta_', 'ec_', 'epoc_'
+        ]
+        
+        for respuesta in respuestas:
+            codigo = respuesta.pregunta.codigo
+            # Si hay respuestas a preguntas específicas de enfermedades, se completó un flujo
+            if any(codigo.startswith(prefijo) for prefijo in codigos_flujos_especificos):
+                return True
+        
+        return False
         
     def mostrar_resultado_final(self):
         """Muestra el resultado final del triage"""
@@ -317,14 +533,48 @@ class TriageConsoleTest:
         
         # Mostrar resumen de respuestas
         print(f"\nResumen de respuestas:")
+        enfermedades_cronicas_respuesta = None
         for resp in respuestas:
             print(f"  • {resp.pregunta.codigo}: {resp.valor}")
+            if resp.pregunta.codigo == 'antecedentes_enfermedades_cronicas':
+                enfermedades_cronicas_respuesta = resp.valor
+        
+        # Mostrar información específica de enfermedades crónicas si aplica
+        if enfermedades_cronicas_respuesta and enfermedades_cronicas_respuesta != "Ninguna de las anteriores":
+            print(f"\n[ANÁLISIS DE ENFERMEDADES CRÓNICAS]")
+            if isinstance(enfermedades_cronicas_respuesta, list):
+                print(f"Enfermedades seleccionadas: {', '.join(enfermedades_cronicas_respuesta)}")
+                enfermedades_evaluadas = [resp.pregunta.codigo for resp in respuestas 
+                                        if resp.pregunta.codigo.startswith('sintoma_relacionado_')]
+                if enfermedades_evaluadas:
+                    print(f"Enfermedades evaluadas: {len(enfermedades_evaluadas)}")
+                    for codigo_pregunta in enfermedades_evaluadas:
+                        enfermedad = codigo_pregunta.replace('sintoma_relacionado_', '')
+                        respuesta_sintoma = next((r.valor for r in respuestas if r.pregunta.codigo == codigo_pregunta), "No encontrada")
+                        estado = "CON síntomas relacionados" if respuesta_sintoma == "Si" else "SIN síntomas relacionados"
+                        print(f"  - {enfermedad.upper()}: {estado}")
+            else:
+                print(f"Enfermedad seleccionada: {enfermedades_cronicas_respuesta}")
+        
+        print(f"\n[CLASIFICACIÓN FINAL]")
+        esi_descriptions = {
+            1: "EMERGENCIA - Atención inmediata",
+            2: "URGENCIA CRÍTICA - Atención en minutos",
+            3: "URGENCIA NO CRÍTICA - Atención en 30 min",
+            4: "CONSULTA PRIORITARIA - Atención en 1-2 horas", 
+            5: "CONSULTA EXTERNA - Atención rutinaria"
+        }
+        descripcion_esi = esi_descriptions.get(nivel_triage, "Nivel no definido")
+        print(f"ESI {nivel_triage}: {descripcion_esi}")
+        
+        return nivel_triage
             
     def calcular_nivel_triage(self, respuestas):
         """
         Determina el nivel ESI (Emergency Severity Index) basado en las respuestas
         de la sesión y las reglas definidas en REGLAS_ESI.
         Esta función replica la lógica de determinar_nivel_triage de las vistas reales.
+        Ahora incluye soporte para múltiples enfermedades crónicas.
         """
         # Convertir respuestas a un diccionario para fácil acceso
         respuestas_dict = {resp.pregunta.codigo: resp.valor for resp in respuestas}
@@ -332,11 +582,22 @@ class TriageConsoleTest:
         # Obtener contexto del paciente
         contexto_paciente = self._obtener_contexto_paciente(respuestas_dict)
         
+        niveles_esi_encontrados = []
+        
         # Evaluar cada regla ESI por orden de prioridad
         for regla in REGLAS_ESI:
             if self._evaluar_regla_esi(regla, respuestas_dict, contexto_paciente):
-                print(f"Regla ESI {regla['nivel_esi']} aplicada basada en las respuestas.")
-                return regla["nivel_esi"]
+                nivel_esi = regla["nivel_esi"]
+                niveles_esi_encontrados.append(nivel_esi)
+                print(f"[DEBUG] Regla ESI {nivel_esi} aplicada: {regla['condiciones']}")
+        
+        # Si se encontraron múltiples niveles ESI, seleccionar el más crítico (menor número)
+        if niveles_esi_encontrados:
+            nivel_final = min(niveles_esi_encontrados)
+            if len(niveles_esi_encontrados) > 1:
+                print(f"[INFO] Se encontraron múltiples niveles ESI: {sorted(set(niveles_esi_encontrados))}")
+                print(f"[INFO] Seleccionando el más crítico: ESI {nivel_final}")
+            return nivel_final
         
         # Si ninguna regla aplica, considerar factores adicionales
         # Adultos mayores sin síntomas específicos → ESI 3

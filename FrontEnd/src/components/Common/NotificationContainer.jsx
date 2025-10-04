@@ -23,7 +23,7 @@ const NotificationContainer = ({ notificaciones = [], onClose }) => {
   if (!notificaciones.length) return null;
 
   return (
-    <div className="fixed top-20 left-1/2 transform -translate-x-1/2 sm:left-auto sm:right-4 sm:transform-none sm:translate-x-0 z-40 w-full max-w-sm sm:max-w-md pointer-events-none px-4 sm:px-0">
+    <div className="fixed top-20 left-1/2 transform -translate-x-1/2 sm:left-auto sm:right-4 sm:transform-none sm:translate-x-0 z-[60] w-full max-w-sm sm:max-w-md pointer-events-none px-4 sm:px-0">
       <div className="space-y-2 pointer-events-auto w-full">
         {notificaciones.map((notif) => (
           <div

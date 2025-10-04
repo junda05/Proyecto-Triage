@@ -1,6 +1,26 @@
 import { useState, useCallback, useRef } from 'react';
 
 /**
+ * Configuración centralizada de duraciones para notificaciones
+ * Todos los tiempos están en milisegundos
+ */
+const DURACIONES_NOTIFICACION = {
+  // Duraciones por tipo
+  DEFAULT: 5000,      // 5 segundos - duración estándar
+  SUCCESS: 4000,      // 4 segundos - éxito se puede leer rápido
+  ERROR: 7000,        // 7 segundos - errores necesitan más tiempo
+  WARNING: 5000,      // 5 segundos - advertencias duración estándar
+  INFO: 4000,         // 4 segundos - información se puede leer rápido
+  
+  // Duraciones para casos específicos
+  REGISTRO_EXITOSO: 3000,  // 3 segundos - redirige automáticamente
+  LOGIN_EXITOSO: 2000,     // 2 segundos - redirige rápidamente
+  
+  // Configuración de detección de duplicados
+  VENTANA_DUPLICADOS: 5000, // 5 segundos para detectar duplicados
+};
+
+/**
  * Hook para gestión centralizada de notificaciones
  * 
  * Características:
@@ -9,6 +29,7 @@ import { useState, useCallback, useRef } from 'react';
  * - Funciones utilitarias para casos comunes
  * - Sistema de IDs únicos para control granular
  * - Cleanup automático para prevenir memory leaks
+ * - Duraciones centralizadas y configurables
  * 
  * @returns {Object} - API de notificaciones
  */
@@ -53,12 +74,27 @@ const useNotificaciones = () => {
    * @returns {string} - ID de la notificación creada
    */
   const agregarNotificacion = useCallback((notificacion) => {
+    // Verificar si ya existe una notificación similar reciente
+    const ahora = new Date();
+    const existeNotificacionReciente = notificaciones.some(notif => {
+      const tiempoTranscurrido = ahora - new Date(notif.fechaCreacion);
+      return notif.type === notificacion.type &&
+             notif.mensaje === notificacion.mensaje &&
+             notif.titulo === (notificacion.titulo || 'Información') &&
+             tiempoTranscurrido < DURACIONES_NOTIFICACION.VENTANA_DUPLICADOS;
+    });
+
+    if (existeNotificacionReciente) {
+      // console.log('Notificación duplicada evitada:', notificacion.mensaje);
+      return null; // No crear notificación duplicada
+    }
+
     const id = generarId();
     const nuevaNotificacion = {
       id,
       type: 'info',
       dismissible: true,
-      autoCloseMs: 5000, // 5 segundos por defecto
+      autoCloseMs: DURACIONES_NOTIFICACION.DEFAULT,
       ...notificacion,
       fechaCreacion: new Date()
     };
@@ -75,7 +111,7 @@ const useNotificaciones = () => {
     }
 
     return id;
-  }, [generarId, eliminarNotificacion]);
+  }, [generarId, eliminarNotificacion, notificaciones]);
 
   /**
    * Elimina todas las notificaciones
@@ -96,7 +132,7 @@ const useNotificaciones = () => {
       type: 'success',
       titulo: opciones.titulo || 'Éxito',
       mensaje,
-      autoCloseMs: 4000,
+      autoCloseMs: DURACIONES_NOTIFICACION.SUCCESS,
       ...opciones
     });
   }, [agregarNotificacion]);
@@ -106,7 +142,7 @@ const useNotificaciones = () => {
       type: 'error',
       titulo: opciones.titulo || 'Error',
       mensaje,
-      autoCloseMs: 7000, // Errores duran más
+      autoCloseMs: DURACIONES_NOTIFICACION.ERROR,
       ...opciones
     });
   }, [agregarNotificacion]);
@@ -116,7 +152,7 @@ const useNotificaciones = () => {
       type: 'warning',
       titulo: opciones.titulo || 'Advertencia',
       mensaje,
-      autoCloseMs: 5000,
+      autoCloseMs: DURACIONES_NOTIFICACION.WARNING,
       ...opciones
     });
   }, [agregarNotificacion]);
@@ -126,7 +162,7 @@ const useNotificaciones = () => {
       type: 'info',
       titulo: opciones.titulo || 'Información',
       mensaje,
-      autoCloseMs: 4000,
+      autoCloseMs: DURACIONES_NOTIFICACION.INFO,
       ...opciones
     });
   }, [agregarNotificacion]);
@@ -139,7 +175,7 @@ const useNotificaciones = () => {
       'Tu cuenta ha sido creada exitosamente. Redirigiendo al login...',
       {
         titulo: '¡Registro Completado!',
-        autoCloseMs: 3000,
+        autoCloseMs: DURACIONES_NOTIFICACION.REGISTRO_EXITOSO,
         ...opciones
       }
     );
@@ -150,7 +186,7 @@ const useNotificaciones = () => {
       `¡Bienvenido${nombreUsuario ? ` ${nombreUsuario}` : ''}! Accediendo al dashboard...`,
       {
         titulo: 'Sesión Iniciada',
-        autoCloseMs: 2000,
+        autoCloseMs: DURACIONES_NOTIFICACION.LOGIN_EXITOSO,
         ...opciones
       }
     );
@@ -159,6 +195,9 @@ const useNotificaciones = () => {
   return {
     // Estado
     notificaciones,
+    
+    // Configuración (por si se necesita acceso externo)
+    duraciones: DURACIONES_NOTIFICACION,
     
     // Operaciones principales
     agregarNotificacion,

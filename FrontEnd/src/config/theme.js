@@ -47,6 +47,50 @@ export const colors = {
   hover: {
     light: '#f3f4f6',
     dark: '#374151'
+  },
+
+  // Paleta de colores pasteles para gráficos
+  pastel: {
+    // Colores ESI pasteles (basados en los colores del Percentil 90)
+    esi: {
+      1: 'rgba(248, 113, 113, 0.8)',  // Red pastel
+      2: 'rgba(251, 146, 60, 0.8)',   // Orange pastel  
+      3: 'rgba(250, 204, 21, 0.8)',   // Yellow pastel
+      4: 'rgba(34, 197, 94, 0.8)',    // Green pastel
+      5: 'rgba(59, 130, 246, 0.8)'    // Blue pastel
+    },
+    // Colores para género pasteles
+    genero: {
+      'M': 'rgba(59, 130, 246, 0.8)',   // Blue pastel for Masculino
+      'F': 'rgba(236, 72, 153, 0.8)',   // Pink pastel for Femenino
+      'NA': 'rgba(16, 185, 129, 0.8)'   // Green pastel for No Aplica
+    },
+    // Colores para estados de atención (usando el mismo amarillo que ESI)
+    estados: {
+      'EN_ESPERA': 'rgba(250, 204, 21, 0.8)',   // Mismo amarillo que ESI 3
+      'EN_ATENCION': 'rgba(59, 130, 246, 0.8)', // blue-500 - En atención  
+      'ATENDIDO': 'rgba(34, 197, 94, 0.8)',     // green-500 - Atendido
+      'ABANDONO': 'rgba(239, 68, 68, 0.8)'      // red-500 - Abandono
+    },
+    // Bordes más intensos para mejor contraste
+    esiBorder: {
+      1: '#dc2626',  // Red border
+      2: '#ea580c',  // Orange border
+      3: '#eab308',  // Yellow border
+      4: '#16a34a',  // Green border
+      5: '#2563eb'   // Blue border
+    },
+    generoBorder: {
+      'M': '#2563eb',  // Blue border
+      'F': '#db2777',  // Pink border
+      'NA': '#059669'  // Green border
+    },
+    estadosBorder: {
+      'EN_ESPERA': '#fef08a',   // yellow-200 border (más suave)
+      'EN_ATENCION': '#dbeafe', // blue-200 border (más suave)
+      'ATENDIDO': '#bbf7d0',    // green-200 border (más suave)
+      'ABANDONO': '#fecaca'     // red-200 border (más suave)
+    }
   }
 };
 
@@ -107,6 +151,14 @@ export const getThemeColors = (isDark = false) => {
     textMuted: isDark ? colors.text.muted.dark : colors.text.muted.light,
     
     border: isDark ? colors.border.dark : colors.border.light,
-    hover: isDark ? colors.hover.dark : colors.hover.light
+    hover: isDark ? colors.hover.dark : colors.hover.light,
+    
+    // Colores pasteles disponibles
+    pastelESI: colors.pastel.esi,
+    pastelGenero: colors.pastel.genero,
+    pastelEstados: colors.pastel.estados,
+    pastelESIBorder: colors.pastel.esiBorder,
+    pastelGeneroBorder: colors.pastel.generoBorder,
+    pastelEstadosBorder: colors.pastel.estadosBorder
   };
 };

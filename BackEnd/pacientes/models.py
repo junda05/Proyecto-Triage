@@ -1,6 +1,6 @@
 from django.db import models
 from datetime import date
-from utils.choices import DOC_CHOICES, SEX_CHOICES, EPS_CHOICES, REGIMEN_EPS_CHOICES
+from utils.choices import DOC_CHOICES, SEX_CHOICES, EPS_CHOICES, REGIMEN_EPS_CHOICES, ESTADO_ATENCION_CHOICES
 
 # Entidad principal
 class Paciente(models.Model):
@@ -19,16 +19,21 @@ class Paciente(models.Model):
     tiene_seguro_medico = models.BooleanField(default=False)
     nombre_seguro_medico = models.CharField(max_length=100, blank=True, null=True)
     sintomas_iniciales = models.TextField()  # Este campo es obligatorio
+    estado = models.CharField(max_length=20, choices=ESTADO_ATENCION_CHOICES, default='EN_ESPERA')
     creado = models.DateTimeField(auto_now_add=True)
     
     # Indexar para realizar consulta más eficientes a la base de datos
     class Meta:
         verbose_name = 'Paciente'
         verbose_name_plural = 'Pacientes'
+        ordering = ['-creado']  # Default ordering by creation date (newest first)
         
         indexes = [
-            models.Index(fields=['primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido']),
-            models.Index(fields=['numero_documento']),
+            # Índices separados con longitud limitada para evitar exceder el límite de MySQL (3072 bytes)
+            # Con utf8mb4, cada carácter puede ocupar hasta 4 bytes
+            models.Index(fields=['primer_nombre'], name='pac_primer_nom_idx'),
+            models.Index(fields=['primer_apellido'], name='pac_primer_ape_idx'),
+            models.Index(fields=['numero_documento'], name='pac_num_doc_idx'),
         ]
 
     # Representación en cadena del modelo para el admin y tener una visualización clara de los pacientes
@@ -60,9 +65,12 @@ class ContactoEmergencia(models.Model):
     relacion_parentesco = models.CharField(max_length=100)
     
     class Meta:
+        ordering = ['-id']  # Default ordering to prevent pagination warnings
         indexes = [
-            models.Index(fields=['primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido']),
-            models.Index(fields=['telefono']),
+            # Índices separados con longitud limitada para evitar exceder el límite de MySQL
+            models.Index(fields=['primer_nombre'], name='cont_primer_nom_idx'),
+            models.Index(fields=['primer_apellido'], name='cont_primer_ape_idx'),
+            models.Index(fields=['telefono'], name='cont_telefono_idx'),
         ]
         
     def __str__(self):

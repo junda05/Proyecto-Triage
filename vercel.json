@@ -1,0 +1,33 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd FrontEnd && npm ci && PUBLIC_URL=/ npm run build",
+  "devCommand": "cd FrontEnd && npm start", 
+  "installCommand": "cd FrontEnd && npm ci",
+  "outputDirectory": "FrontEnd/build",
+  "rewrites": [
+    {
+      "source": "/patients/static/(.*)",
+      "destination": "/static/$1"
+    },
+    {
+      "source": "/staff/static/(.*)",
+      "destination": "/static/$1"
+    },
+    {
+      "source": "/admin/static/(.*)",
+      "destination": "/static/$1"
+    },
+    {
+      "source": "/triage/static/(.*)",
+      "destination": "/static/$1"
+    },
+    {
+      "source": "/welcome-screen/static/(.*)",
+      "destination": "/static/$1"
+    },
+    {
+      "source": "/((?!static|favicon.ico|manifest.json|robots.txt|logo192.png|Logo1.png).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

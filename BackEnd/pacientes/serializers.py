@@ -1,6 +1,14 @@
 from rest_framework import serializers
 from .models import Paciente, ContactoEmergencia
+from triage.models import SesionTriage
+from datetime import date
 import re
+
+class SesionTriageSerializer(serializers.ModelSerializer):
+    """Serializer básico para sesiones de triage"""
+    class Meta:
+        model = SesionTriage
+        fields = ['id', 'fecha_inicio', 'fecha_fin', 'nivel_triage', 'completado']
 
 class ContactoEmergenciaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -70,22 +78,30 @@ class ContactoEmergenciaSerializer(serializers.ModelSerializer):
                 data[field] = ' '.join(nombres)
                 nombre_completo.extend(nombres)
         
+        campos = {
+            'primer_nombre': data.get('primer_nombre', ''),
+            'segundo_nombre': data.get('segundo_nombre', ''),
+            'primer_apellido': data.get('primer_apellido', ''),
+            'segundo_apellido': data.get('segundo_apellido', ''),
+        }
+
+        for campo1, valor1 in campos.items():
+            for campo2, valor2 in campos.items():
+                if campo1 == campo2:
+                    continue  # No comparar el mismo campo consigo mismo
+                # Permitir que los dos apellidos sean iguales
+                if {campo1, campo2} == {'primer_apellido', 'segundo_apellido'}:
+                    continue
+                # Si son iguales y no están vacíos → error
+                if valor1 and valor2 and valor1 == valor2:
+                    raise serializers.ValidationError(
+                        f"Los campos '{campo1}' y '{campo2}' no pueden contener el mismo valor: '{valor1}'."
+                    )
+        
         # Validar que el nombre completo tenga al menos 3 palabras
         if len(nombre_completo) < 3:
             raise serializers.ValidationError(
                 "El nombre completo debe tener al menos 3 palabras entre nombres y apellidos."
-            )
-    
-        # Validar que los 4 nombres no sean iguales y mostrar detalles
-        from collections import Counter
-
-        contador_nombres = Counter(nombre_completo)
-        nombres_repetidos = [nombre for nombre, count in contador_nombres.items() if count > 1]
-
-        if len(nombres_repetidos) > 0:
-            total_repeticiones = sum(count - 1 for count in contador_nombres.values() if count > 1)
-            raise serializers.ValidationError(
-                f"No puede tener {total_repeticiones} nombre(s) repetido(s). Nombres duplicados: {', '.join(nombres_repetidos)}"
             )
             
         # validar numero prefijo_telefonico. Debe tener: + y al menos un numero
@@ -93,10 +109,10 @@ class ContactoEmergenciaSerializer(serializers.ModelSerializer):
             if not re.match(r'^\+\d+$', data['prefijo_telefonico']):
                 raise serializers.ValidationError({"prefijo_telefonico": "El prefijo telefónico debe comenzar con '+' y tener al menos un número."})
 
-        # Validar telefono. Debe tener al menos 7 números
+        # Validar telefono. Debe tener entre 7 y 10 dígitos
         if 'telefono' in data:
-            if not re.match(r'^\d{7,}$', data['telefono']):
-                raise serializers.ValidationError({"telefono": "El número de teléfono debe tener al menos 7 dígitos."})
+            if not re.match(r'^\d{7,10}$', data['telefono']):
+                raise serializers.ValidationError({"telefono": "El número de teléfono debe tener entre 7 y 10 dígitos."})
 
         # Validar que relacion_parentesco solo contenga texto
         if 'relacion_parentesco' in data:
@@ -117,6 +133,7 @@ class ContactoEmergenciaSerializer(serializers.ModelSerializer):
 class PacienteSerializer(serializers.ModelSerializer):
     contacto_emergencia = ContactoEmergenciaSerializer(required=True, write_only=True)
     edad = serializers.ReadOnlyField()  # Lee directamente la propiedad edad del modelo
+    sesiones_triage = SesionTriageSerializer(many=True, read_only=True)  # Agregar sesiones de triage
 
     class Meta:
         model = Paciente
@@ -236,31 +253,51 @@ class PacienteSerializer(serializers.ModelSerializer):
                 "El nombre completo debe tener al menos 3 palabras entre nombres y apellidos."
             )
     
-        # Validar que los 4 nombres no sean iguales y mostrar detalles
-        from collections import Counter
+        campos = {
+            'primer_nombre': data.get('primer_nombre', ''),
+            'segundo_nombre': data.get('segundo_nombre', ''),
+            'primer_apellido': data.get('primer_apellido', ''),
+            'segundo_apellido': data.get('segundo_apellido', ''),
+        }
 
-        contador_nombres = Counter(nombre_completo)
-        nombres_repetidos = [nombre for nombre, count in contador_nombres.items() if count > 1]
-
-        if len(nombres_repetidos) > 0:
-            total_repeticiones = sum(count - 1 for count in contador_nombres.values() if count > 1)
-            raise serializers.ValidationError(
-                f"No puede tener {total_repeticiones} nombre(s) repetido(s). Nombres duplicados: {', '.join(nombres_repetidos)}"
-            )
+        for campo1, valor1 in campos.items():
+            for campo2, valor2 in campos.items():
+                if campo1 == campo2:
+                    continue  # No comparar el mismo campo consigo mismo
+                # Permitir que los dos apellidos sean iguales
+                if {campo1, campo2} == {'primer_apellido', 'segundo_apellido'}:
+                    continue
+                # Si son iguales y no están vacíos → error
+                if valor1 and valor2 and valor1 == valor2:
+                    raise serializers.ValidationError(
+                        f"Los campos '{campo1}' y '{campo2}' no pueden contener el mismo valor: '{valor1}'."
+                    )
         
         # validar numero prefijo_telefonico. Debe tener: + y al menos un numero
         if 'prefijo_telefonico' in data:
             if not re.match(r'^\+\d+$', data['prefijo_telefonico']):
                 raise serializers.ValidationError({"prefijo_telefonico": "El prefijo telefónico debe comenzar con '+' y tener al menos un número."})
 
-        # Validar telefono. Debe tener al menos 7 números
+        # Validar telefono. Debe tener entre 7 y 10 dígitos
         if 'telefono' in data:
-            if not re.match(r'^\d{7,}$', data['telefono']):
-                raise serializers.ValidationError({"telefono": "El número de teléfono debe tener al menos 7 dígitos."})
+            if not re.match(r'^\d{7,10}$', data['telefono']):
+                raise serializers.ValidationError({"telefono": "El número de teléfono debe tener entre 7 y 10 dígitos."})
 
         # Si tiene seguro médico, validar el campo correspondiente
         if 'tiene_seguro_medico' in data and data['tiene_seguro_medico']:
             if 'nombre_seguro_medico' not in data or not data['nombre_seguro_medico']:
                 raise serializers.ValidationError({"nombre_seguro_medico": "Este campo es obligatorio si tiene seguro médico."})
+
+        # Validar fecha de nacimiento
+        if 'fecha_nacimiento' in data:
+            fecha_nacimiento = data['fecha_nacimiento']
+            hoy = date.today()
+            fecha_minima = date(1900, 1, 1)
+            
+            if fecha_nacimiento >= hoy:
+                raise serializers.ValidationError({"fecha_nacimiento": "La fecha de nacimiento debe ser anterior a hoy."})
+            
+            if fecha_nacimiento < fecha_minima:
+                raise serializers.ValidationError({"fecha_nacimiento": "La fecha de nacimiento no puede ser anterior al año 1900."})
 
         return data

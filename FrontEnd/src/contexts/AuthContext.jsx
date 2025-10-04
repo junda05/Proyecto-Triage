@@ -35,11 +35,14 @@ export const AuthProvider = ({ children }) => {
     // Escuchar eventos de sesión expirada
     const removeSessionListener = sessionManager.addSessionListener((evento) => {
       if (evento.type === 'SESSION_EXPIRED') {
-        console.log('Sesión expirada detectada, limpiando estado usuario...');
         setUsuario(null);
-        setErrorAuth('Sesión expirada');
+        setErrorAuth('Sesión expirada por inactividad');
+        setCargando(false);
       }
     });
+
+    // Configurar la URL de redirección para el sessionManager
+    sessionManager.setRedirectUrl('/staff/login');
 
     return () => {
       removeSessionListener();
@@ -134,8 +137,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await authService.logout();
       notificaciones.mostrarExito('Sesión cerrada exitosamente', {
-        titulo: 'Logout',
-        autoCloseMs: 2000
+        titulo: 'Sesión Cerrada'
       });
     } catch (error) {
       // Log del error pero no falló en el lado cliente
@@ -152,27 +154,20 @@ export const AuthProvider = ({ children }) => {
     try {
       const tokens = obtenerTokens();
       if (tokens?.user && tokens?.access) {
-        // VERIFICAR LA VALIDEZ DEL TOKEN CON EL SERVIDOR
         try {
-          // Intentar obtener datos del usuario para validar que el token es válido
           const datosCompletos = await authService.actualizarDatosUsuario();
           setUsuario(datosCompletos);
         } catch (error) {
-          console.warn('Token inválido o expirado durante inicialización:', error);
-          
-          // Si es 401, probablemente token expirado - usar sessionManager
           if (error.response?.status === 401) {
-            sessionManager.handleRefreshTokenExpired(error);
+            // El interceptor automáticamente intentará renovar el token
+            // Si falla, sessionManager se encarga del cleanup
           } else {
-            // Otros errores, limpiar sesión silenciosamente
             limpiarTokens();
             setUsuario(null);
           }
         }
       }
     } catch (error) {
-      console.error('Error al cargar sesión inicial:', error);
-      // En caso de error, limpiar tokens corruptos
       sessionManager.handleInvalidToken(error);
     } finally {
       setInicializando(false);

@@ -55,3 +55,10 @@ EPS_CHOICES = [
     ('NO_AFILIADO', 'NO AFILIADO'),
 ]
 
+ESTADO_ATENCION_CHOICES = [
+    ('EN_ESPERA', 'En espera'),
+    ('EN_ATENCION', 'En atención'),
+    ('ATENDIDO', 'Atendido'),
+    ('ABANDONO', 'Abandono'),
+]
+

@@ -2,13 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const Dropdown = ({ 
   id,
-  value,
+  value = '', // Provide default empty string to ensure controlled input
   onChange,
   options,
   placeholder = "Seleccionar...",
   label,
+  error,
   className = '',
-  disabled = false
+  disabled = false,
+  required = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -28,7 +30,13 @@ const Dropdown = ({
   }, []);
 
   const handleOptionSelect = (optionValue) => {
-    onChange({ target: { value: optionValue } });
+    // Crear un evento sintético para mantener compatibilidad
+    const syntheticEvent = {
+      target: { value: optionValue }
+    };
+    
+    // Llamar onChange con el evento sintético
+    onChange(syntheticEvent);
     setIsOpen(false);
   };
 
@@ -43,6 +51,7 @@ const Dropdown = ({
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
           {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
       
@@ -52,12 +61,15 @@ const Dropdown = ({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={`
-          w-full px-4 py-2.5 text-left border border-gray-300 dark:border-gray-600 
-          rounded-lg bg-white dark:bg-gray-700 
-          text-gray-900 dark:text-white text-[0.9rem]
-          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-          dark:focus:ring-blue-400 dark:focus:border-blue-400
-          outline-none transition-colors duration-200
+          w-full px-4 py-3 text-left border rounded-xl 
+          focus:ring-2 focus:outline-none 
+          transition-colors duration-200 
+          bg-white dark:bg-gray-700 
+          text-gray-900 dark:text-white
+          ${error 
+            ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' 
+            : 'border-gray-300 dark:border-gray-600 focus:ring-[#0451BC] focus:border-[#0451BC]'
+          }
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-gray-400 dark:hover:border-gray-500'}
           ${className}
         `}
@@ -76,25 +88,28 @@ const Dropdown = ({
       </button>
 
       {isOpen && !disabled && (
-        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl shadow-lg max-h-60 overflow-auto">
           {options.map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => handleOptionSelect(option.value)}
               className={`
-                w-full text-left px-4 py-2.5 text-[0.9rem] transition-colors duration-150
+                w-full text-left px-4 py-3 transition-colors duration-150
                 ${value === option.value 
-                  ? 'bg-blue-500 text-white' 
+                  ? 'bg-[#0451BC] text-white' 
                   : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600'
                 }
-                first:rounded-t-lg last:rounded-b-lg
+                first:rounded-t-xl last:rounded-b-xl
               `}
             >
               {option.label}
             </button>
           ))}
         </div>
+      )}
+      {error && (
+        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
       )}
     </div>
   );

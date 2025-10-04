@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SesionTriage, Pregunta, Respuesta, ReglaFlujo
+from .models import SesionTriage, Pregunta, Respuesta
 
 # Configuración del admin para SesionTriage
 @admin.register(SesionTriage)
@@ -24,10 +24,10 @@ class SesionTriageAdmin(admin.ModelAdmin):
 # Configuración del admin para Pregunta
 @admin.register(Pregunta)
 class PreguntaAdmin(admin.ModelAdmin):
-    list_display = ('codigo', 'texto', 'tipo', 'orden')
+    list_display = ('codigo', 'texto', 'tipo')
     list_filter = ('tipo',)
     search_fields = ('codigo', 'texto')
-    ordering = ('orden', 'codigo')
+    ordering = ('codigo',)
     
     fieldsets = (
         ('Información Básica', {
@@ -35,13 +35,11 @@ class PreguntaAdmin(admin.ModelAdmin):
                 'codigo',
                 'texto',
                 'tipo',
-                'orden'
             )
         }),
         ('Configuración Avanzada', {
             'fields': (
                 'opciones',
-                'unidad'
             ),
             'classes': ('collapse',)
         })
@@ -78,27 +76,4 @@ class RespuestaAdmin(admin.ModelAdmin):
                 'timestamp'
             )
         }),
-    )
-
-# Configuración del admin para ReglaFlujo
-@admin.register(ReglaFlujo)
-class ReglaFlujoAdmin(admin.ModelAdmin):
-    list_display = ('pregunta_origen', 'pregunta_destino', 'prioridad', 'nivel_triage')
-    list_filter = ('nivel_triage', 'prioridad')
-    search_fields = ('pregunta_origen__codigo', 'pregunta_destino__codigo')
-    ordering = ('pregunta_origen', '-prioridad')
-    
-    fieldsets = (
-        ('Flujo de Preguntas', {
-            'fields': (
-                'pregunta_origen',
-                'pregunta_destino',
-                'condicion',
-                'prioridad'
-            )
-        }),
-        ('Resultado de Triage', {
-            'fields': ('nivel_triage',),
-            'classes': ('collapse',)
-        })
     )

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTheme } from '../../hooks/useTheme';
 import { SunIcon, MoonIcon } from '../icons/Icons';
-import Logo from '../../assets/Logo1.png';
 
 const Header = () => {
   const { isDarkMode, toggleTheme } = useTheme();
@@ -10,7 +9,7 @@ const Header = () => {
     <header className="bg-white dark:bg-gray-800 shadow-sm py-4 px-6 flex justify-between items-center transition-colors duration-300">
       <div className="flex items-center">
         <img 
-          src={Logo} 
+          src={process.env.PUBLIC_URL + '/Logo1.png'} 
           alt="Logo Sistema Pre-Triaje" 
           className="h-10 w-auto object-contain mr-2"
         />

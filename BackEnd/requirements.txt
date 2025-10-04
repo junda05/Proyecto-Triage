@@ -1,0 +1,48 @@
+# Django Backend Requirements
+# Generated for Proyecto-Triage Backend
+# Python version: 3.13
+
+# Core Django Framework
+Django==5.2.6
+asgiref==3.9.1
+sqlparse==0.5.3
+tzdata==2025.2
+
+# Django REST Framework and JWT Authentication
+djangorestframework==3.16.1
+djangorestframework_simplejwt==5.5.1
+PyJWT==2.10.1
+
+# Django Extensions
+django-cors-headers==4.7.0
+django-filter==25.1
+
+# Database Support
+psycopg2-binary==2.9.10
+mysql-connector-python==9.4.0
+mysqlclient==2.2.7
+dj-database-url==3.0.1
+
+# Configuration Management
+python-decouple==3.8
+python-dotenv==1.1.1
+
+# Static Files Serving
+whitenoise==6.11.0
+Brotli==1.1.0
+
+# ASGI Server and Dependencies
+gunicorn==23.0.0
+uvicorn==0.36.0
+h11==0.16.0
+
+# Additional Dependencies
+click==8.3.0
+colorama==0.4.6
+packaging==25.0
+numpy==2.3.3
+
+# Development Dependencies (optional)
+# Uncomment if needed for development
+# django-debug-toolbar==4.2.0
+# coverage==7.3.2

@@ -1,7 +1,8 @@
 import React from 'react';
 
-const StatusBadge = ({ status }) => {
+const StatusBadge = ({ status, variant }) => {
   const statusConfig = {
+    // Estados de pacientes
     'En espera': {
       color: 'bg-yellow-100 font-semibold text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
       text: 'En espera'
@@ -13,13 +14,47 @@ const StatusBadge = ({ status }) => {
     'Atendido': {
       color: 'bg-green-100 font-semibold text-green-800 dark:bg-green-900 dark:text-green-300',
       text: 'Atendido'
+    },
+    'Abandono': {
+      color: 'bg-red-100 font-semibold text-red-800 dark:bg-red-900 dark:text-red-300',
+      text: 'Abandono'
+    },
+    // Estados de usuarios
+    'Activo': {
+      color: 'bg-green-100 font-semibold text-green-800 dark:bg-green-900 dark:text-green-300',
+      text: 'Activo'
+    },
+    'Inactivo': {
+      color: 'bg-red-100 font-semibold text-red-800 dark:bg-red-900 dark:text-red-300',
+      text: 'Inactivo'
     }
   };
 
-  const config = statusConfig[status] || {
-    color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
-    text: status
+  // Usar variant si se proporciona para casos especiales
+  const variantConfig = {
+    'success': {
+      color: 'bg-green-100 font-semibold text-green-800 dark:bg-green-900 dark:text-green-300',
+      text: status
+    },
+    'warning': {
+      color: 'bg-yellow-100 font-semibold text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+      text: status
+    },
+    'error': {
+      color: 'bg-red-100 font-semibold text-red-800 dark:bg-red-900 dark:text-red-300',
+      text: status
+    }
   };
+
+  let config;
+  if (variant && variantConfig[variant]) {
+    config = variantConfig[variant];
+  } else {
+    config = statusConfig[status] || {
+      color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
+      text: status
+    };
+  }
 
   return (
     <span className={`

@@ -12,6 +12,9 @@ class SesionTriage(models.Model):
     nivel_triage = models.IntegerField(null=True, blank=True)  # Nivel ESI final (1-5)
     completado = models.BooleanField(default=False)
     
+    class Meta:
+        ordering = ['-fecha_inicio']  # Default ordering to prevent pagination warnings
+    
     def __str__(self):
         return f"Triage {self.id} - Paciente: {self.paciente.primer_nombre} {self.paciente.primer_apellido}"
 
@@ -30,8 +33,9 @@ class Pregunta(models.Model):
     texto = models.TextField()
     tipo = models.CharField(max_length=20, choices=TIPOS_PREGUNTA)
     opciones = models.JSONField(null=True, blank=True)  # Para preguntas de selección o escala
-    unidad = models.CharField(max_length=20, null=True, blank=True)  # Para valores numéricos
-    orden = models.IntegerField(default=0)  # Para ordenar preguntas
+    
+    class Meta:
+        ordering = ['codigo']  # Default ordering to prevent pagination warnings
     
     def __str__(self):
         return f"{self.codigo}: {self.texto}"
@@ -52,17 +56,3 @@ class Respuesta(models.Model):
     
     def __str__(self):
         return f"Respuesta a {self.pregunta.codigo} en sesión {self.sesion.id}"
-
-class ReglaFlujo(models.Model):
-    """Modelo para definir reglas de navegación en el flujo del triage."""
-    pregunta_origen = models.ForeignKey(Pregunta, on_delete=models.CASCADE, related_name='reglas_origen')
-    condicion = models.JSONField()  # Condición que debe cumplirse (ej: {"tipo": "igual", "valor": "Sí"})
-    pregunta_destino = models.ForeignKey(Pregunta, on_delete=models.CASCADE, related_name='reglas_destino')
-    prioridad = models.IntegerField(default=0)  # Para ordenar múltiples reglas posibles
-    nivel_triage = models.IntegerField(null=True, blank=True)  # Si esta regla determina un nivel de triage final
-    
-    class Meta:
-        ordering = ['pregunta_origen', '-prioridad']
-    
-    def __str__(self):
-        return f"Regla: {self.pregunta_origen.codigo} → {self.pregunta_destino.codigo}"

@@ -14,7 +14,7 @@ import axios from 'axios';
 import { obtenerAccessToken, obtenerRefreshToken, guardarTokens, limpiarTokens } from '../services/utils/tokenStorage';
 import sessionManager from '../services/utils/sessionManager';
 
-const API_BASE = 'http://localhost:8001/api/v1';
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 // Configuración de timeouts centralizada
 const TIMEOUT_CONFIG = {
@@ -56,6 +56,7 @@ const configurarInterceptores = (cliente) => {
       if (error.response && error.response.status === 401 && !original._retry) {
         original._retry = true;
         const refresh = obtenerRefreshToken();
+        
         if (!refresh) {
           limpiarTokens();
           return Promise.reject(error);
@@ -66,6 +67,7 @@ const configurarInterceptores = (cliente) => {
           if (!solicitudRefreshEnCurso) {
             solicitudRefreshEnCurso = axios.post(`${API_BASE}/auth/refresh-access`, { refresh });
           }
+          
           const { data } = await solicitudRefreshEnCurso;
           solicitudRefreshEnCurso = null;
 
@@ -79,17 +81,14 @@ const configurarInterceptores = (cliente) => {
         } catch (e) {
           solicitudRefreshEnCurso = null;
           
-          // MANEJAR REFRESH TOKEN EXPIRADO
-          console.error('Error al refrescar token:', e.response?.status, e.message);
-          
           if (e.response?.status === 401) {
-            // Refresh token expirado o inválido
             sessionManager.handleRefreshTokenExpired(e);
           } else {
-            // Otro tipo de error (red, servidor, etc.)
             limpiarTokens();
             sessionManager.handleInvalidToken(e);
           }
+          
+          return Promise.reject(e);
         }
       }
 

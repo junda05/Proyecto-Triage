@@ -4,6 +4,15 @@
  */
 import { limpiarTokens } from './tokenStorage';
 
+/**
+ * Duraciones de notificación importadas del hook centralizado
+ * Para mantener consistencia con el sistema de notificaciones
+ */
+const DURACIONES_NOTIFICACION = {
+  WARNING: 5000,     // Para sesiones expiradas
+  ERROR: 7000,       // Para tokens inválidos
+};
+
 class SessionManager {
   constructor() {
     this.listeners = new Set();
@@ -46,59 +55,46 @@ class SessionManager {
    * INCLUYE DEBOUNCE para evitar múltiples ejecuciones
    */
   handleRefreshTokenExpired(error) {
-    // Evitar múltiples ejecuciones con debounce
     if (this.sessionExpiredHandled) {
-      console.log('Session expired ya está siendo manejada, ignorando...');
       return;
     }
     
     this.sessionExpiredHandled = true;
-    console.warn('Refresh token expirado, cerrando sesión:', error?.message);
     
-    // 1. Limpiar tokens inmediatamente
     limpiarTokens();
-    
-    // 2. Notificar a todos los listeners (AuthContext, etc.)
     this.notifySessionExpired();
     
-    // 3. Mostrar notificación al usuario
-    // 
     if (this.notificationCallback) {
       this.notificationCallback({
         type: 'warning',
         titulo: 'Sesión Expirada',
-        mensaje: 'Tu sesión anterior ha expirado por seguridad. Por favor, inicia sesión nuevamente.',
-        autoCloseMs: 8000
+        mensaje: 'Tu sesión ha expirado por seguridad. Inicia sesión nuevamente.',
+        autoCloseMs: DURACIONES_NOTIFICACION.WARNING
       });
     }
     
-    // 4. Redirigir al login con delay
     if (this.redirectTimeout) {
       clearTimeout(this.redirectTimeout);
     }
     
     this.redirectTimeout = setTimeout(() => {
       this.redirectTo(this.redirectUrl, {
-        mensaje: 'Sesión expirada',
+        mensaje: 'Sesión expirada por inactividad',
         tipo: 'session_expired'
       });
-      // Reset del flag después de la redirección
       this.sessionExpiredHandled = false;
-    }, 2000);
+    }, 2500);
   }
 
   /**
    * Maneja errores de tokens inválidos o corruptos
    */
   handleInvalidToken(error) {
-    // Evitar múltiples ejecuciones
     if (this.sessionExpiredHandled) {
-      console.log('Invalid token ya está siendo manejado, ignorando...');
       return;
     }
     
     this.sessionExpiredHandled = true;
-    console.warn('Token inválido detectado:', error?.message);
     
     limpiarTokens();
     this.notifySessionExpired();
@@ -108,7 +104,7 @@ class SessionManager {
         type: 'error',
         titulo: 'Token Inválido',
         mensaje: 'Se detectó un problema con tu sesión. Redirigiendo al login...',
-        autoCloseMs: 4000
+        autoCloseMs: DURACIONES_NOTIFICACION.ERROR
       });
     }
     
