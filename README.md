@@ -1,4 +1,4 @@
-# Sistema de Triage Médico
+# Sistema de Pre-triage Digital para el servicio de Urgencias la de la Clínica FOSCAL
 
 Un sistema integral de clasificación médica basado en el Emergency Severity Index (ESI) para optimizar la atención en servicios de urgencias hospitalarias.
 
